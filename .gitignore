@@ -13,3 +13,7 @@ key.json
 .env
 newrelic_agent.log
 .DS_Store
+
+# nuxt server creates these directories sometimes
+.nuxt
+.output

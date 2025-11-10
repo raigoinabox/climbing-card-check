@@ -1,7 +1,4 @@
 module.exports = {
-	'globals': {
-		'Vue': true,
-	},
 	'env': {
 		'browser': true,
 		'es2021': true,
@@ -31,5 +28,6 @@ module.exports = {
 		'semi': ['error', 'always'],
 		'space-before-blocks': ['error', 'always'],
 		'space-before-function-paren': ['error', { 'anonymous': 'always', 'named': 'ignore', 'asyncArrow': 'always' }],
-	}
+	},
+	ignorePatterns: ["dist"]
 };

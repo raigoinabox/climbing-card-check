@@ -6,22 +6,27 @@
   "scripts": {
     "start": "vercel dev",
     "lint": "eslint .",
-    "test": "node --test"
+    "test": "node --test",
+
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "format": "prettier --write pages"
   },
   "keywords": [],
   "author": "Estonian Climbing Association",
   "license": "GPL-3.0-only",
-  "engines": {
-    "node": "22.x"
-  },
   "dependencies": {
     "googleapis": "^100.0.0",
     "jsonwebtoken": "^9.0.2",
-    "nodemailer": "^7.0.6"
+    "nodemailer": "^7.0.6",
+    "nuxt": "^4.2.1"
   },
   "devDependencies": {
     "eslint": "^8.18.0",
     "eslint-plugin-vue": "^9.1.1",
-    "vercel": "^24.2.3"
+    "prettier": "^3.6.2",
+    "vercel": "^48.9.0"
   }
 }
