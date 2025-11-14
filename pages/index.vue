@@ -1,114 +1,113 @@
-<script lang="ts">
-export default {
-  data: () => ({
-    currentClimber: null,
-    idCode: "",
-    isLoading: false,
-    showMobileInstructions: false,
-  }),
-  computed: {
-    isSubmitDisabled() {
-      return !this.idCode || this.idCode.length !== 11;
-    },
-    resultCardHeaderContent() {
-      if (!this.currentClimber) return null;
-      switch (this.currentClimber.certificate) {
-        case "green":
-          return "ROHELINE KAART";
-        case "red":
-          return "PUNANE KAART";
-        default:
-          return null;
-      }
-    },
-    certificateDescription() {
-      if (!this.currentClimber) return null;
-      switch (this.currentClimber.certificate) {
-        case "green":
-          return "Sellel isikul on õigus iseseisvalt ülaltjulgestuses ronida ja julgestada.";
-        case "red":
-          return "Sellel isikul on õigus iseseisvalt altjulgestuses ronida ja julgestada.";
-        case "expired":
-          return "Selle isiku julgestajakaart on aegnud. Tal ei ole õigust iseseisvalt ronida enne kaardi uuendamist.";
-        default:
-          return "Seda isikukoodi ei ole registrisse lisatud. Tal ei ole õigust iseseisvalt ronida.";
-      }
-    },
-    showNoInfo() {
-      return !this.currentClimber;
-    },
-    isClimberCertified() {
-      return (
-        this.currentClimber &&
-        ["green", "red"].includes(this.currentClimber.certificate)
-      );
-    },
-    noAccessReason() {
-      if (this.currentClimber?.certificate === "expired")
-        return "Selle isiku julgestajakaart on aegnud.";
-      return "Seda isikukoodi ei ole registrisse lisatud.";
-    },
-  },
-  methods: {
-    fetchClimberData: function (id) {
-      return fetch(`/api/check?id=${id}`)
-        .then((response) => {
-          console.log(response);
-          if (!response.ok) {
-            throw new Error("Request error: " + response.statusText);
-          }
-          return response.json();
-        })
-        .then((response) => {
-          if (!response) {
-            return null;
-          }
-          if (response.success) {
-            return this.formatClimberData(response);
-          }
-          return {
-            id,
-            certificate: "none",
-          };
-        });
-    },
-    submit: function () {
-      if (!this.idCode) return;
-      this.isLoading = true;
-      this.fetchClimberData(this.idCode)
-        .then((data) => {
-          this.currentClimber = data;
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
-    },
-    goBack: function () {
-      this.currentClimber = null;
-      this.showMobileInstructions = false;
-    },
-    formatClimberData: function (raw) {
-      let result = raw;
-      result.formattedExamTime = result.examTime?.replaceAll("-", "/") || "N/A";
-      result.certificate = this.invalidateCertificateIfExpired(result);
-      return result;
-    },
-    toggleMobileInstructions: function () {
-      this.showMobileInstructions = !this.showMobileInstructions;
-    },
-    invalidateCertificateIfExpired: function (climberData) {
-      if (Date.parse(climberData.expiryTime) < Date.now()) {
-        // If expiry time is in the past and there's no exam time it means that
-        // the record was never updated from application to the real certificate
-        // it that case we will rather show "no certificate" than "expired"
-        if (!climberData.examTime) {
-          return "none";
-        }
-        return "expired";
-      }
-      return climberData.certificate;
-    },
-  },
+<script setup lang="ts">
+interface Climber {
+  id: string;
+  name: string;
+  certificate: string;
+  examTime: string;
+  formattedExamTime: string;
+  expiryTime: string;
+  examiner: string;
+}
+
+const currentClimber = ref<
+  { id: string; certificate: "none" } | Climber | null
+>(null);
+const idCode = ref("");
+const isLoading = ref(false);
+const showMobileInstructions = ref(false);
+
+const isSubmitDisabled = computed(() => {
+  return !idCode.value || idCode.value.length !== 11;
+});
+const resultCardHeaderContent = computed(() => {
+  if (!currentClimber.value) return null;
+  switch (currentClimber.value.certificate) {
+    case "green":
+      return "ROHELINE KAART";
+    case "red":
+      return "PUNANE KAART";
+    default:
+      return null;
+  }
+});
+const certificateDescription = computed(() => {
+  if (!currentClimber.value) return null;
+  switch (currentClimber.value.certificate) {
+    case "green":
+      return "Sellel isikul on õigus iseseisvalt ülaltjulgestuses ronida ja julgestada.";
+    case "red":
+      return "Sellel isikul on õigus iseseisvalt altjulgestuses ronida ja julgestada.";
+    case "expired":
+      return "Selle isiku julgestajakaart on aegnud. Tal ei ole õigust iseseisvalt ronida enne kaardi uuendamist.";
+    default:
+      return "Seda isikukoodi ei ole registrisse lisatud. Tal ei ole õigust iseseisvalt ronida.";
+  }
+});
+
+function isClimberCertified(
+  climber: { id: string; certificate: "none" } | Climber | null,
+): climber is Climber {
+  return climber != null && ["green", "red"].includes(climber.certificate);
+}
+
+const noAccessReason = computed(() => {
+  if (currentClimber.value?.certificate === "expired")
+    return "Selle isiku julgestajakaart on aegnud.";
+  return "Seda isikukoodi ei ole registrisse lisatud.";
+});
+
+const fetchClimberData = async (id: string) => {
+  const response = await fetch(`/api/check?id=${id}`);
+  if (!response.ok) {
+    throw new Error("Request error: " + response.statusText);
+  }
+  const body = await response.json();
+  if (!body) {
+    return null;
+  }
+  if (body.success) {
+    return formatClimberData(body);
+  }
+  return {
+    id,
+    certificate: "none",
+  } as const;
+};
+const submit = () => {
+  if (!idCode.value) return;
+  isLoading.value = true;
+  fetchClimberData(idCode.value)
+    .then((data) => {
+      currentClimber.value = data;
+    })
+    .finally(() => {
+      isLoading.value = false;
+    });
+};
+const goBack = () => {
+  currentClimber.value = null;
+  showMobileInstructions.value = false;
+};
+const formatClimberData = (raw: Climber) => {
+  let result = raw;
+  result.formattedExamTime = result.examTime?.replaceAll("-", "/") || "N/A";
+  result.certificate = invalidateCertificateIfExpired(result);
+  return result;
+};
+const toggleMobileInstructions = () => {
+  showMobileInstructions.value = !showMobileInstructions.value;
+};
+const invalidateCertificateIfExpired = (climberData: Climber) => {
+  if (Date.parse(climberData.expiryTime) < Date.now()) {
+    // If expiry time is in the past and there's no exam time it means that
+    // the record was never updated from application to the real certificate
+    // it that case we will rather show "no certificate" than "expired"
+    if (!climberData.examTime) {
+      return "none";
+    }
+    return "expired";
+  }
+  return climberData.certificate;
 };
 </script>
 
@@ -152,7 +151,7 @@ export default {
 
   <div id="right" class="desktop">
     <div class="centered-content">
-      <template v-if="isClimberCertified">
+      <template v-if="isClimberCertified(currentClimber)">
         <div id="result">
           <div :class="currentClimber.certificate + ' header'">
             {{ resultCardHeaderContent }}
@@ -266,7 +265,7 @@ export default {
       <div @click="goBack" class="back-button">
         <img src="/assets/chevron-left.svg" />Tagasi
       </div>
-      <template v-if="isClimberCertified">
+      <template v-if="isClimberCertified(currentClimber)">
         <div id="result">
           <div :class="currentClimber.certificate + ' header'">
             {{ resultCardHeaderContent }}

@@ -13,3 +13,4 @@ test
 tsconfig.json
 vercel.json
 .eslintrc.cjs
+lint.yml

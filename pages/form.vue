@@ -1,105 +1,99 @@
-<script lang="ts">
-export default {
-  data: () => ({
+<script setup lang="ts">
     // Authentication state
-    isAuthenticated: false,
-    authCredentials: null,
-    loginData: {
+    const isAuthenticated = ref(false);
+    const loginData = ref({
       username: "",
       password: "",
-    },
-    loginError: "",
-    isLoggingIn: false,
+    })
+    const authCredentials = ref<typeof loginData | null>(null);
+    const loginError = ref("");
+    const isLoggingIn = ref(false)
 
     // Form data
-    formData: {
+    const formData = ref({
       idCode: "",
       name: "",
       email: "",
       cardType: "",
       examDate: new Date().toISOString().split("T")[0],
       comment: "",
-    },
-    submitted: false,
-    submittedData: null,
-    isLoading: false,
-    showMobileInstructions: false,
-  }),
-  computed: {
-    isLoginDisabled() {
-      return (
-        !this.loginData.username || !this.loginData.password || this.isLoggingIn
-      );
-    },
-    isSubmitDisabled() {
-      return (
-        !this.formData.idCode ||
-        this.formData.idCode.length !== 11 ||
-        !this.formData.name ||
-        !this.formData.email ||
-        !this.formData.cardType ||
-        !this.formData.examDate ||
-        !this.isValidEmail(this.formData.email) ||
-        this.isLoading
-      );
-    },
-  },
-  methods: {
-    login: function () {
-      if (this.isLoginDisabled) return;
+    })
+    const submittedData = ref<typeof formData | null>(null)
+    const isLoading = ref(false);
+    const showMobileInstructions = ref(false);
 
-      this.isLoggingIn = true;
-      this.loginError = "";
+    const isLoginDisabled = computed(() => {
+      return (
+        !loginData.value.username || !loginData.value.password || isLoggingIn.value
+      );
+    })
+    const isSubmitDisabled = computed(() => {
+      return (
+        !formData.value.idCode ||
+        formData.value.idCode.length !== 11 ||
+        !formData.value.name ||
+        !formData.value.email ||
+        !formData.value.cardType ||
+        !formData.value.examDate ||
+        !isValidEmail(formData.value.email) ||
+        isLoading.value
+      );
+    })
+
+    const login = () => {
+      if (isLoginDisabled.value) return;
+
+      isLoggingIn.value = true;
+      loginError.value = "";
 
       fetch("/api/auth", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(this.loginData),
+        body: JSON.stringify(loginData.value),
       })
         .then(async (response) => ({ response, body: await response.json() }))
         .then(({ response, body }) => {
           if (body.success) {
-            this.isAuthenticated = true;
-            this.authCredentials = { ...this.loginData };
-            this.loginData = { username: "", password: "" };
-            this.$nextTick(() => {
+            isAuthenticated.value = true;
+            authCredentials.value = { ...loginData.value };
+            loginData.value = { username: "", password: "" };
+            nextTick(() => {
               document.getElementById("idCode")?.focus();
             });
           } else {
-            this.loginError =
+            loginError.value =
               response.status === 401 || !body.error
                 ? "Vale kasutajanimi või parool"
                 : body.error;
           }
         })
         .catch(() => {
-          this.loginError = "Sisselogimine ebaõnnestus";
+          loginError.value = "Sisselogimine ebaõnnestus";
         })
         .finally(() => {
-          this.isLoggingIn = false;
+          isLoggingIn.value = false;
         });
-    },
-    logout: function () {
-      this.isAuthenticated = false;
-      this.authCredentials = null;
-      this.submitted = false;
-      this.submittedData = null;
-      this.resetForm();
-    },
-    isValidEmail(email: string) {
+    }
+    const logout = () => {
+      isAuthenticated.value = false;
+      authCredentials.value = null;
+      submittedData.value = null;
+      resetForm();
+    }
+    const isValidEmail = (email: string) => {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return emailRegex.test(email);
-    },
-    submit: function () {
-      if (this.isSubmitDisabled) return;
+    }
+    const submit = () => {
+      if (isSubmitDisabled.value) return;
 
-      this.isLoading = true;
+      isLoading.value = true;
 
       const payload = {
-        ...this.formData,
-        ...this.authCredentials,
+        ...formData.value,
+        ...authCredentials.value,
       };
 
       fetch("/api/add-climber", {
@@ -112,10 +106,9 @@ export default {
         .then((response) => response.json())
         .then((data) => {
           if (data.success) {
-            this.submittedData = { ...this.formData };
-            this.submitted = true;
-            this.resetForm();
-            this.$nextTick(() => {
+            submittedData.value = { ...formData.value };
+            resetForm();
+            nextTick(() => {
               document.getElementById("idCode")?.focus();
             });
           } else {
@@ -126,22 +119,20 @@ export default {
           alert("Viga andmete lisamisel");
         })
         .finally(() => {
-          this.isLoading = false;
+          isLoading.value = false;
         });
-    },
-    goBack: function () {
-      this.submitted = false;
-      this.submittedData = null;
-      this.showMobileInstructions = false;
-      this.resetForm();
-    },
-    addAnother: function () {
-      this.submitted = false;
-      this.submittedData = null;
-      this.resetForm();
-    },
-    resetForm: function () {
-      this.formData = {
+    }
+    const goBack = () => {
+      submittedData.value = null;
+      showMobileInstructions.value = false;
+      resetForm();
+    }
+    const addAnother = () => {
+      submittedData.value = null;
+      resetForm();
+    }
+    const resetForm = () => {
+      formData.value = {
         idCode: "",
         name: "",
         email: "",
@@ -149,11 +140,11 @@ export default {
         examDate: new Date().toISOString().split("T")[0],
         comment: "",
       };
-    },
-    toggleMobileInstructions: function () {
-      this.showMobileInstructions = !this.showMobileInstructions;
-    },
-    getCardTypeName: function (cardType: string) {
+    }
+    const toggleMobileInstructions = () => {
+      showMobileInstructions.value = !showMobileInstructions.value;
+    }
+    const getCardTypeName = (cardType: string) => {
       switch (cardType) {
         case "green":
           return "Roheline";
@@ -162,21 +153,19 @@ export default {
         default:
           return cardType;
       }
-    },
-    formatDate: function (dateString: string) {
+    }
+    const formatDate = (dateString: string | undefined) => {
       if (!dateString) return "N/A";
       const date = new Date(dateString);
       return date.toLocaleDateString("et-EE");
-    },
-  },
-};
+    }
 </script>
 
 <template>
   <Title>Julgestajakaardi registri vorm</Title>
 
   <div id="left-background"></div>
-  <div id="left" v-if="!submitted">
+  <div id="left" v-if="submittedData == null">
     <!-- Login Form -->
     <form v-if="!isAuthenticated" id="form" @submit.prevent="login">
       <div>
@@ -287,7 +276,7 @@ export default {
 
   <div id="right" class="desktop">
     <div class="centered-content">
-      <template v-if="submitted">
+      <template v-if="submittedData != null">
         <div id="result">
           <div class="green header">ANDMED SISESTATUD</div>
           <div id="result-content">
@@ -322,7 +311,7 @@ export default {
         </div>
         <p class="warning">Veendu, et andmed on õiged</p>
       </template>
-      <div v-if="!submitted" class="instructions">
+      <div v-if="submittedData == null" class="instructions">
         <div class="row">
           <div class="row-number-wrapper">
             <div class="row-number">1</div>
@@ -345,7 +334,7 @@ export default {
     </div>
 
     <div
-      v-if="showMobileInstructions && !submitted"
+      v-if="showMobileInstructions && submittedData == null"
       class="mobile"
       id="mobile-instructions"
     >
@@ -375,7 +364,7 @@ export default {
       </div>
     </div>
 
-    <div id="mobile-results" v-if="submitted" class="mobile">
+    <div id="mobile-results" v-if="submittedData != null" class="mobile">
       <div class="centered-content">
         <div @click="goBack" class="back-button">
           <img src="/assets/chevron-left.svg" />Tagasi
