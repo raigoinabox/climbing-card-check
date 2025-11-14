@@ -1,0 +1,15 @@
+LICENSE
+_headers
+api
+dist
+node_modules
+package-lock.json
+package.json
+public
+readme.md
+scripts
+server
+test
+tsconfig.json
+vercel.json
+.eslintrc.cjs

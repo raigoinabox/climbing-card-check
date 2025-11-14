@@ -1,12 +1,14 @@
 <template>
-    <Link rel="preconnect" href="https://fonts.googleapis.com" />
-  <Link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <Link rel="preconnect" href="https://fonts.googleapis.com" />
+  <Link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
   <Link
     href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap"
     rel="stylesheet"
   />
-  
-  <NuxtPage />
+
+  <div id="app">
+    <NuxtPage />
+  </div>
 </template>
 
 <style>
@@ -26,6 +28,10 @@
 
 * {
   margin: 0;
+}
+
+html {
+  font-family: "Poppins", system-ui, sans-serif;
 }
 
 /*
@@ -98,10 +104,6 @@ h6 {
 
 button {
   border: none;
-}
-
-html {
-  font-family: "Poppins", system-ui, sans-serif;
 }
 
 .hidden {
@@ -209,14 +211,6 @@ input {
   flex-grow: 0;
 }
 
-#id-input {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 0px;
-  gap: 16px;
-}
-
 button {
   padding: 16px 10px;
   background: linear-gradient(86.59deg, #26408b 22.05%, #279af1 172.51%);
@@ -293,37 +287,6 @@ button:disabled {
 .header.gray {
   justify-content: center;
   background: linear-gradient(89.14deg, #4d4d4d 28.5%, #8e8e8e 131.48%);
-}
-.additional-info {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  font-size: 12px;
-  letter-spacing: 0.02em;
-}
-#no-access-result {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0px;
-  gap: 32px;
-  text-align: center;
-}
-#no-access-result h1 {
-  font-weight: 700;
-  color: #db4141;
-}
-.no-access-reason {
-  font-size: 20px;
-}
-.no-access-explanation {
-  display: flex;
-  text-align: left;
-  gap: 6px;
-  align-items: center;
-}
-.no-access-explanation img {
-  height: 1.5em;
 }
 
 #result-content {
