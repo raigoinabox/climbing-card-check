@@ -1,164 +1,164 @@
 <script setup lang="ts">
-    // Authentication state
-    const isAuthenticated = ref(false);
-    const loginData = ref({
-      username: "",
-      password: "",
-    })
-    const authCredentials = ref<typeof loginData | null>(null);
-    const loginError = ref("");
-    const isLoggingIn = ref(false)
+// Authentication state
+const isAuthenticated = ref(false);
+const loginData = ref({
+  username: "",
+  password: "",
+});
+const authCredentials = ref<typeof loginData | null>(null);
+const loginError = ref("");
+const isLoggingIn = ref(false);
 
-    // Form data
-    const formData = ref({
-      idCode: "",
-      name: "",
-      email: "",
-      cardType: "",
-      examDate: new Date().toISOString().split("T")[0],
-      comment: "",
-    })
-    const submittedData = ref<typeof formData | null>(null)
-    const isLoading = ref(false);
-    const showMobileInstructions = ref(false);
+// Form data
+const formData = ref({
+  idCode: "",
+  name: "",
+  email: "",
+  cardType: "",
+  examDate: new Date().toISOString().split("T")[0],
+  comment: "",
+});
+const submittedData = ref<typeof formData | null>(null);
+const isLoading = ref(false);
+const showMobileInstructions = ref(false);
 
-    const isLoginDisabled = computed(() => {
-      return (
-        !loginData.value.username || !loginData.value.password || isLoggingIn.value
-      );
-    })
-    const isSubmitDisabled = computed(() => {
-      return (
-        !formData.value.idCode ||
-        formData.value.idCode.length !== 11 ||
-        !formData.value.name ||
-        !formData.value.email ||
-        !formData.value.cardType ||
-        !formData.value.examDate ||
-        !isValidEmail(formData.value.email) ||
-        isLoading.value
-      );
-    })
+const isLoginDisabled = computed(() => {
+  return (
+    !loginData.value.username || !loginData.value.password || isLoggingIn.value
+  );
+});
+const isSubmitDisabled = computed(() => {
+  return (
+    !formData.value.idCode ||
+    formData.value.idCode.length !== 11 ||
+    !formData.value.name ||
+    !formData.value.email ||
+    !formData.value.cardType ||
+    !formData.value.examDate ||
+    !isValidEmail(formData.value.email) ||
+    isLoading.value
+  );
+});
 
-    const login = () => {
-      if (isLoginDisabled.value) return;
+const login = () => {
+  if (isLoginDisabled.value) return;
 
-      isLoggingIn.value = true;
-      loginError.value = "";
+  isLoggingIn.value = true;
+  loginError.value = "";
 
-      fetch("/api/auth", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(loginData.value),
-      })
-        .then(async (response) => ({ response, body: await response.json() }))
-        .then(({ response, body }) => {
-          if (body.success) {
-            isAuthenticated.value = true;
-            authCredentials.value = { ...loginData.value };
-            loginData.value = { username: "", password: "" };
-            nextTick(() => {
-              document.getElementById("idCode")?.focus();
-            });
-          } else {
-            loginError.value =
-              response.status === 401 || !body.error
-                ? "Vale kasutajanimi või parool"
-                : body.error;
-          }
-        })
-        .catch(() => {
-          loginError.value = "Sisselogimine ebaõnnestus";
-        })
-        .finally(() => {
-          isLoggingIn.value = false;
+  fetch("/api/auth", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(loginData.value),
+  })
+    .then(async (response) => ({ response, body: await response.json() }))
+    .then(({ response, body }) => {
+      if (body.success) {
+        isAuthenticated.value = true;
+        authCredentials.value = { ...loginData.value };
+        loginData.value = { username: "", password: "" };
+        nextTick(() => {
+          document.getElementById("idCode")?.focus();
         });
-    }
-    const logout = () => {
-      isAuthenticated.value = false;
-      authCredentials.value = null;
-      submittedData.value = null;
-      resetForm();
-    }
-    const isValidEmail = (email: string) => {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return emailRegex.test(email);
-    }
-    const submit = () => {
-      if (isSubmitDisabled.value) return;
-
-      isLoading.value = true;
-
-      const payload = {
-        ...formData.value,
-        ...authCredentials.value,
-      };
-
-      fetch("/api/add-climber", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            submittedData.value = { ...formData.value };
-            resetForm();
-            nextTick(() => {
-              document.getElementById("idCode")?.focus();
-            });
-          } else {
-            alert("Viga andmete lisamisel: " + (data.error || "Tundmatu viga"));
-          }
-        })
-        .catch(() => {
-          alert("Viga andmete lisamisel");
-        })
-        .finally(() => {
-          isLoading.value = false;
-        });
-    }
-    const goBack = () => {
-      submittedData.value = null;
-      showMobileInstructions.value = false;
-      resetForm();
-    }
-    const addAnother = () => {
-      submittedData.value = null;
-      resetForm();
-    }
-    const resetForm = () => {
-      formData.value = {
-        idCode: "",
-        name: "",
-        email: "",
-        cardType: "",
-        examDate: new Date().toISOString().split("T")[0],
-        comment: "",
-      };
-    }
-    const toggleMobileInstructions = () => {
-      showMobileInstructions.value = !showMobileInstructions.value;
-    }
-    const getCardTypeName = (cardType: string) => {
-      switch (cardType) {
-        case "green":
-          return "Roheline";
-        case "red":
-          return "Punane";
-        default:
-          return cardType;
+      } else {
+        loginError.value =
+          response.status === 401 || !body.error
+            ? "Vale kasutajanimi või parool"
+            : body.error;
       }
-    }
-    const formatDate = (dateString: string | undefined) => {
-      if (!dateString) return "N/A";
-      const date = new Date(dateString);
-      return date.toLocaleDateString("et-EE");
-    }
+    })
+    .catch(() => {
+      loginError.value = "Sisselogimine ebaõnnestus";
+    })
+    .finally(() => {
+      isLoggingIn.value = false;
+    });
+};
+const logout = () => {
+  isAuthenticated.value = false;
+  authCredentials.value = null;
+  submittedData.value = null;
+  resetForm();
+};
+const isValidEmail = (email: string) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+const submit = () => {
+  if (isSubmitDisabled.value) return;
+
+  isLoading.value = true;
+
+  const payload = {
+    ...formData.value,
+    ...authCredentials.value,
+  };
+
+  fetch("/api/add-climber", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        submittedData.value = { ...formData.value };
+        resetForm();
+        nextTick(() => {
+          document.getElementById("idCode")?.focus();
+        });
+      } else {
+        alert("Viga andmete lisamisel: " + (data.error || "Tundmatu viga"));
+      }
+    })
+    .catch(() => {
+      alert("Viga andmete lisamisel");
+    })
+    .finally(() => {
+      isLoading.value = false;
+    });
+};
+const goBack = () => {
+  submittedData.value = null;
+  showMobileInstructions.value = false;
+  resetForm();
+};
+const addAnother = () => {
+  submittedData.value = null;
+  resetForm();
+};
+const resetForm = () => {
+  formData.value = {
+    idCode: "",
+    name: "",
+    email: "",
+    cardType: "",
+    examDate: new Date().toISOString().split("T")[0],
+    comment: "",
+  };
+};
+const toggleMobileInstructions = () => {
+  showMobileInstructions.value = !showMobileInstructions.value;
+};
+const getCardTypeName = (cardType: string) => {
+  switch (cardType) {
+    case "green":
+      return "Roheline";
+    case "red":
+      return "Punane";
+    default:
+      return cardType;
+  }
+};
+const formatDate = (dateString: string | undefined) => {
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("et-EE");
+};
 </script>
 
 <template>

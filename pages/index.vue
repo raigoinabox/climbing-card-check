@@ -182,7 +182,10 @@ const invalidateCertificateIfExpired = (climberData: Climber) => {
           Veendu, et ronija on isikut tõendava dokumendi omanik
         </p>
       </template>
-      <div v-if="currentClimber && !isClimberCertified" id="no-access-result">
+      <div
+        v-if="currentClimber && !isClimberCertified(currentClimber)"
+        id="no-access-result"
+      >
         <h1>Ligipääs keelatud</h1>
         <p>
           ISIKUKOOD: <b>{{ currentClimber.id }}</b>
