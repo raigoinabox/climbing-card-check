@@ -7,11 +7,11 @@
     "start": "vercel dev",
     "lint": "eslint .",
     "test": "node --test",
-    
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
+    "typecheck": "nuxt typecheck",
     "format": "prettier --write --list-different ."
   },
   "keywords": [],
@@ -21,9 +21,12 @@
     "googleapis": "^100.0.0",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^7.0.6",
-    "nuxt": "^4.2.1"
+    "nuxt": "^4.2.1",
+    "nuxt-auth-utils": "^0.5.25"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/nodemailer": "^7.0.3",
     "eslint": "^8.18.0",
     "eslint-plugin-vue": "^9.1.1",
     "prettier": "^3.6.2",
