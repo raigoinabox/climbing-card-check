@@ -1,9 +1,8 @@
 import { strict as assert } from "node:assert";
 import process from "node:process";
-import { inspect } from "node:util";
 import { Auth, google } from "googleapis";
 
-import { findById } from "./_db.data-utils";
+import { findById } from "./exams_db.data-utils";
 
 const spreadsheetId = process.env.SPREADSHEET_ID;
 const sheetRange = "Andmebaas";
@@ -15,7 +14,7 @@ assert.equal(
   "Expected SPREADSHEET_ID env var to be set",
 );
 
-const connect = (serviceAccountEmail: string, privateKey: string) => {
+const connect = async (serviceAccountEmail: string, privateKey: string) => {
   assert.equal(
     typeof serviceAccountEmail,
     "string",
@@ -29,33 +28,13 @@ const connect = (serviceAccountEmail: string, privateKey: string) => {
     privateKey,
     ["https://www.googleapis.com/auth/spreadsheets"],
   );
-  return jwtClient.authorize().then(() => jwtClient);
-};
-
-const fetchAllData = async (client: Auth.JWT) => {
-  assert(client instanceof google.auth.JWT, '"client" required');
-
-  return sheets.spreadsheets.values.get({
-    auth: client,
-    spreadsheetId: spreadsheetId,
-    range: sheetRange,
-  });
+  await jwtClient.authorize();
+  return jwtClient;
 };
 
 const fetchOne = async (client: Auth.JWT, id: string) => {
-  assert(
-    client instanceof google.auth.JWT,
-    `"client" required got ${inspect(client)}`,
-  );
-
-  const sheet = await fetchAllData(client);
-  const data: string[][] | undefined | null = sheet.data.values;
-  assert(data != null);
-
-  console.log({ ts: new Date(), msg: "data loaded", length: data.length });
-
   try {
-    const result = findById(data, id);
+    const result = await findById(client, id);
 
     return {
       success: true,

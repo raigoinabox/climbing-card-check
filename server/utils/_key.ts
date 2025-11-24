@@ -16,7 +16,7 @@ const loadFromFile = (filePath: string) => {
   return JSON.parse(data);
 };
 
-const load = () => {
+export function load() {
   const defaultEnvironmentVariable = "GOOGLE_KEY";
   const defaultFilePath = "./key.json";
 
@@ -27,6 +27,4 @@ const load = () => {
 
   console.error("Loading the key from file");
   return loadFromFile(defaultFilePath);
-};
-
-export { load };
+}

@@ -1,5 +1,7 @@
 import { strict as assert } from "node:assert";
 import { inspect } from "node:util";
+import { SheetModel } from "./sheet_db";
+import { Auth } from "googleapis";
 
 const CODE = {
   GREEN: "green",
@@ -144,78 +146,39 @@ const getExpiryTimeFromFormFillTime = (normDate: Date | null) => {
   return new Date(exp);
 };
 
-// Column keys are stored in the second row of the DB
-const filterColumnHeader = "id";
-const certificateHeader = "certificate";
-const nameHeader = "name";
-const examinerHeader = "examiner";
-const examDateHeader = "examDate";
-const expiryDateHeader = "expiryDate";
-const formFillTimeHeader = "formFillTime";
+const examsModel = new SheetModel("Andmebaas", [
+  "id",
+  "certificate",
+  "name",
+  "examiner",
+  "examDate",
+  "expiryDate",
+  // According to previous code this column might not exist
+  "formFillTime",
+  "cardCode",
+]);
 
-export const findById = (data: string[][], id: string) => {
+export async function findById(client: Auth.JWT, id: string) {
   assertValidId(id);
 
-  // Ignore human-readable headers(the first row), because those can change any time
-  // form is changed. Will use the second row to key the columns
-  const headers = data[1];
-  assert(headers != null);
-
-  const filterColumnIdx = headers.indexOf(filterColumnHeader);
-  const certificateColumnIdx = headers.indexOf(certificateHeader);
-  const nameColumnIdx = headers.indexOf(nameHeader);
-  const examinerColumnIdx = headers.indexOf(examinerHeader);
-  const examDateColumnIdx = headers.indexOf(examDateHeader);
-  const expiryDateColumnIdx = headers.indexOf(expiryDateHeader);
-  const formFillTimeColumnIdx = headers.indexOf(formFillTimeHeader);
-
-  assert(
-    ~filterColumnIdx,
-    `Filter column not found. Looked for "${filterColumnHeader}"`,
+  const filteredRows = await examsModel.fetchData(
+    client,
+    (dto) => dto.id == id,
   );
-  assert(
-    ~certificateColumnIdx,
-    `Certificate column not found. Looked for "${certificateHeader}"`,
-  );
-  assert(
-    ~nameColumnIdx,
-    `Certificate column not found. Looked for "${nameHeader}"`,
-  );
-  assert(
-    ~examinerColumnIdx,
-    `Examiner column not found. Looked for "${examinerHeader}"`,
-  );
-  assert(
-    ~examDateColumnIdx,
-    `Exam time column not found. Looked for "${examDateHeader}"`,
-  );
-  assert(
-    ~expiryDateColumnIdx,
-    `Expiry time column not found. Looked for "${expiryDateHeader}"`,
-  );
-  if (formFillTimeColumnIdx === -1) {
-    console.warn(
-      `Form fill time column not found. Looked for "${formFillTimeHeader}"`,
-    );
-  }
-
-  const filteredRows = data.filter((row) => {
-    return row[filterColumnIdx] === id;
-  });
 
   const parsedCertificates = filteredRows.map((row) => {
-    const rawCertificate = row[certificateColumnIdx];
+    const rawCertificate = row.certificate;
     const certificate = normalizeCertificate(rawCertificate ?? "");
 
     return {
       id,
       certificate,
-      name: row[nameColumnIdx],
-      examiner: row[examinerColumnIdx] || null,
-      examTime: parseDate(row[examDateColumnIdx]),
+      name: row.name,
+      examiner: row.examiner || null,
+      examTime: parseDate(row.examDate),
       expiryTime:
-        parseDate(row[expiryDateColumnIdx]) ||
-        getExpiryTimeFromFormFillTime(parseDate(row[formFillTimeColumnIdx])) ||
+        parseDate(row.expiryDate) ||
+        getExpiryTimeFromFormFillTime(parseDate(row.formFillTime)) ||
         null,
     };
   });
@@ -236,7 +199,7 @@ export const findById = (data: string[][], id: string) => {
     examTime: formatDate(bestCertificate.examTime),
     expiryTime: formatDate(bestCertificate.expiryTime),
   };
-};
+}
 
 export const isIdCodeValid = (code: string) => {
   if (code.length !== 11) {

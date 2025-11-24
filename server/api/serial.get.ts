@@ -1,5 +1,5 @@
-import { isIdCodeValid } from "../utils/_db.data-utils";
-import * as db from "../utils/_db";
+import { isIdCodeValid } from "../utils/exams_db.data-utils";
+import * as db from "../utils/exams_db";
 import * as key from "../utils/_key";
 
 export default defineEventHandler(async (event) => {

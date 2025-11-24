@@ -2,8 +2,8 @@ import { validate } from "../utils/_auth";
 import {
   certificateCodeToRegistryValue,
   isIdCodeValid,
-} from "../utils/_db.data-utils";
-import * as db from "../utils/_db";
+} from "../utils/exams_db.data-utils";
+import * as db from "../utils/exams_db";
 import {
   climberAddedNextSteps,
   climberAddedNotification,

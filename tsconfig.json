@@ -13,8 +13,5 @@
     {
       "path": "./.nuxt/tsconfig.node.json"
     }
-  ],
-  "compilerOptions": {
-    "strict": true
-  }
+  ]
 }
