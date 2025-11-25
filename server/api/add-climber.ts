@@ -101,7 +101,7 @@ export default defineEventHandler(async (event) => {
   };
 
   const secretKey = key.load();
-  const sheetsClient = await db.connect(
+  const sheetsClient = await connect(
     secretKey.client_email,
     secretKey.private_key,
   );

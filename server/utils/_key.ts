@@ -21,10 +21,8 @@ export function load() {
   const defaultFilePath = "./key.json";
 
   if (process.env[defaultEnvironmentVariable]) {
-    console.error("Loading the key from env");
     return loadFromEnv(defaultEnvironmentVariable);
   }
 
-  console.error("Loading the key from file");
   return loadFromFile(defaultFilePath);
 }

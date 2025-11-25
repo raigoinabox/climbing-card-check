@@ -1,12 +1,6 @@
 <script setup lang="ts">
-interface Climber {
-  id: string;
-  name: string;
-  certificate: string;
-  examTime: string;
+interface Climber extends ClimberDto {
   formattedExamTime: string;
-  expiryTime: string;
-  examiner: string;
 }
 
 const currentClimber = ref<
@@ -88,16 +82,17 @@ const goBack = () => {
   currentClimber.value = null;
   showMobileInstructions.value = false;
 };
-const formatClimberData = (raw: Climber) => {
-  let result = raw;
-  result.formattedExamTime = result.examTime?.replaceAll("-", "/") || "N/A";
-  result.certificate = invalidateCertificateIfExpired(result);
-  return result;
+const formatClimberData = (raw: ClimberDto) => {
+  return {
+    ...raw,
+    formattedExamTime: raw.examTime?.replaceAll("-", "/") || "N/A",
+    certificate: invalidateCertificateIfExpired(raw),
+  };
 };
 const toggleMobileInstructions = () => {
   showMobileInstructions.value = !showMobileInstructions.value;
 };
-const invalidateCertificateIfExpired = (climberData: Climber) => {
+const invalidateCertificateIfExpired = (climberData: ClimberDto) => {
   if (Date.parse(climberData.expiryTime) < Date.now()) {
     // If expiry time is in the past and there's no exam time it means that
     // the record was never updated from application to the real certificate
@@ -112,92 +107,134 @@ const invalidateCertificateIfExpired = (climberData: Climber) => {
 </script>
 
 <template>
-  <Title>Julgestajakaardi registri otsing</Title>
+  <div style="height: 100%; width: 100%; display: flex">
+    <Title>Julgestajakaardi registri otsing</Title>
 
-  <div id="left-background"></div>
-  <div id="left" :class="currentClimber ? 'desktop' : ''">
-    <form id="form" @submit.prevent="submit">
-      <div>
-        <h2>Eesti Ronimisliit</h2>
-        <h1>Julgestajakaardi register</h1>
-      </div>
-      <p>Kontrolli ronimisõigust isikukoodi alusel</p>
-      <div id="id-input">
-        <label>Isikukood</label>
-        <input
-          type="text"
-          v-model.trim="idCode"
-          maxlength="11"
-          placeholder="12345678901"
-        />
-        <button :disabled="isSubmitDisabled">
-          <img
-            class="loading-spinner"
-            v-if="isLoading"
-            src="/assets/Rolling-1s-200px.svg"
-          />{{ isLoading ? "" : "KONTROLLI" }}
-        </button>
-      </div>
-    </form>
-    <div
-      @click="toggleMobileInstructions"
-      class="mobile"
-      id="mobile-instructions-link"
-    >
-      <a>Vajad abi? Loe kasutusjuhendit siit</a>
-      <img src="/assets/chevron-right.svg" />
-    </div>
-  </div>
-
-  <div id="right" class="desktop">
-    <div class="centered-content">
-      <template v-if="isClimberCertified(currentClimber)">
-        <div id="result">
-          <div :class="currentClimber.certificate + ' header'">
-            {{ resultCardHeaderContent }}
-          </div>
-          <div id="result-content">
-            <div class="row">
-              <p class="heading">ISIKUKOOD</p>
-              <p class="content">{{ currentClimber.id }}</p>
-            </div>
-            <div class="row">
-              <p class="heading">TÄISNIMI</p>
-              <p class="content">{{ currentClimber.name }}</p>
-            </div>
-            <div class="row">
-              <p class="heading">KEHTIV KUNI</p>
-              <p class="content">
-                {{ currentClimber.expiryTime?.replaceAll("-", "/") }}
-              </p>
-            </div>
-            <p class="description">{{ certificateDescription }}</p>
-            <div class="additional-info">
-              <p>EKSAMI AEG: {{ currentClimber.formattedExamTime }}</p>
-              <p>EKSAMINEERIJA: {{ currentClimber.examiner }}</p>
-            </div>
-          </div>
+    <div id="left-background"></div>
+    <div id="left" :class="currentClimber ? 'desktop' : ''">
+      <form id="form" @submit.prevent="submit">
+        <div>
+          <h2>Eesti Ronimisliit</h2>
+          <h1>Julgestajakaardi register</h1>
         </div>
-        <p class="warning">
-          Veendu, et ronija on isikut tõendava dokumendi omanik
-        </p>
-      </template>
+        <p>Kontrolli ronimisõigust isikukoodi alusel</p>
+        <div id="id-input">
+          <label>Isikukood</label>
+          <input
+            type="text"
+            v-model.trim="idCode"
+            maxlength="11"
+            placeholder="12345678901"
+          />
+          <button :disabled="isSubmitDisabled">
+            <img
+              class="loading-spinner"
+              v-if="isLoading"
+              src="/assets/Rolling-1s-200px.svg"
+            />{{ isLoading ? "" : "KONTROLLI" }}
+          </button>
+        </div>
+      </form>
       <div
-        v-if="currentClimber && !isClimberCertified(currentClimber)"
-        id="no-access-result"
+        @click="toggleMobileInstructions"
+        class="mobile"
+        id="mobile-instructions-link"
       >
-        <h1>Ligipääs keelatud</h1>
-        <p>
-          ISIKUKOOD: <b>{{ currentClimber.id }}</b>
-        </p>
-        <p class="no-access-reason">Põhjus: {{ noAccessReason }}</p>
-        <img src="/assets/NoAccesToWall.svg" />
-        <div class="no-access-explanation">
-          <img src="/assets/exclamation.svg" />
-          <p>Sellel isikul ei ole lubatud seinal viibida ilma instruktorita.</p>
+        <a>Vajad abi? Loe kasutusjuhendit siit</a>
+        <img src="/assets/chevron-right.svg" />
+      </div>
+    </div>
+
+    <div id="right" class="desktop">
+      <div class="centered-content">
+        <template v-if="isClimberCertified(currentClimber)">
+          <div id="result">
+            <div :class="currentClimber.certificate + ' header'">
+              {{ resultCardHeaderContent }}
+            </div>
+            <div id="result-content">
+              <div class="row">
+                <p class="heading">ISIKUKOOD</p>
+                <p class="content">{{ currentClimber.id }}</p>
+              </div>
+              <div class="row">
+                <p class="heading">TÄISNIMI</p>
+                <p class="content">{{ currentClimber.name }}</p>
+              </div>
+              <div class="row">
+                <p class="heading">KEHTIV KUNI</p>
+                <p class="content">
+                  {{ currentClimber.expiryTime?.replaceAll("-", "/") }}
+                </p>
+              </div>
+              <p class="description">{{ certificateDescription }}</p>
+              <div class="additional-info">
+                <p>EKSAMI AEG: {{ currentClimber.formattedExamTime }}</p>
+                <p>EKSAMINEERIJA: {{ currentClimber.examiner }}</p>
+                <p>KAARDI SEERIANUMBER: {{ currentClimber.cardSerialId }}</p>
+              </div>
+            </div>
+          </div>
+          <p class="warning">
+            Veendu, et ronija on isikut tõendava dokumendi omanik
+          </p>
+        </template>
+        <div
+          v-if="currentClimber && !isClimberCertified(currentClimber)"
+          id="no-access-result"
+        >
+          <h1>Ligipääs keelatud</h1>
+          <p>
+            ISIKUKOOD: <b>{{ currentClimber.id }}</b>
+          </p>
+          <p class="no-access-reason">Põhjus: {{ noAccessReason }}</p>
+          <img src="/assets/NoAccesToWall.svg" />
+          <div class="no-access-explanation">
+            <img src="/assets/exclamation.svg" />
+            <p>
+              Sellel isikul ei ole lubatud seinal viibida ilma instruktorita.
+            </p>
+          </div>
+        </div>
+        <div v-if="!currentClimber" class="instructions">
+          <div class="row">
+            <div class="row-number-wrapper">
+              <div class="row-number">1</div>
+            </div>
+            <p>Küsi ronija isikut tõendavat dokumenti</p>
+          </div>
+          <div class="row">
+            <div class="row-number-wrapper">
+              <div class="row-number">2</div>
+            </div>
+            <p>Veendu, et tegemist on sama inimesega</p>
+          </div>
+          <div class="row">
+            <div class="row-number-wrapper">
+              <div class="row-number">3</div>
+            </div>
+            <p>Kontrolli registrist ronija isikukoodi</p>
+          </div>
+          <div class="row">
+            <div class="row-number-wrapper">
+              <div class="row-number">4</div>
+            </div>
+            <p>Veendu, et tal on õigus julgestada</p>
+          </div>
         </div>
       </div>
-      <div v-if="!currentClimber" class="instructions">
+    </div>
+
+    <div
+      v-if="showMobileInstructions && !currentClimber"
+      class="mobile"
+      id="mobile-instructions"
+    >
+      <div @click="toggleMobileInstructions" class="back-button">
+        <img src="/assets/chevron-left.svg" />Tagasi
+      </div>
+      <h1>Ronimisõiguse kontrolline</h1>
+      <div class="instructions">
         <div class="row">
           <div class="row-number-wrapper">
             <div class="row-number">1</div>
@@ -224,91 +261,57 @@ const invalidateCertificateIfExpired = (climberData: Climber) => {
         </div>
       </div>
     </div>
-  </div>
 
-  <div
-    v-if="showMobileInstructions && !currentClimber"
-    class="mobile"
-    id="mobile-instructions"
-  >
-    <div @click="toggleMobileInstructions" class="back-button">
-      <img src="/assets/chevron-left.svg" />Tagasi
-    </div>
-    <h1>Ronimisõiguse kontrolline</h1>
-    <div class="instructions">
-      <div class="row">
-        <div class="row-number-wrapper">
-          <div class="row-number">1</div>
+    <div id="mobile-results" v-if="currentClimber" class="mobile">
+      <div class="centered-content">
+        <div @click="goBack" class="back-button">
+          <img src="/assets/chevron-left.svg" />Tagasi
         </div>
-        <p>Küsi ronija isikut tõendavat dokumenti</p>
-      </div>
-      <div class="row">
-        <div class="row-number-wrapper">
-          <div class="row-number">2</div>
-        </div>
-        <p>Veendu, et tegemist on sama inimesega</p>
-      </div>
-      <div class="row">
-        <div class="row-number-wrapper">
-          <div class="row-number">3</div>
-        </div>
-        <p>Kontrolli registrist ronija isikukoodi</p>
-      </div>
-      <div class="row">
-        <div class="row-number-wrapper">
-          <div class="row-number">4</div>
-        </div>
-        <p>Veendu, et tal on õigus julgestada</p>
-      </div>
-    </div>
-  </div>
-
-  <div id="mobile-results" v-if="currentClimber" class="mobile">
-    <div class="centered-content">
-      <div @click="goBack" class="back-button">
-        <img src="/assets/chevron-left.svg" />Tagasi
-      </div>
-      <template v-if="isClimberCertified(currentClimber)">
-        <div id="result">
-          <div :class="currentClimber.certificate + ' header'">
-            {{ resultCardHeaderContent }}
-          </div>
-          <div id="result-content">
-            <div class="row">
-              <p class="heading">ISIKUKOOD</p>
-              <p class="content">{{ currentClimber.id }}</p>
+        <template v-if="isClimberCertified(currentClimber)">
+          <div id="result">
+            <div :class="currentClimber.certificate + ' header'">
+              {{ resultCardHeaderContent }}
             </div>
-            <div class="row">
-              <p class="heading">TÄISNIMI</p>
-              <p class="content">{{ currentClimber.name }}</p>
-            </div>
-            <div class="row">
-              <p class="heading">KEHTIV KUNI</p>
-              <p class="content">
-                {{ currentClimber.expiryTime?.replaceAll("-", "/") }}
-              </p>
-            </div>
-            <p class="description">{{ certificateDescription }}</p>
-            <div class="additional-info">
-              <p>EKSAMI AEG: {{ currentClimber.formattedExamTime }}</p>
-              <p>EKSAMINEERIJA: {{ currentClimber.examiner }}</p>
+            <div id="result-content">
+              <div class="row">
+                <p class="heading">ISIKUKOOD</p>
+                <p class="content">{{ currentClimber.id }}</p>
+              </div>
+              <div class="row">
+                <p class="heading">TÄISNIMI</p>
+                <p class="content">{{ currentClimber.name }}</p>
+              </div>
+              <div class="row">
+                <p class="heading">KEHTIV KUNI</p>
+                <p class="content">
+                  {{ currentClimber.expiryTime?.replaceAll("-", "/") }}
+                </p>
+              </div>
+              <p class="description">{{ certificateDescription }}</p>
+              <div class="additional-info">
+                <p>EKSAMI AEG: {{ currentClimber.formattedExamTime }}</p>
+                <p>EKSAMINEERIJA: {{ currentClimber.examiner }}</p>
+                <p>KAARDI SEERIANUMBER: {{ currentClimber.cardSerialId }}</p>
+              </div>
             </div>
           </div>
-        </div>
-        <p class="warning">
-          Veendu, et ronija on isikut tõendava dokumendi omanik
-        </p>
-      </template>
-      <div v-if="currentClimber && !isClimberCertified" id="no-access-result">
-        <h1>Ligipääs keelatud</h1>
-        <p>
-          ISIKUKOOD: <b>{{ currentClimber.id }}</b>
-        </p>
-        <p class="no-access-reason">Põhjus: {{ noAccessReason }}</p>
-        <img src="/assets/NoAccesToWall.svg" />
-        <div class="no-access-explanation">
-          <img src="/assets/exclamation.svg" />
-          <p>Sellel isikul ei ole lubatud seinal viibida ilma instruktorita.</p>
+          <p class="warning">
+            Veendu, et ronija on isikut tõendava dokumendi omanik
+          </p>
+        </template>
+        <div v-if="currentClimber && !isClimberCertified" id="no-access-result">
+          <h1>Ligipääs keelatud</h1>
+          <p>
+            ISIKUKOOD: <b>{{ currentClimber.id }}</b>
+          </p>
+          <p class="no-access-reason">Põhjus: {{ noAccessReason }}</p>
+          <img src="/assets/NoAccesToWall.svg" />
+          <div class="no-access-explanation">
+            <img src="/assets/exclamation.svg" />
+            <p>
+              Sellel isikul ei ole lubatud seinal viibida ilma instruktorita.
+            </p>
+          </div>
         </div>
       </div>
     </div>

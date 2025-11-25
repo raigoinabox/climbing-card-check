@@ -1,6 +1,6 @@
 import { strict as assert } from "node:assert";
 import { inspect } from "node:util";
-import { SheetModel } from "./sheet_db";
+import { SheetModel } from "./google_sheet_db";
 import { Auth } from "googleapis";
 
 const CODE = {
@@ -61,9 +61,6 @@ const assertValidDate = (parsed: Date) => {
 };
 
 const formatDate = (parsed: Date) => {
-  if (!parsed) {
-    return null;
-  }
   assertValidDate(parsed);
   return parsed.toISOString().substr(0, 10);
 };
@@ -79,6 +76,7 @@ const parseDate = (rawValue: string | undefined) => {
 
 const findBestCertificate = (
   certificates: {
+    id: string;
     name: string | undefined;
     examiner: string | null;
     expiryTime: Date | null;

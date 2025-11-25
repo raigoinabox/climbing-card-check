@@ -3,6 +3,28 @@ import { Auth, google } from "googleapis";
 const spreadsheetId = process.env.SPREADSHEET_ID;
 const sheets = google.sheets("v4");
 
+function isStringTable(data: unknown[][]): data is string[][] {
+  for (const row of data) {
+    for (const cell of row) {
+      if (typeof cell != "string") {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+export async function connect(serviceAccountEmail: string, privateKey: string) {
+  const jwtClient = new google.auth.JWT(
+    serviceAccountEmail,
+    undefined,
+    privateKey,
+    ["https://www.googleapis.com/auth/spreadsheets"],
+  );
+  await jwtClient.authorize();
+  return jwtClient;
+}
+
 export class SheetModel<T extends string> {
   sheetName: string;
   headers: T[];
@@ -17,9 +39,13 @@ export class SheetModel<T extends string> {
     filter: (dto: Partial<Record<T, string>>) => boolean,
   ) {
     const sheet = await this.fetchAllData(client);
-    const data: string[][] | undefined | null = sheet.data.values;
+    const data: unknown[][] | undefined | null = sheet.data.values;
     if (data == null) {
       throw new Error("sheet " + this.sheetName + " is missing");
+    } else if (!isStringTable(data)) {
+      throw new Error(
+        "sheet " + this.sheetName + " has a cell that is not a string",
+      );
     }
 
     return this.mapAndFilter(data, filter);
