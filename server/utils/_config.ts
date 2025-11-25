@@ -3,13 +3,13 @@ import process from "node:process";
 export const registrationFee = 10;
 export const emailAuth = {
   user: "taavi@ronimisliit.ee",
-  pass: process.env.GOOGLE_APP_PASSWORD,
+  pass: process.env.GOOGLE_APP_PASSWORD ?? "testtesttesttest",
 };
 
-const { EMAIL_TEST_TO } = process.env;
+let { EMAIL_TEST_TO } = process.env;
 
 if (EMAIL_TEST_TO == null) {
-  throw new Error("Put EMAIL_TEST_TO in the process env");
+  EMAIL_TEST_TO = "test@example.com";
 }
 
 export const email = {
@@ -22,8 +22,8 @@ export const email = {
 const { MONTONIO_ACCESS_KEY, MONTONIO_SECRET_KEY } = process.env;
 export const montonio = {
   api: "https://sandbox-stargate.montonio.com/api",
-  accessKey: MONTONIO_ACCESS_KEY,
-  secretKey: MONTONIO_SECRET_KEY!,
+  accessKey: MONTONIO_ACCESS_KEY ?? "test",
+  secretKey: MONTONIO_SECRET_KEY ?? "test",
 };
 
 const { SITE_BASE, VERCEL_URL } = process.env;
