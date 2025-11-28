@@ -13,3 +13,15 @@ export async function findCardByClimber(client: Auth.JWT, climberId: string) {
   );
   return cards.length == 0 ? null : cards[0];
 }
+
+export function insertPhysicalCard(
+  client: Auth.JWT,
+  climberId: string,
+  cardId: string,
+) {
+  cardsModel.appendRow(client, {
+    createdAt: new Date().toISOString(),
+    climberId: climberId,
+    issuedCardId: cardId,
+  });
+}

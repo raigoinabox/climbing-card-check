@@ -1,8 +1,5 @@
 import { validate } from "../utils/_auth";
-import {
-  certificateCodeToRegistryValue,
-  isIdCodeValid,
-} from "../utils/exams_db.data-utils";
+import { certificateCodeToRegistryValue } from "../utils/exams_db.data-utils";
 import * as db from "../utils/exams_db";
 import {
   climberAddedNextSteps,
@@ -101,10 +98,7 @@ export default defineEventHandler(async (event) => {
   };
 
   const secretKey = key.load();
-  const sheetsClient = await connect(
-    secretKey.client_email,
-    secretKey.private_key,
-  );
+  const sheetsClient = await connectToSheets();
 
   // Row data matching header: formFillTime, id, name, certificate, examDate, expiryDate, daysUntilExpiry, examiner, email, phone, comment, formFillerEmail, formPassword, dataConsent, responsiblityConsent
   const rowData = [

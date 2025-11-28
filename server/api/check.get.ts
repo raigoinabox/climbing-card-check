@@ -1,5 +1,3 @@
-import { isIdCodeValid } from "../utils/exams_db.data-utils";
-import * as key from "../utils/_key";
 import { type CheckDto } from "~/shared/types/api_types";
 
 export default defineEventHandler(async (event): Promise<CheckDto> => {
@@ -15,11 +13,7 @@ export default defineEventHandler(async (event): Promise<CheckDto> => {
       };
     }
 
-    const secretKey = key.load();
-    const sheetsClient = await connect(
-      secretKey.client_email,
-      secretKey.private_key,
-    );
+    const sheetsClient = await connectToSheets();
 
     return await fetchClimberData(sheetsClient, id);
   } finally {

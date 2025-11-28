@@ -14,11 +14,12 @@ function isStringTable(data: unknown[][]): data is string[][] {
   return true;
 }
 
-export async function connect(serviceAccountEmail: string, privateKey: string) {
+export async function connectToSheets() {
+  const secretKey = load();
   const jwtClient = new google.auth.JWT(
-    serviceAccountEmail,
+    secretKey.client_email,
     undefined,
-    privateKey,
+    secretKey.private_key,
     ["https://www.googleapis.com/auth/spreadsheets"],
   );
   await jwtClient.authorize();
@@ -38,29 +39,8 @@ export class SheetModel<T extends string> {
     client: Auth.JWT,
     filter: (dto: Partial<Record<T, string>>) => boolean,
   ) {
-    const sheet = await this.fetchAllData(client);
-    const data: unknown[][] | undefined | null = sheet.data.values;
-    if (data == null) {
-      throw new Error("sheet " + this.sheetName + " is missing");
-    } else if (!isStringTable(data)) {
-      throw new Error(
-        "sheet " + this.sheetName + " has a cell that is not a string",
-      );
-    }
-
+    const data = await this.fetchTable(client, this.sheetName);
     return this.mapAndFilter(data, filter);
-  }
-
-  private async fetchAllData(client: Auth.JWT) {
-    if (spreadsheetId == null) {
-      throw new Error("spreadSheetId must not be null");
-    }
-
-    return sheets.spreadsheets.values.get({
-      auth: client,
-      spreadsheetId: spreadsheetId,
-      range: this.sheetName,
-    });
   }
 
   private mapAndFilter(
@@ -74,10 +54,7 @@ export class SheetModel<T extends string> {
       throw new Error("Sheet is missing second header row");
     }
 
-    const headerIndexes = new Map<T, number>();
-    for (const header of this.headers) {
-      headerIndexes.set(header, headers.indexOf(header));
-    }
+    const headerIndexes = this.getHeaderIndexes(headers);
 
     const dtos: Partial<Record<T, string>>[] = [];
     for (const row of data) {
@@ -91,5 +68,61 @@ export class SheetModel<T extends string> {
     }
 
     return dtos;
+  }
+
+  async appendRow(client: Auth.JWT, entity: Record<T, string>) {
+    const [headerRow] = await this.fetchTable(client, this.sheetName + "!2:2");
+    if (headerRow == null) {
+      throw new Error("headerRow does not exist");
+    }
+
+    const indexes = this.getHeaderIndexes(headerRow);
+    const appendRow: string[] = [];
+    for (const [header, index] of indexes) {
+      appendRow[index] = entity[header];
+    }
+
+    const values = [appendRow];
+
+    const result = await sheets.spreadsheets.values.append({
+      auth: client,
+      spreadsheetId: spreadsheetId,
+      range: this.sheetName,
+      valueInputOption: "RAW",
+      requestBody: { values },
+    });
+
+    return result;
+  }
+
+  private getHeaderIndexes(headers: string[]) {
+    const headerIndexes = new Map<T, number>();
+    for (const header of this.headers) {
+      headerIndexes.set(header, headers.indexOf(header));
+    }
+    return headerIndexes;
+  }
+
+  private async fetchTable(client: Auth.JWT, range: string) {
+    if (spreadsheetId == null) {
+      throw new Error("spreadSheetId must not be null");
+    }
+
+    const sheet = await sheets.spreadsheets.values.get({
+      auth: client,
+      spreadsheetId: spreadsheetId,
+      range,
+    });
+
+    const data: unknown[][] | undefined | null = sheet.data.values;
+    if (data == null) {
+      throw new Error("sheet " + this.sheetName + " is missing");
+    } else if (!isStringTable(data)) {
+      throw new Error(
+        "sheet " + this.sheetName + " has a cell that is not a string",
+      );
+    }
+
+    return data;
   }
 }
