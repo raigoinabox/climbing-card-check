@@ -14,14 +14,25 @@ export async function findCardByClimber(client: Auth.JWT, climberId: string) {
   return cards.length == 0 ? null : cards[0];
 }
 
-export function insertPhysicalCard(
+export async function insertPhysicalCard(
   client: Auth.JWT,
   climberId: string,
   cardId: string,
 ) {
-  cardsModel.appendRow(client, {
-    createdAt: new Date().toISOString(),
-    climberId: climberId,
-    issuedCardId: cardId,
-  });
+  const cards = await cardsModel.fetchData(
+    client,
+    (dto) => dto.climberId == climberId,
+  );
+  if (cards.length == 0) {
+    cardsModel.appendRow(client, {
+      createdAt: new Date().toISOString(),
+      climberId: climberId,
+      issuedCardId: cardId,
+    });
+  } else {
+    const card = cards[0]!;
+    card.createdAt = new Date().toISOString();
+    card.issuedCardId = cardId;
+    cardsModel.save(client, card);
+  }
 }

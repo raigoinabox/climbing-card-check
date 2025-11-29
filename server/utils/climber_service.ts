@@ -29,7 +29,6 @@ export const fetchClimberData = async (
 };
 
 export function isIdCodeValid(code: string) {
-  console.log(code);
   if (code.length !== 11) {
     return false;
   }

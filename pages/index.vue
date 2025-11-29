@@ -106,13 +106,15 @@ const invalidateCertificateIfExpired = (climberData: ClimberDto) => {
         <form @submit.prevent="submit">
           <p>Kontrolli ronimisõigust isikukoodi alusel</p>
           <FormBody>
-            <label>Isikukood</label>
-            <input
-              type="text"
-              v-model.trim="idCode"
-              maxlength="11"
-              placeholder="12345678901"
-            />
+            <label
+              >Isikukood
+              <input
+                type="text"
+                v-model.trim="idCode"
+                maxlength="11"
+                placeholder="12345678901"
+              />
+            </label>
             <button :disabled="isSubmitDisabled">
               <img
                 class="loading-spinner"
@@ -150,7 +152,10 @@ const invalidateCertificateIfExpired = (climberData: ClimberDto) => {
                 <p>EKSAMI AEG: {{ currentClimber.formattedExamTime }}</p>
                 <p>EKSAMINEERIJA: {{ currentClimber.examiner }}</p>
                 <p v-if="currentClimber.cardSerialId">
-                  KAARDI SEERIANUMBER: {{ currentClimber.cardSerialId }}
+                  KAARDI SEERIANUMBER: {{ currentClimber.cardSerialId }}.
+                  <NuxtLink :to="`/physical_card/${currentClimber.id}`"
+                    >SISESTA UUS</NuxtLink
+                  >
                 </p>
                 <p v-else>
                   KAARDI SEERIANUMBER PUUDUB.

@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   if (email == "admin@admin.com" && password == "iamtheadmin") {
     await setUserSession(
       event,
-      { user: { name: "iamtheadmin" } },
+      { user: { name: email } },
       { maxAge: 12 * 60 * 60 },
     );
     return {};

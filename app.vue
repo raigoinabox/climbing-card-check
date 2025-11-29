@@ -117,6 +117,7 @@ button {
 
 label {
   font-weight: 500;
+  width: 100%;
 }
 
 input {
@@ -132,6 +133,7 @@ input {
   /* Inside auto layout */
   flex: none;
   flex-grow: 0;
+  font-weight: 400;
 }
 
 button {

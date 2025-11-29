@@ -24,6 +24,7 @@ async function login() {
 async function insertSerialCode() {
   console.log(route.params.climberId);
   try {
+    insertStatus.value = "loading";
     await $fetch("/api/save_serial", {
       method: "POST",
       body: {
@@ -51,7 +52,13 @@ async function insertSerialCode() {
                 Kaardi seerianumber
                 <input v-model.trim="cardSerialCode" />
               </label>
-              <button>Sisesta</button>
+              <button :disabled="!cardSerialCode">
+                <img
+                class="loading-spinner"
+                v-if="insertStatus == 'loading'"
+                src="/assets/Rolling-1s-200px.svg"
+              /><template v-else>Sisesta</template>
+            </button>
               <p v-if="insertStatus == 'error'">Sisestamise viga!</p>
             </form-body>
           </form>
