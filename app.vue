@@ -115,83 +115,6 @@ button {
   display: flex;
 }
 
-#left-background {
-  position: fixed;
-  left: 0;
-  right: 0;
-  z-index: 1;
-  display: block;
-  background-image: url("/assets/stock-photo.jpg");
-  background-repeat: no-repeat;
-  background-size: cover;
-  width: 100%;
-  height: 100%;
-  -webkit-filter: blur(4px);
-  -moz-filter: blur(4px);
-  -o-filter: blur(4px);
-  -ms-filter: blur(4px);
-  filter: blur(4px);
-}
-
-#left {
-  z-index: 9999;
-  width: 50%;
-  height: 100%;
-  display: flex;
-  background: linear-gradient(
-    0deg,
-    rgba(39, 154, 241, 0.3),
-    rgba(39, 154, 241, 0.3)
-  );
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  padding: 24px;
-}
-
-#right {
-  z-index: 9999;
-  width: 50%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: #f4f7ff;
-}
-
-#form {
-  margin: 24px;
-  background: white;
-  max-width: 500px;
-  display: flex;
-  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15);
-  border-radius: 24px;
-  flex-direction: column;
-  align-items: center;
-  padding: 48px;
-  gap: 32px;
-}
-#form h1,
-#form h2 {
-  color: #183642;
-  text-align: center;
-}
-#form h1 {
-  font-size: 24px;
-}
-#form h2 {
-  font-size: 16px;
-}
-#form p {
-  font-weight: 400;
-  font-size: 24px;
-  line-height: 32px;
-  /* or 133% */
-  text-align: center;
-  color: #183642;
-}
-
 label {
   font-weight: 500;
 }
@@ -384,14 +307,6 @@ button:disabled {
 /* Mobile only*/
 
 @media only screen and (max-width: 56rem) {
-  .desktop {
-    display: none !important;
-  }
-  #left {
-    width: 100%;
-    padding-top: 48px;
-    justify-content: space-between;
-  }
   #mobile-results {
     background: #f4f7ff;
     z-index: 9999;
