@@ -111,38 +111,6 @@ const goBack = () => {
   background-color: #f4f7ff;
 }
 
-#form {
-  margin: 24px;
-  background: white;
-  max-width: 500px;
-  display: flex;
-  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15);
-  border-radius: 24px;
-  flex-direction: column;
-  align-items: center;
-  padding: 48px;
-  gap: 32px;
-}
-#form h1,
-#form h2 {
-  color: #183642;
-  text-align: center;
-}
-#form h1 {
-  font-size: 24px;
-}
-#form h2 {
-  font-size: 16px;
-}
-#form p {
-  font-weight: 400;
-  font-size: 24px;
-  line-height: 1.33;
-  text-align: center;
-  color: #183642;
-  margin-bottom: 12px;
-}
-
 @media only screen and (max-width: 56rem) {
   .desktop {
     display: none !important;
