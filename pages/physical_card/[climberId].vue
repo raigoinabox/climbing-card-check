@@ -48,6 +48,7 @@ async function insertSerialCode() {
           <form v-else @submit.prevent="insertSerialCode">
             <p>Sisesta kaardi seerianumber</p>
             <form-body>
+              <label>Isikukood: {{ route.params.climberId }}</label>
               <label>
                 Kaardi seerianumber
                 <input v-model.trim="cardSerialCode" />
