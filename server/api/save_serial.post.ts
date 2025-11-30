@@ -16,5 +16,5 @@ export default defineEventHandler(async (event) => {
       statusMessage: "climberIdCode wrong",
     });
   }
-  await insertPhysicalCard(client, climberIdCode, serialCode);
+  await insertPhysicalCard(client, climberIdCode, serialCode, user.name);
 });

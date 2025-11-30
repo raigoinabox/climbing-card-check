@@ -89,6 +89,34 @@ async function insertSerialCode() {
           </form>
         </div>
       </template>
+
+      <template #instructions-header>Väljastatud kaardi lisamine</template>
+      <template #instructions>
+        <div class="row">
+          <div class="row-number-wrapper">
+            <div class="row-number">1</div>
+          </div>
+          <p>Logi sisse</p>
+        </div>
+        <div class="row">
+          <div class="row-number-wrapper">
+            <div class="row-number">2</div>
+          </div>
+          <p>Küsi ronija isikut tõendavat dokumenti</p>
+        </div>
+        <div class="row">
+          <div class="row-number-wrapper">
+            <div class="row-number">3</div>
+          </div>
+          <p>Kirjuta inimese nimi kaardile</p>
+        </div>
+        <div class="row">
+          <div class="row-number-wrapper">
+            <div class="row-number">4</div>
+          </div>
+          <p>Sisesta kaardi kood vormi</p>
+        </div>
+      </template>
     </Layout>
   </div>
 </template>

@@ -4,7 +4,6 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "start": "vercel dev",
     "lint": "eslint .",
     "test": "node --test",
     "build": "nuxt build",
