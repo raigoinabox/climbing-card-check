@@ -33,13 +33,19 @@ export class SheetModel<T extends string> {
   headers: T[];
   headerIndexes: Map<T, number> | null = null;
   positions = new WeakMap<Entity<T>, number>();
+  dataRowIndex = 2;
 
-  static fixed<T extends string>(sheetName: string, headers: T[]) {
+  static fixed<T extends string>(
+    sheetName: string,
+    headers: T[],
+    dataRowIndex = 2,
+  ) {
     const model = new SheetModel<T>(sheetName, headers);
     model.headerIndexes = new Map<T, number>();
     for (const [index, header] of headers.entries()) {
       model.headerIndexes.set(header, index);
     }
+    model.dataRowIndex = dataRowIndex;
     return model;
   }
 
@@ -65,7 +71,7 @@ export class SheetModel<T extends string> {
     const dtos: Entity<T>[] = [];
 
     for (const [index, row] of data.entries()) {
-      if (2 <= index) {
+      if (this.dataRowIndex <= index) {
         const dto: Entity<T> = {};
         for (const [header, index] of headerIndexes) {
           dto[header] = row[index];

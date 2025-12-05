@@ -81,7 +81,7 @@ async function insertSerialCode() {
                 <input
                   v-model="credentials.email"
                   type="email"
-                  placeholder="admin@admin.com"
+                  placeholder="admin@ronimisliit.ee"
                 />
               </label>
               <label>
@@ -89,7 +89,7 @@ async function insertSerialCode() {
                 <input
                   v-model="credentials.password"
                   type="password"
-                  placeholder="iamtheadmin"
+                  placeholder="w5DB5jIm0soTMW"
                 />
               </label>
 

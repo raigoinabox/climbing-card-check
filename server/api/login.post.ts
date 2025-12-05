@@ -1,8 +1,12 @@
+import { isLoginValid } from "../utils/users_db";
+
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   const { email, password } = body;
 
-  if (email == "admin@admin.com" && password == "iamtheadmin") {
+  const client = await connectToSheets();
+
+  if (await isLoginValid(client, email, password)) {
     await setUserSession(
       event,
       { user: { name: email } },
