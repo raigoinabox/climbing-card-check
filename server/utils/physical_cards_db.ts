@@ -1,10 +1,10 @@
 import { Auth } from "googleapis";
 
-const cardsModel = new SheetModel("Füüsilised kaardid", [
-  "createdAt",
-  "createdBy",
-  "climberId",
+const cardsModel = SheetModel.fixed("Füüsilised kaardid", [
   "issuedCardId",
+  "climberId",
+  "issuedAt",
+  "issuedBy",
 ]);
 
 export async function findCardByClimber(client: Auth.JWT, climberId: string) {
@@ -23,20 +23,25 @@ export async function insertPhysicalCard(
 ) {
   const cards = await cardsModel.fetchData(
     client,
-    (dto) => dto.climberId == climberId,
+    (dto) => dto.issuedCardId == cardId,
   );
   if (cards.length == 0) {
-    cardsModel.appendRow(client, {
-      createdAt: new Date().toISOString(),
-      createdBy: userName,
-      climberId: climberId,
-      issuedCardId: cardId,
+    // no card found
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Sellise seeriakoodiga kaarti ei ole",
     });
   } else {
     const card = cards[0]!;
-    card.createdAt = new Date().toISOString();
-    card.createdBy = userName;
-    card.issuedCardId = cardId;
-    cardsModel.save(client, card);
+    if (card.climberId != null) {
+      throw createError({
+        status: 400,
+        statusMessage: "Kaart on juba ronijaga seotud",
+      });
+    }
+    card.climberId = climberId;
+    card.issuedAt = new Date().toISOString();
+    card.issuedBy = userName;
+    await cardsModel.save(client, card);
   }
 }

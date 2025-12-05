@@ -34,6 +34,15 @@ export class SheetModel<T extends string> {
   headerIndexes: Map<T, number> | null = null;
   positions = new WeakMap<Entity<T>, number>();
 
+  static fixed<T extends string>(sheetName: string, headers: T[]) {
+    const model = new SheetModel<T>(sheetName, headers);
+    model.headerIndexes = new Map<T, number>();
+    for (const [index, header] of headers.entries()) {
+      model.headerIndexes.set(header, index);
+    }
+    return model;
+  }
+
   constructor(sheetName: string, headers: T[]) {
     this.sheetName = sheetName;
     this.headers = headers;

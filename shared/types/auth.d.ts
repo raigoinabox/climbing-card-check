@@ -1,5 +1,5 @@
-declare module '#auth-utils' {
-    interface User {
-        name: string;
-    }
+declare module "#auth-utils" {
+  interface User {
+    name: string;
+  }
 }

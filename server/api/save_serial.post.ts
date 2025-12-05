@@ -8,13 +8,15 @@ export default defineEventHandler(async (event) => {
   if (typeof climberIdCode != "string") {
     throw createError({
       statusCode: 400,
-      statusMessage: "climberIdCode missing",
+      statusMessage: "Ronija isikukood on puudu",
     });
   } else if (!isIdCodeValid(climberIdCode)) {
     throw createError({
       statusCode: 400,
-      statusMessage: "climberIdCode wrong",
+      statusMessage: "Ronija isikukood ei ole õige",
     });
   }
   await insertPhysicalCard(client, climberIdCode, serialCode, user.name);
+
+  return {};
 });
