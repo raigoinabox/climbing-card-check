@@ -4,7 +4,6 @@ import { timingSafeEqual } from "crypto";
 const usersModel = SheetModel.fixed(
   "Instruktorite paroolid",
   ["name", "email", "password"],
-  1,
 );
 
 function isStringsConstantTimeEqual(a: string, b: string) {

@@ -23,7 +23,7 @@ export async function insertPhysicalCard(
 ) {
   const cards = await cardsModel.fetchData(
     client,
-    (dto) => dto.issuedCardId == cardId,
+    (dto) => dto.issuedCardId == cardId || dto.climberId == climberId,
   );
   if (cards.length == 0) {
     // no card found
@@ -32,16 +32,22 @@ export async function insertPhysicalCard(
       statusMessage: "Sellise seeriakoodiga kaarti ei ole",
     });
   } else {
-    const card = cards[0]!;
-    if (card.climberId != null) {
-      throw createError({
-        status: 400,
-        statusMessage: "Kaart on juba ronijaga seotud",
-      });
+    for (const card of cards) {
+      if (card.issuedCardId == cardId) {
+        if (card.climberId != null) {
+          throw createError({
+            status: 400,
+            statusMessage: "Kaart on juba ronijaga seotud",
+          });
+        }
+        card.climberId = climberId;
+        card.issuedAt = new Date().toISOString();
+        card.issuedBy = userName;
+        await cardsModel.save(client, card);
+      } else if (card.climberId == climberId) {
+        card.climberId = "";
+        await cardsModel.save(client, card);
+      }
     }
-    card.climberId = climberId;
-    card.issuedAt = new Date().toISOString();
-    card.issuedBy = userName;
-    await cardsModel.save(client, card);
   }
 }

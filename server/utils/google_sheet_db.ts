@@ -38,14 +38,13 @@ export class SheetModel<T extends string> {
   static fixed<T extends string>(
     sheetName: string,
     headers: T[],
-    dataRowIndex = 2,
   ) {
     const model = new SheetModel<T>(sheetName, headers);
     model.headerIndexes = new Map<T, number>();
     for (const [index, header] of headers.entries()) {
       model.headerIndexes.set(header, index);
     }
-    model.dataRowIndex = dataRowIndex;
+    model.dataRowIndex = 1;
     return model;
   }
 
