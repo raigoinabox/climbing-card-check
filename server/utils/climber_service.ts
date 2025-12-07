@@ -1,6 +1,5 @@
 import { Auth } from "googleapis";
 import { findCardByClimber } from "./physical_cards_db";
-import { type CheckDto } from "~/shared/types/api_types";
 
 export const fetchClimberData = async (
   client: Auth.JWT,

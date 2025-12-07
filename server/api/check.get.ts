@@ -1,5 +1,3 @@
-import { type CheckDto } from "~/shared/types/api_types";
-
 export default defineEventHandler(async (event): Promise<CheckDto> => {
   const start = Date.now();
   const { id } = getQuery(event);
