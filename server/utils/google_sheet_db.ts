@@ -16,12 +16,11 @@ function isStringTable(data: unknown[][]): data is string[][] {
 
 export async function connectToSheets() {
   const secretKey = load();
-  const jwtClient = new google.auth.JWT(
-    secretKey.client_email,
-    undefined,
-    secretKey.private_key,
-    ["https://www.googleapis.com/auth/spreadsheets"],
-  );
+  const jwtClient = new google.auth.JWT({
+    email: secretKey.client_email,
+    key: secretKey.private_key,
+    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+  });
   await jwtClient.authorize();
   return jwtClient;
 }
@@ -35,10 +34,7 @@ export class SheetModel<T extends string> {
   positions = new WeakMap<Entity<T>, number>();
   dataRowIndex = 2;
 
-  static fixed<T extends string>(
-    sheetName: string,
-    headers: T[],
-  ) {
+  static fixed<T extends string>(sheetName: string, headers: T[]) {
     const model = new SheetModel<T>(sheetName, headers);
     model.headerIndexes = new Map<T, number>();
     for (const [index, header] of headers.entries()) {

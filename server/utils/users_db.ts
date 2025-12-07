@@ -1,10 +1,11 @@
 import { Auth } from "googleapis";
 import { timingSafeEqual } from "crypto";
 
-const usersModel = SheetModel.fixed(
-  "Instruktorite paroolid",
-  ["name", "email", "password"],
-);
+const usersModel = SheetModel.fixed("Instruktorite paroolid", [
+  "name",
+  "email",
+  "password",
+]);
 
 function isStringsConstantTimeEqual(a: string, b: string) {
   try {

@@ -34,7 +34,7 @@ export async function insertPhysicalCard(
   } else {
     for (const card of cards) {
       if (card.issuedCardId == cardId) {
-        if (card.climberId != null) {
+        if (card.climberId != null && card.climberId != "") {
           throw createError({
             status: 400,
             statusMessage: "Kaart on juba ronijaga seotud",
