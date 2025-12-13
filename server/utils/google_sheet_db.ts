@@ -14,15 +14,20 @@ function isStringTable(data: unknown[][]): data is string[][] {
   return true;
 }
 
-export async function connectToSheets() {
-  const secretKey = load();
-  const jwtClient = new google.auth.JWT({
-    email: secretKey.client_email,
-    key: secretKey.private_key,
-    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-  });
-  await jwtClient.authorize();
-  return jwtClient;
+let _connection: Auth.JWT | null = null;
+async function getConnection() {
+  if (_connection == null) {
+    const secretKey = load();
+    const jwtClient = new google.auth.JWT({
+      email: secretKey.client_email,
+      key: secretKey.private_key,
+      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+    });
+    await jwtClient.authorize();
+    _connection = jwtClient;
+  }
+
+  return _connection;
 }
 
 type Entity<T extends string> = { [P in T]?: string };
@@ -49,8 +54,8 @@ export class SheetModel<T extends string> {
     this.headers = headers;
   }
 
-  async fetchData(client: Auth.JWT, filter: (dto: Entity<T>) => boolean) {
-    const data = await this.fetchTable(client, this.sheetName);
+  async fetchData(filter: (dto: Entity<T>) => boolean) {
+    const data = await this.fetchTable(this.sheetName);
     return this.mapAndFilter(data, filter);
   }
 
@@ -81,13 +86,13 @@ export class SheetModel<T extends string> {
     return dtos;
   }
 
-  async appendRow(client: Auth.JWT, entity: Entity<T>) {
-    const appendRow = await this.entityToRow(client, entity);
+  async appendRow(entity: Entity<T>) {
+    const appendRow = await this.entityToRow(entity);
 
     const values = [appendRow];
 
     const result = await sheets.spreadsheets.values.append({
-      auth: client,
+      auth: await getConnection(),
       spreadsheetId: spreadsheetId,
       range: this.sheetName,
       valueInputOption: "RAW",
@@ -108,12 +113,9 @@ export class SheetModel<T extends string> {
     return this.headerIndexes;
   }
 
-  private async getHeaderIndexes(client: Auth.JWT) {
+  private async getHeaderIndexes() {
     if (this.headerIndexes == null) {
-      const [headerRow] = await this.fetchTable(
-        client,
-        this.sheetName + "!2:2",
-      );
+      const [headerRow] = await this.fetchTable(this.sheetName + "!2:2");
       if (headerRow == null) {
         throw new Error("headerRow does not exist");
       }
@@ -125,13 +127,13 @@ export class SheetModel<T extends string> {
     return this.headerIndexes;
   }
 
-  private async fetchTable(client: Auth.JWT, range: string) {
+  private async fetchTable(range: string) {
     if (spreadsheetId == null) {
       throw new Error("spreadSheetId must not be null");
     }
 
     const sheet = await sheets.spreadsheets.values.get({
-      auth: client,
+      auth: await getConnection(),
       spreadsheetId: spreadsheetId,
       range,
     });
@@ -148,15 +150,15 @@ export class SheetModel<T extends string> {
     return data;
   }
 
-  async save(client: Auth.JWT, entity: Entity<T>) {
+  async save(entity: Entity<T>) {
     const position = this.positions.get(entity);
     if (position == null) {
       throw new Error("Trying to save an entity that has no saved position");
     }
-    const row = await this.entityToRow(client, entity);
+    const row = await this.entityToRow(entity);
     const values = [row];
     await sheets.spreadsheets.values.update({
-      auth: client,
+      auth: await getConnection(),
       spreadsheetId: spreadsheetId,
       range: `${this.sheetName}!${position}:${position}`,
       valueInputOption: "RAW",
@@ -164,8 +166,8 @@ export class SheetModel<T extends string> {
     });
   }
 
-  private async entityToRow(client: Auth.JWT, entity: Entity<T>) {
-    const indexes = await this.getHeaderIndexes(client);
+  private async entityToRow(entity: Entity<T>) {
+    const indexes = await this.getHeaderIndexes();
     const appendRow: (string | undefined)[] = [];
     for (const [header, index] of indexes) {
       appendRow[index] = entity[header];

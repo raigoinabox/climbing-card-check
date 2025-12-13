@@ -1,7 +1,6 @@
 import { strict as assert } from "node:assert";
 import { inspect } from "node:util";
 import { SheetModel } from "./google_sheet_db";
-import { Auth } from "googleapis";
 
 const CODE = {
   GREEN: "green",
@@ -46,11 +45,6 @@ const normalizeCertificate = (rawCertificate: string) => {
     console.error(`Invalid certificate input: ${rawCertificate}`);
     return CODE.UNKNOWN;
   }
-};
-
-const assertValidId = (id: string) => {
-  assert.equal(typeof id, "string", "Expected ID to be a string");
-  assert.match(id, /[0-9]{11}/, "Expected ID to consist of 11 digits");
 };
 
 const assertValidDate = (parsed: Date) => {
@@ -156,13 +150,8 @@ const examsModel = new SheetModel("Andmebaas", [
   "cardCode",
 ]);
 
-export async function findById(client: Auth.JWT, id: string) {
-  assertValidId(id);
-
-  const filteredRows = await examsModel.fetchData(
-    client,
-    (dto) => dto.id == id,
-  );
+export async function findExamById(id: IdCode) {
+  const filteredRows = await examsModel.fetchData((dto) => dto.id == id);
 
   const parsedCertificates = filteredRows.map((row) => {
     const rawCertificate = row.certificate;

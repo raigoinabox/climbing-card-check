@@ -17,6 +17,7 @@
   "author": "Estonian Climbing Association",
   "license": "GPL-3.0-only",
   "dependencies": {
+    "@nuxt/ui": "^4.2.1",
     "googleapis": "^167.0.0",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^7.0.6",

@@ -1,7 +1,6 @@
 import assert from "node:assert";
 import { randomBytes, scrypt, timingSafeEqual } from "node:crypto";
 import process from "node:process";
-import { promisify } from "node:util";
 
 export const ENC = "base64url";
 const KEYLEN = 32;

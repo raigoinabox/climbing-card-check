@@ -16,7 +16,9 @@ const goBack = () => {
 </script>
 
 <template>
-  <div id="left-background"></div>
+  <div class="left-background">
+    <div class="left-background2"></div>
+  </div>
   <div id="left" :class="showResults ? 'desktop' : ''">
     <div id="form">
       <div>
@@ -66,7 +68,7 @@ const goBack = () => {
 </template>
 
 <style scoped>
-#left-background {
+.left-background {
   position: fixed;
   left: 0;
   right: 0;
@@ -77,23 +79,18 @@ const goBack = () => {
   background-size: cover;
   width: 100%;
   height: 100%;
-  -webkit-filter: blur(4px);
-  -moz-filter: blur(4px);
-  -o-filter: blur(4px);
-  -ms-filter: blur(4px);
   filter: blur(4px);
+}
+.left-background2 {
+  height: 100%;
+  background: rgba(39, 154, 241, 0.3);
 }
 
 #left {
   z-index: 9999;
+  min-height: calc(100vh - var(--ui-header-height));
   width: 50%;
-  height: 100%;
   display: flex;
-  background: linear-gradient(
-    0deg,
-    rgba(39, 154, 241, 0.3),
-    rgba(39, 154, 241, 0.3)
-  );
   justify-content: center;
   align-items: center;
   flex-direction: column;
@@ -103,7 +100,6 @@ const goBack = () => {
 #right {
   z-index: 9999;
   width: 50%;
-  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -116,9 +112,9 @@ const goBack = () => {
     display: none !important;
   }
   #left {
-    width: 100%;
     padding-top: 48px;
-    justify-content: space-between;
+    width: 100%;
+    justify-content: space-evenly;
   }
 }
 </style>

@@ -1,3 +1,12 @@
+<script setup lang="ts">
+import { type NavigationMenuItem } from "@nuxt/ui";
+
+const items = computed<NavigationMenuItem[]>(() => [
+  { label: "Otsing", to: "/" },
+  { label: "Väljastamine", to: "/physical_cards" },
+]);
+</script>
+
 <template>
   <Link rel="preconnect" href="https://fonts.googleapis.com" />
   <Link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
@@ -6,53 +15,19 @@
     rel="stylesheet"
   />
 
-  <div id="app">
-    <NuxtPage />
-  </div>
+  <UApp>
+    <UHeader title="Julgestajakaardi register"
+      ><UNavigationMenu :items="items"
+    /></UHeader>
+    <UMain>
+      <NuxtPage />
+    </UMain>
+  </UApp>
 </template>
 
 <style>
-/*
-  1. Use a more-intuitive box-sizing model.
-*/
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-/*
-  2. Remove default margin
-*/
-
-* {
-  margin: 0;
-}
-
 html {
   font-family: "Poppins", system-ui, sans-serif;
-}
-
-/*
-  3. Allow percentage-based heights in the application
-*/
-
-html,
-body,
-body > #__nuxt {
-  height: 100%;
-}
-
-/*
-  Typographic tweaks!
-  4. Add accessible line-height
-  5. Improve text rendering
-*/
-
-body {
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
 }
 
 /*
@@ -66,17 +41,6 @@ canvas,
 svg {
   display: block;
   max-width: 100%;
-}
-
-/*
-  7. Remove built-in form typography styles
-*/
-
-input,
-button,
-textarea,
-select {
-  font: inherit;
 }
 
 /*
@@ -102,19 +66,6 @@ h6 {
   isolation: isolate;
 }
 
-button {
-  border: none;
-}
-
-.hidden {
-  display: none !important;
-}
-
-#app {
-  height: 100%;
-  display: flex;
-}
-
 label {
   font-weight: 500;
   width: 100%;
@@ -134,40 +85,6 @@ input {
   flex: none;
   flex-grow: 0;
   font-weight: 400;
-}
-
-button {
-  padding: 16px 10px;
-  background: linear-gradient(86.59deg, #26408b 22.05%, #279af1 172.51%);
-  border-radius: 24px;
-  font-weight: 600;
-  line-height: 24px;
-  text-align: center;
-  letter-spacing: 0.09em;
-  color: #ffffff;
-  width: 100%;
-  transition: box-shadow 100ms ease-in-out;
-}
-
-button:hover {
-  background:
-    linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
-    linear-gradient(87.31deg, #26408b -29.47%, #279af1 170.76%);
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-}
-
-button:focus {
-  background:
-    linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
-    linear-gradient(86.59deg, #26408b 22.05%, #279af1 172.51%);
-}
-
-button:disabled {
-  background: linear-gradient(
-    86.59deg,
-    rgba(38, 64, 139, 0.4) 22.05%,
-    rgba(39, 154, 241, 0.4) 172.51%
-  );
 }
 
 .centered-content {
@@ -345,6 +262,7 @@ button:disabled {
     background: #f4f7ff;
     z-index: 9999;
     width: 100%;
+    min-height: calc(100vh - var(--ui-header-height));
     height: 100%;
     display: flex;
     justify-content: center;

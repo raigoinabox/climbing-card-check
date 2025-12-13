@@ -15,15 +15,10 @@ function isStringsConstantTimeEqual(a: string, b: string) {
   }
 }
 
-export async function isLoginValid(
-  client: Auth.JWT,
-  email: string,
-  password: string,
-) {
+export async function isLoginValid(email: string, password: string) {
   return (
     (
       await usersModel.fetchData(
-        client,
         (dto) =>
           dto.email != null &&
           isStringsConstantTimeEqual(dto.email, email) &&

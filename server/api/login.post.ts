@@ -4,9 +4,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   const { email, password } = body;
 
-  const client = await connectToSheets();
-
-  if (await isLoginValid(client, email, password)) {
+  if (await isLoginValid(email, password)) {
     await setUserSession(
       event,
       { user: { name: email } },

@@ -7,22 +7,17 @@ const cardsModel = SheetModel.fixed("Füüsilised kaardid", [
   "issuedBy",
 ]);
 
-export async function findCardByClimber(client: Auth.JWT, climberId: string) {
-  const cards = await cardsModel.fetchData(
-    client,
-    (dto) => dto.climberId == climberId,
-  );
+export async function findCardByClimber(climberId: string) {
+  const cards = await cardsModel.fetchData((dto) => dto.climberId == climberId);
   return cards.length == 0 ? null : cards[0];
 }
 
 export async function insertPhysicalCard(
-  client: Auth.JWT,
   climberId: string,
   cardId: string,
   userName: string,
 ) {
   const cards = await cardsModel.fetchData(
-    client,
     (dto) => dto.issuedCardId == cardId || dto.climberId == climberId,
   );
   if (cards.length == 0) {
@@ -43,10 +38,10 @@ export async function insertPhysicalCard(
         card.climberId = climberId;
         card.issuedAt = new Date().toISOString();
         card.issuedBy = userName;
-        await cardsModel.save(client, card);
+        await cardsModel.save(card);
       } else if (card.climberId == climberId) {
         card.climberId = "";
-        await cardsModel.save(client, card);
+        await cardsModel.save(card);
       }
     }
   }

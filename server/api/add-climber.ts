@@ -97,9 +97,6 @@ export default defineEventHandler(async (event) => {
     examiner: username,
   };
 
-  const secretKey = key.load();
-  const sheetsClient = await connectToSheets();
-
   // Row data matching header: formFillTime, id, name, certificate, examDate, expiryDate, daysUntilExpiry, examiner, email, phone, comment, formFillerEmail, formPassword, dataConsent, responsiblityConsent
   const rowData = [
     new Date().toISOString(), // formFillTime
@@ -119,7 +116,7 @@ export default defineEventHandler(async (event) => {
     "", // responsiblityConsent - not collected in this form
   ];
 
-  await db.addRow(sheetsClient, rowData);
+  // await db.addRow(sheetsClient, rowData);
   await Promise.all([
     climberAddedNotification(authUser.name, name),
     climberAddedNextSteps(email, name),

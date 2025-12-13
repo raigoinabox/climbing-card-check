@@ -3,8 +3,6 @@ export default defineEventHandler(async (event) => {
   const { climberIdCode, serialCode } = body;
   const { user } = await requireUserSession(event);
 
-  const client = await connectToSheets();
-
   if (typeof climberIdCode != "string") {
     throw createError({
       statusCode: 400,
@@ -16,7 +14,7 @@ export default defineEventHandler(async (event) => {
       statusMessage: "Ronija isikukood ei ole õige",
     });
   }
-  await insertPhysicalCard(client, climberIdCode, serialCode, user.name);
+  await insertPhysicalCard(climberIdCode, serialCode, user.name);
 
   return {};
 });

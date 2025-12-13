@@ -9,6 +9,7 @@ const cardSerialCode = ref("");
 const insertStatus = ref<{ code: string; message?: unknown }>({
   code: "no_insert",
 });
+const toast = useToast();
 async function login() {
   try {
     await $fetch("/api/login", {
@@ -18,13 +19,15 @@ async function login() {
 
     await fetch();
   } catch (e) {
-    console.log(e);
-    alert("Bad credentials");
+    toast.add({
+      title: "Sisselogimine ebaõnnestus",
+      description: "Kasutajanimi või parool olid valed",
+      color: "error",
+    });
   }
 }
 
 async function insertSerialCode() {
-  console.log(route.params.climberId);
   try {
     insertStatus.value = { code: "loading" };
     await $fetch("/api/save_serial", {
@@ -47,6 +50,8 @@ async function insertSerialCode() {
 
 <template>
   <div style="height: 100%; width: 100%; display: flex">
+    <Title>Julgestajakaardi füüsiline kaart</Title>
+
     <Layout :show-results="false">
       <template #form>
         <div v-if="loggedIn">
@@ -59,13 +64,13 @@ async function insertSerialCode() {
                 Kaardi seerianumber
                 <input v-model.trim="cardSerialCode" />
               </label>
-              <button :disabled="!cardSerialCode">
+              <Button :disabled="!cardSerialCode">
                 <img
                   class="loading-spinner"
                   v-if="insertStatus.code == 'loading'"
                   src="/assets/Rolling-1s-200px.svg"
                 /><template v-else>Sisesta</template>
-              </button>
+              </Button>
               <p v-if="insertStatus.code == 'error'">
                 Sisestamise viga! {{ insertStatus.message }}
               </p>
@@ -93,7 +98,7 @@ async function insertSerialCode() {
                 />
               </label>
 
-              <button>Logi sisse</button>
+              <Button>Logi sisse</Button>
             </form-body>
           </form>
         </div>

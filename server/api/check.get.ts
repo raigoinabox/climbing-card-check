@@ -1,20 +1,30 @@
 export default defineEventHandler(async (event): Promise<CheckDto> => {
-  const start = Date.now();
   const { id } = getQuery(event);
 
+  if (typeof id != "string" || !isIdCodeValid(id)) {
+    return {
+      success: false,
+      id,
+      message: "Invalid id code",
+    };
+  }
+
   try {
-    if (typeof id != "string" || !isIdCodeValid(id)) {
-      return {
-        success: false,
-        id,
-        message: "Invalid id code",
-      };
+    const result = await findExamById(id);
+
+    return {
+      success: true,
+      ...result,
+    };
+  } catch (err) {
+    let message = undefined;
+    if (typeof err == "object" && err != null && "message" in err) {
+      message = err.message;
     }
-
-    const sheetsClient = await connectToSheets();
-
-    return await fetchClimberData(sheetsClient, id);
-  } finally {
-    console.log({ ts: new Date(), responseTime: Date.now() - start, id });
+    return {
+      id,
+      success: false,
+      message,
+    };
   }
 });

@@ -95,7 +95,7 @@ const invalidateCertificateIfExpired = (climberData: ClimberDto) => {
 </script>
 
 <template>
-  <div style="height: 100%; width: 100%; display: flex">
+  <div style="height: 100%; width: 100%; display: flex; align-items: stretch">
     <Title>Julgestajakaardi registri otsing</Title>
 
     <Layout
@@ -151,6 +151,20 @@ const invalidateCertificateIfExpired = (climberData: ClimberDto) => {
               <div class="additional-info">
                 <p>EKSAMI AEG: {{ currentClimber.formattedExamTime }}</p>
                 <p>EKSAMINEERIJA: {{ currentClimber.examiner }}</p>
+                <!--
+                <p v-if="currentClimber.cardSerialId">
+                  KAARDI SEERIANUMBER: {{ currentClimber.cardSerialId }}.
+                  <NuxtLink :to="`/physical_card/${currentClimber.id}`"
+                    >SISESTA UUS</NuxtLink
+                  >
+                </p>
+                <p v-else>
+                  KAARDI SEERIANUMBER PUUDUB.
+                  <NuxtLink :to="`/physical_card/${currentClimber.id}`"
+                    >SISESTA</NuxtLink
+                  >
+                </p>
+                -->
               </div>
             </div>
           </div>

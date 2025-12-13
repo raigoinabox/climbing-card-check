@@ -6,7 +6,6 @@ export interface ClimberDto {
   examTime: string;
   expiryTime: string;
   examiner: string | null;
-  cardSerialId?: string;
 }
 
 export type CheckDto =
