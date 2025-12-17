@@ -1,8 +1,4 @@
-interface PhysicalStatus extends Omit<CheckDto, "success"> {
-  cardSerialId: string | undefined;
-}
-
-export default defineEventHandler(async (event): Promise<PhysicalStatus> => {
+export default defineEventHandler(async (event): Promise<CardClimberDto> => {
   const { id } = getQuery(event);
 
   if (typeof id != "string" || !isIdCodeValid(id)) {

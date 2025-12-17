@@ -1,243 +1,59 @@
 <script setup lang="ts">
-interface Climber extends ClimberDto {
-  formattedExamTime: string;
-}
-
-const currentClimber = ref<
-  { id: string; certificate: "none" } | Climber | null
->(null);
-const idCode = ref("");
-const isLoading = ref(false);
-
-const isSubmitDisabled = computed(() => {
-  return !idCode.value || idCode.value.length !== 11;
-});
-const resultCardHeaderContent = computed(() => {
-  if (!currentClimber.value) return null;
-  switch (currentClimber.value.certificate) {
-    case "green":
-      return "ROHELINE KAART";
-    case "red":
-      return "PUNANE KAART";
-    default:
-      return null;
-  }
-});
-const certificateDescription = computed(() => {
-  if (!currentClimber.value) return null;
-  switch (currentClimber.value.certificate) {
-    case "green":
-      return "Sellel isikul on õigus iseseisvalt ülaltjulgestuses ronida ja julgestada.";
-    case "red":
-      return "Sellel isikul on õigus iseseisvalt altjulgestuses ronida ja julgestada.";
-    case "expired":
-      return "Selle isiku julgestajakaart on aegnud. Tal ei ole õigust iseseisvalt ronida enne kaardi uuendamist.";
-    default:
-      return "Seda isikukoodi ei ole registrisse lisatud. Tal ei ole õigust iseseisvalt ronida.";
-  }
-});
-
-function isClimberCertified(
-  climber: { id: string; certificate: "none" } | Climber | null,
-): climber is Climber {
-  return climber != null && ["green", "red"].includes(climber.certificate);
-}
-
-const noAccessReason = computed(() => {
-  if (currentClimber.value?.certificate === "expired")
-    return "Selle isiku julgestajakaart on aegnud.";
-  return "Seda isikukoodi ei ole registrisse lisatud.";
-});
+const climber = ref<{ id: string; certificate: "none" } | ClimberDto | null>(
+  null,
+);
 
 const fetchClimberData = async (id: string) => {
-  const body = await $fetch(`/api/check?id=${id}`);
-  if (!body) {
-    return null;
+  try {
+    return await $fetch(`/api/check?id=${id}`);
+  } catch (e) {
+    return {
+      id,
+      certificate: "none",
+    } as const;
   }
-  if (body.success) {
-    return formatClimberData(body);
-  }
-  return {
-    id,
-    certificate: "none",
-  } as const;
 };
-const submit = () => {
-  if (!idCode.value) return;
-  isLoading.value = true;
-  fetchClimberData(idCode.value)
-    .then((data) => {
-      currentClimber.value = data;
-    })
-    .finally(() => {
-      isLoading.value = false;
-    });
-};
-const formatClimberData = (raw: ClimberDto) => {
-  return {
-    ...raw,
-    formattedExamTime: raw.examTime?.replaceAll("-", "/") || "N/A",
-    certificate: invalidateCertificateIfExpired(raw),
-  };
-};
-const invalidateCertificateIfExpired = (climberData: ClimberDto) => {
-  if (Date.parse(climberData.expiryTime) < Date.now()) {
-    // If expiry time is in the past and there's no exam time it means that
-    // the record was never updated from application to the real certificate
-    // it that case we will rather show "no certificate" than "expired"
-    if (!climberData.examTime) {
-      return "none";
-    }
-    return "expired";
-  }
-  return climberData.certificate;
+const submit = async (idCode: string) => {
+  climber.value = await fetchClimberData(idCode);
 };
 </script>
 
 <template>
-  <div style="height: 100%; width: 100%; display: flex">
-    <Title>Julgestajakaardi registri otsing</Title>
+  <Layout :show-results="climber != null" v-on:go-back="climber = null">
+    <template #form>
+      <ClimberSearchForm :submit="submit" />
+    </template>
 
-    <Layout
-      :show-results="currentClimber != null"
-      v-on:go-back="currentClimber = null"
-    >
-      <template #form>
-        <form @submit.prevent="submit">
-          <p>Kontrolli ronimisõigust isikukoodi alusel</p>
-          <FormBody>
-            <label
-              >Isikukood
-              <input
-                type="text"
-                v-model.trim="idCode"
-                maxlength="11"
-                placeholder="12345678901"
-              />
-            </label>
-            <Button :disabled="isSubmitDisabled">
-              <img
-                class="loading-spinner"
-                v-if="isLoading"
-                src="/assets/Rolling-1s-200px.svg"
-              />{{ isLoading ? "" : "KONTROLLI" }}
-            </Button>
-          </FormBody>
-        </form>
-      </template>
+    <template #results>
+      <ClimberStatus v-if="climber" :climber="climber" />
+    </template>
 
-      <template #results>
-        <template v-if="isClimberCertified(currentClimber)">
-          <div id="result">
-            <div :class="currentClimber.certificate + ' header'">
-              {{ resultCardHeaderContent }}
-            </div>
-            <div id="result-content">
-              <div class="row">
-                <p class="heading">ISIKUKOOD</p>
-                <p class="content">{{ currentClimber.id }}</p>
-              </div>
-              <div class="row">
-                <p class="heading">TÄISNIMI</p>
-                <p class="content">{{ currentClimber.name }}</p>
-              </div>
-              <div class="row">
-                <p class="heading">KEHTIV KUNI</p>
-                <p class="content">
-                  {{ currentClimber.expiryTime?.replaceAll("-", "/") }}
-                </p>
-              </div>
-              <p class="description">{{ certificateDescription }}</p>
-              <div class="additional-info">
-                <p>EKSAMI AEG: {{ currentClimber.formattedExamTime }}</p>
-                <p>EKSAMINEERIJA: {{ currentClimber.examiner }}</p>
-              </div>
-            </div>
-          </div>
-          <p class="warning">
-            Veendu, et ronija on isikut tõendava dokumendi omanik
-          </p>
-        </template>
-        <div
-          v-if="currentClimber && !isClimberCertified(currentClimber)"
-          id="no-access-result"
-        >
-          <h1>Ligipääs keelatud</h1>
-          <p>
-            ISIKUKOOD: <b>{{ currentClimber.id }}</b>
-          </p>
-          <p class="no-access-reason">Põhjus: {{ noAccessReason }}</p>
-          <img src="/assets/NoAccesToWall.svg" />
-          <div class="no-access-explanation">
-            <img src="/assets/exclamation.svg" />
-            <p>
-              Sellel isikul ei ole lubatud seinal viibida ilma instruktorita.
-            </p>
-          </div>
+    <template #instructions-header>Ronimisõiguse kontrollimine</template>
+    <template #instructions>
+      <div class="row">
+        <div class="row-number-wrapper">
+          <div class="row-number">1</div>
         </div>
-      </template>
-
-      <template #instructions-header>Ronimisõiguse kontrollimine</template>
-      <template #instructions>
-        <div class="row">
-          <div class="row-number-wrapper">
-            <div class="row-number">1</div>
-          </div>
-          <p>Küsi ronija isikut tõendavat dokumenti</p>
+        <p>Küsi ronija isikut tõendavat dokumenti</p>
+      </div>
+      <div class="row">
+        <div class="row-number-wrapper">
+          <div class="row-number">2</div>
         </div>
-        <div class="row">
-          <div class="row-number-wrapper">
-            <div class="row-number">2</div>
-          </div>
-          <p>Veendu, et tegemist on sama inimesega</p>
+        <p>Veendu, et tegemist on sama inimesega</p>
+      </div>
+      <div class="row">
+        <div class="row-number-wrapper">
+          <div class="row-number">3</div>
         </div>
-        <div class="row">
-          <div class="row-number-wrapper">
-            <div class="row-number">3</div>
-          </div>
-          <p>Kontrolli registrist ronija isikukoodi</p>
+        <p>Kontrolli registrist ronija isikukoodi</p>
+      </div>
+      <div class="row">
+        <div class="row-number-wrapper">
+          <div class="row-number">4</div>
         </div>
-        <div class="row">
-          <div class="row-number-wrapper">
-            <div class="row-number">4</div>
-          </div>
-          <p>Veendu, et tal on õigus julgestada</p>
-        </div>
-      </template>
-    </Layout>
-  </div>
+        <p>Veendu, et tal on õigus julgestada</p>
+      </div>
+    </template>
+  </Layout>
 </template>
-
-<style scoped>
-.additional-info {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  font-size: 12px;
-  letter-spacing: 0.02em;
-}
-#no-access-result {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0px;
-  gap: 32px;
-  text-align: center;
-}
-#no-access-result h1 {
-  font-weight: 700;
-  color: #db4141;
-}
-.no-access-reason {
-  font-size: 20px;
-}
-.no-access-explanation {
-  display: flex;
-  text-align: left;
-  gap: 6px;
-  align-items: center;
-}
-.no-access-explanation img {
-  height: 1.5em;
-}
-</style>

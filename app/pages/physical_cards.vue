@@ -1,257 +1,186 @@
 <script setup lang="ts">
-interface Climber extends ClimberDto {
-  formattedExamTime: string;
-}
-
-const currentClimber = ref<
-  { id: string; certificate: "none" } | Climber | null
->(null);
-const idCode = ref("");
-const isLoading = ref(false);
-
-const isSubmitDisabled = computed(() => {
-  return !idCode.value || idCode.value.length !== 11;
+const { loggedIn, fetch } = useUserSession();
+const credentials = ref({
+  email: "",
+  password: "",
 });
-const resultCardHeaderContent = computed(() => {
-  if (!currentClimber.value) return null;
-  switch (currentClimber.value.certificate) {
-    case "green":
-      return "ROHELINE KAART";
-    case "red":
-      return "PUNANE KAART";
-    default:
-      return null;
-  }
-});
-const certificateDescription = computed(() => {
-  if (!currentClimber.value) return null;
-  switch (currentClimber.value.certificate) {
-    case "green":
-      return "Sellel isikul on õigus iseseisvalt ülaltjulgestuses ronida ja julgestada.";
-    case "red":
-      return "Sellel isikul on õigus iseseisvalt altjulgestuses ronida ja julgestada.";
-    case "expired":
-      return "Selle isiku julgestajakaart on aegnud. Tal ei ole õigust iseseisvalt ronida enne kaardi uuendamist.";
-    default:
-      return "Seda isikukoodi ei ole registrisse lisatud. Tal ei ole õigust iseseisvalt ronida.";
-  }
-});
-
-function isClimberCertified(
-  climber: { id: string; certificate: "none" } | Climber | null,
-): climber is Climber {
-  return climber != null && ["green", "red"].includes(climber.certificate);
-}
-
-const noAccessReason = computed(() => {
-  if (currentClimber.value?.certificate === "expired")
-    return "Selle isiku julgestajakaart on aegnud.";
-  return "Seda isikukoodi ei ole registrisse lisatud.";
-});
-
-const fetchClimberData = async (id: string) => {
-  const body = await $fetch(`/api/check?id=${id}`);
-  if (!body) {
-    return null;
-  }
-  if (body.success) {
-    return formatClimberData(body);
-  }
-  return {
-    id,
-    certificate: "none",
-  } as const;
-};
-const submit = () => {
-  if (!idCode.value) return;
-  isLoading.value = true;
-  fetchClimberData(idCode.value)
-    .then((data) => {
-      currentClimber.value = data;
-    })
-    .finally(() => {
-      isLoading.value = false;
+const toast = useToast();
+async function login() {
+  try {
+    await $fetch("/api/login", {
+      method: "POST",
+      body: credentials.value,
     });
-};
-const formatClimberData = (raw: ClimberDto) => {
-  return {
-    ...raw,
-    formattedExamTime: raw.examTime?.replaceAll("-", "/") || "N/A",
-    certificate: invalidateCertificateIfExpired(raw),
-  };
-};
-const invalidateCertificateIfExpired = (climberData: ClimberDto) => {
-  if (Date.parse(climberData.expiryTime) < Date.now()) {
-    // If expiry time is in the past and there's no exam time it means that
-    // the record was never updated from application to the real certificate
-    // it that case we will rather show "no certificate" than "expired"
-    if (!climberData.examTime) {
-      return "none";
-    }
-    return "expired";
+
+    await fetch();
+  } catch (e) {
+    toast.add({
+      title: "Sisselogimine ebaõnnestus",
+      description: "Kasutajanimi või parool olid valed",
+      color: "error",
+    });
   }
-  return climberData.certificate;
+}
+
+const climber = ref<
+  { id: string; certificate: "none" } | CardClimberDto | null
+>(null);
+
+const cardSerialCode = ref("");
+const insertStatus = ref<{ code: string; message?: unknown }>({
+  code: "no_insert",
+});
+async function insertSerialCode() {
+  if (climber.value == null) {
+    insertStatus.value = {
+      code: "error",
+      message: "Süsteemi viga, isikukood puudub",
+    };
+  } else {
+    try {
+      insertStatus.value = { code: "loading" };
+      await $fetch("/api/save_serial", {
+        method: "POST",
+        body: {
+          climberIdCode: climber.value.id,
+          serialCode: cardSerialCode.value,
+        },
+      });
+      insertStatus.value = { code: "success" };
+    } catch (e) {
+      if (typeof e == "object" && e != null && "statusMessage" in e) {
+        insertStatus.value = { code: "error", message: e.statusMessage };
+      } else {
+        insertStatus.value = { code: "error" };
+      }
+    }
+  }
+}
+const fetchClimberData = async (id: string) => {
+  try {
+    return await $fetch(`/api/physical_status?id=${id}`);
+  } catch (e) {
+    return {
+      id,
+      certificate: "none",
+    } as const;
+  }
 };
+const searchClimber = async (idCode: string) => {
+  climber.value = await fetchClimberData(idCode);
+};
+
+function handleModalClose() {
+  if (insertStatus.value.code == "success") {
+    climber.value = null;
+  }
+}
 </script>
 
 <template>
-  <div style="height: 100%; width: 100%; display: flex; align-items: stretch">
-    <Title>Julgestajakaardi registri otsing</Title>
-
-    <Layout
-      :show-results="currentClimber != null"
-      v-on:go-back="currentClimber = null"
-    >
+  <div>
+    <Layout :show-results="climber != null">
       <template #form>
-        <form @submit.prevent="submit">
-          <p>Kontrolli ronimisõigust isikukoodi alusel</p>
-          <FormBody>
-            <label
-              >Isikukood
-              <input
-                type="text"
-                v-model.trim="idCode"
-                maxlength="11"
-                placeholder="12345678901"
-              />
-            </label>
-            <Button :disabled="isSubmitDisabled">
-              <img
-                class="loading-spinner"
-                v-if="isLoading"
-                src="/assets/Rolling-1s-200px.svg"
-              />{{ isLoading ? "" : "KONTROLLI" }}
-            </Button>
-          </FormBody>
-        </form>
-      </template>
+        <div v-if="loggedIn">
+          <ClimberSearchForm :submit="searchClimber" />
+        </div>
+        <div v-else>
+          <p>Logi sisse</p>
+          <form @submit.prevent="login">
+            <form-body>
+              <label>
+                Email
+                <input
+                  v-model="credentials.email"
+                  type="email"
+                  placeholder="admin@ronimisliit.ee"
+                />
+              </label>
+              <label>
+                Parool
+                <input
+                  v-model="credentials.password"
+                  type="password"
+                  placeholder="w5DB5jIm0soTMW"
+                />
+              </label>
 
-      <template #results>
-        <template v-if="isClimberCertified(currentClimber)">
-          <div id="result">
-            <div :class="currentClimber.certificate + ' header'">
-              {{ resultCardHeaderContent }}
-            </div>
-            <div id="result-content">
-              <div class="row">
-                <p class="heading">ISIKUKOOD</p>
-                <p class="content">{{ currentClimber.id }}</p>
-              </div>
-              <div class="row">
-                <p class="heading">TÄISNIMI</p>
-                <p class="content">{{ currentClimber.name }}</p>
-              </div>
-              <div class="row">
-                <p class="heading">KEHTIV KUNI</p>
-                <p class="content">
-                  {{ currentClimber.expiryTime?.replaceAll("-", "/") }}
-                </p>
-              </div>
-              <p class="description">{{ certificateDescription }}</p>
-              <div class="additional-info">
-                <p>EKSAMI AEG: {{ currentClimber.formattedExamTime }}</p>
-                <p>EKSAMINEERIJA: {{ currentClimber.examiner }}</p>
-                <!--
-                <p v-if="currentClimber.cardSerialId">
-                  KAARDI SEERIANUMBER: {{ currentClimber.cardSerialId }}.
-                  <NuxtLink :to="`/physical_card/${currentClimber.id}`"
-                    >SISESTA UUS</NuxtLink
-                  >
-                </p>
-                <p v-else>
-                  KAARDI SEERIANUMBER PUUDUB.
-                  <NuxtLink :to="`/physical_card/${currentClimber.id}`"
-                    >SISESTA</NuxtLink
-                  >
-                </p>
-                -->
-              </div>
-            </div>
-          </div>
-          <p class="warning">
-            Veendu, et ronija on isikut tõendava dokumendi omanik
-          </p>
-        </template>
-        <div
-          v-if="currentClimber && !isClimberCertified(currentClimber)"
-          id="no-access-result"
-        >
-          <h1>Ligipääs keelatud</h1>
-          <p>
-            ISIKUKOOD: <b>{{ currentClimber.id }}</b>
-          </p>
-          <p class="no-access-reason">Põhjus: {{ noAccessReason }}</p>
-          <img src="/assets/NoAccesToWall.svg" />
-          <div class="no-access-explanation">
-            <img src="/assets/exclamation.svg" />
-            <p>
-              Sellel isikul ei ole lubatud seinal viibida ilma instruktorita.
-            </p>
-          </div>
+              <Button>Logi sisse</Button>
+            </form-body>
+          </form>
         </div>
       </template>
 
-      <template #instructions-header>Ronimisõiguse kontrollimine</template>
+      <template #results>
+        <ClimberStatus v-if="climber" :climber="climber">
+          <template #information v-if="climber.certificate != 'none'">
+            <div class="row">
+              <p class="heading">VÄLJASTATUD KAART</p>
+              <p class="content">
+                {{ climber.cardSerialId ?? "PUUDUB" }}
+                <UModal v-on:after:leave="handleModalClose">
+                  <Button>SEO UUEGA</Button>
+
+                  <template #body>
+                    <p v-if="insertStatus.code == 'success'">
+                      Edukalt salvestatud
+                    </p>
+                    <form v-else @submit.prevent="insertSerialCode">
+                      <p>Sisesta kaardi seerianumber</p>
+                      <form-body>
+                        <label>Isikukood: {{ climber.id }}</label>
+                        <label>Nimi: {{ climber.name }}</label>
+                        <label>
+                          Kaardi seerianumber
+                          <input v-model.trim="cardSerialCode" />
+                        </label>
+                        <Button :disabled="!cardSerialCode">
+                          <img
+                            class="loading-spinner"
+                            v-if="insertStatus.code == 'loading'"
+                            src="/assets/Rolling-1s-200px.svg"
+                          /><template v-else>Sisesta</template>
+                        </Button>
+                        <p v-if="insertStatus.code == 'error'">
+                          Sisestamise viga! {{ insertStatus.message }}
+                        </p>
+                      </form-body>
+                    </form>
+                  </template>
+                </UModal>
+              </p>
+            </div>
+          </template>
+        </ClimberStatus>
+      </template>
+
+      <template #instructions-header>Väljastatud kaardi lisamine</template>
       <template #instructions>
         <div class="row">
           <div class="row-number-wrapper">
             <div class="row-number">1</div>
           </div>
-          <p>Küsi ronija isikut tõendavat dokumenti</p>
+          <p>Logi sisse</p>
         </div>
         <div class="row">
           <div class="row-number-wrapper">
             <div class="row-number">2</div>
           </div>
-          <p>Veendu, et tegemist on sama inimesega</p>
+          <p>Küsi ronija isikut tõendavat dokumenti</p>
         </div>
         <div class="row">
           <div class="row-number-wrapper">
             <div class="row-number">3</div>
           </div>
-          <p>Kontrolli registrist ronija isikukoodi</p>
+          <p>Kirjuta inimese nimi kaardile</p>
         </div>
         <div class="row">
           <div class="row-number-wrapper">
             <div class="row-number">4</div>
           </div>
-          <p>Veendu, et tal on õigus julgestada</p>
+          <p>Sisesta kaardi kood vormi</p>
         </div>
       </template>
     </Layout>
   </div>
 </template>
-
-<style scoped>
-.additional-info {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  font-size: 12px;
-  letter-spacing: 0.02em;
-}
-#no-access-result {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0px;
-  gap: 32px;
-  text-align: center;
-}
-#no-access-result h1 {
-  font-weight: 700;
-  color: #db4141;
-}
-.no-access-reason {
-  font-size: 20px;
-}
-.no-access-explanation {
-  display: flex;
-  text-align: left;
-  gap: 6px;
-  align-items: center;
-}
-.no-access-explanation img {
-  height: 1.5em;
-}
-</style>

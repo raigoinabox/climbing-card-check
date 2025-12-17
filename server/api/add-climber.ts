@@ -1,11 +1,8 @@
 import { validate } from "../utils/_auth";
-import { certificateCodeToRegistryValue } from "../utils/exams_db.data-utils";
-import * as db from "../utils/exams_db";
 import {
   climberAddedNextSteps,
   climberAddedNotification,
 } from "../utils/_email";
-import * as key from "../utils/_key";
 
 function calculateExpiryDate(examDate: string) {
   // Add 3 years to exam date for certificate expiry
@@ -98,23 +95,23 @@ export default defineEventHandler(async (event) => {
   };
 
   // Row data matching header: formFillTime, id, name, certificate, examDate, expiryDate, daysUntilExpiry, examiner, email, phone, comment, formFillerEmail, formPassword, dataConsent, responsiblityConsent
-  const rowData = [
-    new Date().toISOString(), // formFillTime
-    idCode, // id
-    name, // name
-    certificateCodeToRegistryValue(cardType), // certificate
-    examDate, // examDate
-    record.expiryTime, // expiryDate
-    "", // daysUntilExpiry - calculated field, left empty (formulas don't work with append API)
-    authUser.name, // examiner
-    email, // email
-    "", // phone - not collected in this form
-    comment || "", // comment
-    "", // formFillerEmail - not applicable for automatic entry
-    "", // formPassword - not applicable for automatic entry
-    "", // dataConsent - not collected in this form
-    "", // responsiblityConsent - not collected in this form
-  ];
+  // const rowData = [
+  //   new Date().toISOString(), // formFillTime
+  //   idCode, // id
+  //   name, // name
+  //   certificateCodeToRegistryValue(cardType), // certificate
+  //   examDate, // examDate
+  //   record.expiryTime, // expiryDate
+  //   "", // daysUntilExpiry - calculated field, left empty (formulas don't work with append API)
+  //   authUser.name, // examiner
+  //   email, // email
+  //   "", // phone - not collected in this form
+  //   comment || "", // comment
+  //   "", // formFillerEmail - not applicable for automatic entry
+  //   "", // formPassword - not applicable for automatic entry
+  //   "", // dataConsent - not collected in this form
+  //   "", // responsiblityConsent - not collected in this form
+  // ];
 
   // await db.addRow(sheetsClient, rowData);
   await Promise.all([

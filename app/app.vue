@@ -109,8 +109,6 @@ input {
   align-items: flex-start;
   border-radius: 16px 16px 0px 0px;
   padding: 1em;
-  padding-bottom: 1em;
-  padding-left: 1em;
   font-weight: 700;
   font-size: 28px;
   line-height: 24px;

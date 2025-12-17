@@ -16,53 +16,55 @@ const goBack = () => {
 </script>
 
 <template>
-  <div class="left-background">
-    <div class="left-background2"></div>
-  </div>
-  <div id="left" :class="showResults ? 'desktop' : ''">
-    <div id="form">
-      <div>
-        <h2>Eesti Ronimisliit</h2>
-        <h1>Julgestajakaardi register</h1>
+  <div style="display: flex">
+    <div class="left-background">
+      <div class="left-background2"></div>
+    </div>
+    <div id="left" :class="showResults ? 'desktop' : ''">
+      <div id="form">
+        <div>
+          <h2>Eesti Ronimisliit</h2>
+          <h1>Julgestajakaardi register</h1>
+        </div>
+        <slot name="form"></slot>
       </div>
-      <slot name="form"></slot>
+      <div
+        @click="toggleMobileInstructions"
+        class="mobile"
+        id="mobile-instructions-link"
+      >
+        <a>Vajad abi? Loe kasutusjuhendit siit</a>
+        <img src="/assets/chevron-right.svg" />
+      </div>
+    </div>
+    <div id="right" class="desktop">
+      <div class="centered-content">
+        <slot name="results"></slot>
+        <div v-if="!showResults" class="instructions">
+          <slot name="instructions"></slot>
+        </div>
+      </div>
     </div>
     <div
-      @click="toggleMobileInstructions"
+      v-if="showMobileInstructions && !showResults"
       class="mobile"
-      id="mobile-instructions-link"
+      id="mobile-instructions"
     >
-      <a>Vajad abi? Loe kasutusjuhendit siit</a>
-      <img src="/assets/chevron-right.svg" />
-    </div>
-  </div>
-  <div id="right" class="desktop">
-    <div class="centered-content">
-      <slot name="results"></slot>
-      <div v-if="!showResults" class="instructions">
+      <div @click="toggleMobileInstructions" class="back-button">
+        <img src="/assets/chevron-left.svg" />Tagasi
+      </div>
+      <h1><slot name="instructions-header"></slot></h1>
+      <div class="instructions">
         <slot name="instructions"></slot>
       </div>
     </div>
-  </div>
-  <div
-    v-if="showMobileInstructions && !showResults"
-    class="mobile"
-    id="mobile-instructions"
-  >
-    <div @click="toggleMobileInstructions" class="back-button">
-      <img src="/assets/chevron-left.svg" />Tagasi
-    </div>
-    <h1><slot name="instructions-header"></slot></h1>
-    <div class="instructions">
-      <slot name="instructions"></slot>
-    </div>
-  </div>
-  <div id="mobile-results" v-if="showResults" class="mobile">
-    <div class="centered-content">
-      <div @click="goBack" class="back-button">
-        <img src="/assets/chevron-left.svg" />Tagasi
+    <div id="mobile-results" v-if="showResults" class="mobile">
+      <div class="centered-content">
+        <div @click="goBack" class="back-button">
+          <img src="/assets/chevron-left.svg" />Tagasi
+        </div>
+        <slot name="results"></slot>
       </div>
-      <slot name="results"></slot>
     </div>
   </div>
 </template>

@@ -1,13 +1,14 @@
+export type CertificateState = "red" | "green" | "none" | "unknown";
+
 export interface ClimberDto {
-  success: true;
   id: string;
   name?: string;
-  certificate: string;
+  certificate: CertificateState | "expired";
   examTime: string;
   expiryTime: string;
   examiner: string | null;
 }
 
-export type CheckDto =
-  | ClimberDto
-  | { id: unknown; success: false; message: unknown };
+export interface CardClimberDto extends ClimberDto {
+  cardSerialId: string | undefined;
+}
