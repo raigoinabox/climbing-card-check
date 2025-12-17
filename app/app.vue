@@ -16,9 +16,12 @@ const items = computed<NavigationMenuItem[]>(() => [
   />
 
   <UApp>
-    <UHeader title="Julgestajakaardi register"
-      ><UNavigationMenu :items="items"
-    /></UHeader>
+    <UHeader title="Julgestajakaardi register">
+      <UNavigationMenu :items="items" />
+      <template #body
+        ><UNavigationMenu :items="items" orientation="vertical"
+      /></template>
+    </UHeader>
     <UMain>
       <NuxtPage />
     </UMain>
@@ -301,18 +304,6 @@ input {
   }
   #mobile-instructions-link img {
     height: 1em;
-  }
-  #mobile-instructions {
-    height: 100%;
-    width: 100%;
-    z-index: 9999;
-    position: absolute;
-    background: #f4f7ff;
-    padding: 24px;
-  }
-  #mobile-instructions h1 {
-    text-align: center;
-    padding-bottom: 24px;
   }
 }
 

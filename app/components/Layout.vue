@@ -74,7 +74,7 @@ const goBack = () => {
   position: fixed;
   left: 0;
   right: 0;
-  z-index: 1;
+  z-index: -1;
   display: block;
   background-image: url("/assets/stock-photo.jpg");
   background-repeat: no-repeat;
@@ -89,7 +89,6 @@ const goBack = () => {
 }
 
 #left {
-  z-index: 9999;
   min-height: calc(100vh - var(--ui-header-height));
   width: 50%;
   display: flex;
@@ -100,7 +99,6 @@ const goBack = () => {
 }
 
 #right {
-  z-index: 9999;
   width: 50%;
   display: flex;
   flex-direction: column;
@@ -117,6 +115,17 @@ const goBack = () => {
     padding-top: 48px;
     width: 100%;
     justify-content: space-evenly;
+  }
+  #mobile-instructions {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    background: #f4f7ff;
+    padding: 24px;
+  }
+  #mobile-instructions h1 {
+    text-align: center;
+    padding-bottom: 24px;
   }
 }
 </style>
