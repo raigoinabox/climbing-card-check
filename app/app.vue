@@ -32,6 +32,9 @@ const items = computed<NavigationMenuItem[]>(() => [
 html {
   font-family: "Poppins", system-ui, sans-serif;
 }
+:root {
+  --ui-primary: var(--color-blue-500)
+}
 
 /*
   6. Improve media defaults
@@ -284,26 +287,6 @@ input {
     letter-spacing: 0.02em;
     margin-bottom: 20px;
     cursor: pointer;
-  }
-  #mobile-instructions-link {
-    background: #f4f7ff;
-    border-radius: 16px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    gap: 10px;
-    color: #284bb1;
-    font-size: 12px;
-    line-height: 24px;
-    letter-spacing: 0.02em;
-    width: 100%;
-    max-width: 500px;
-    cursor: pointer;
-  }
-  #mobile-instructions-link img {
-    height: 1em;
   }
 }
 

@@ -127,5 +127,25 @@ const goBack = () => {
     text-align: center;
     padding-bottom: 24px;
   }
+  #mobile-instructions-link {
+    background: #f4f7ff;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    gap: 10px;
+    color: #284bb1;
+    font-size: 12px;
+    line-height: 24px;
+    letter-spacing: 0.02em;
+    width: 100%;
+    max-width: 500px;
+    cursor: pointer;
+  }
+  #mobile-instructions-link img {
+    height: 1em;
+  }
 }
 </style>
