@@ -8,13 +8,6 @@ const items = computed<NavigationMenuItem[]>(() => [
 </script>
 
 <template>
-  <Link rel="preconnect" href="https://fonts.googleapis.com" />
-  <Link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
-  <Link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap"
-    rel="stylesheet"
-  />
-
   <UApp>
     <UHeader title="Julgestajakaardi register">
       <UNavigationMenu :items="items" />
@@ -29,13 +22,6 @@ const items = computed<NavigationMenuItem[]>(() => [
 </template>
 
 <style>
-html {
-  font-family: "Poppins", system-ui, sans-serif;
-}
-:root {
-  --ui-primary: var(--color-blue-500)
-}
-
 /*
   6. Improve media defaults
 */

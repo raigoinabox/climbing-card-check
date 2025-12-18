@@ -19,7 +19,7 @@ const submit = async (idCode: string) => {
 </script>
 
 <template>
-  <Layout :show-results="climber != null" v-on:go-back="climber = null">
+  <Layout :show-results="climber != null" @go-back="climber = null">
     <template #form>
       <ClimberSearchForm :submit="submit" />
     </template>

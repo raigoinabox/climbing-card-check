@@ -79,7 +79,7 @@ function handleModalClose() {
 
 <template>
   <div>
-    <Layout :show-results="climber != null">
+    <Layout :show-results="climber != null" @go-back="climber = null">
       <template #form>
         <div v-if="loggedIn">
           <ClimberSearchForm :submit="searchClimber" />
