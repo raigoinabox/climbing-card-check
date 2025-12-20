@@ -1,4 +1,3 @@
-import { Auth } from "googleapis";
 import { timingSafeEqual } from "crypto";
 
 const usersModel = SheetModel.fixed("Instruktorite paroolid", [
@@ -10,6 +9,7 @@ const usersModel = SheetModel.fixed("Instruktorite paroolid", [
 function isStringsConstantTimeEqual(a: string, b: string) {
   try {
     return timingSafeEqual(Buffer.from(a, "utf8"), Buffer.from(b, "utf8"));
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     return false;
   }

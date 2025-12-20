@@ -18,7 +18,7 @@ const goBack = () => {
 <template>
   <div style="display: flex">
     <div class="left-background">
-      <div class="left-background2"></div>
+      <div class="left-background2" />
     </div>
     <div id="left" :class="showResults ? 'desktop' : ''">
       <div id="form">
@@ -26,44 +26,44 @@ const goBack = () => {
           <h2>Eesti Ronimisliit</h2>
           <h1>Julgestajakaardi register</h1>
         </div>
-        <slot name="form"></slot>
+        <slot name="form" />
       </div>
       <div
-        @click="toggleMobileInstructions"
-        class="mobile"
         id="mobile-instructions-link"
+        class="mobile"
+        @click="toggleMobileInstructions"
       >
         <a>Vajad abi? Loe kasutusjuhendit siit</a>
-        <img src="/assets/chevron-right.svg" />
+        <img src="/assets/chevron-right.svg" >
       </div>
     </div>
     <div id="right" class="desktop">
       <div class="centered-content">
-        <slot name="results"></slot>
+        <slot name="results" />
         <div v-if="!showResults" class="instructions">
-          <slot name="instructions"></slot>
+          <slot name="instructions" />
         </div>
       </div>
     </div>
     <div
       v-if="showMobileInstructions && !showResults"
-      class="mobile"
       id="mobile-instructions"
+      class="mobile"
     >
-      <div @click="toggleMobileInstructions" class="back-button">
-        <img src="/assets/chevron-left.svg" />Tagasi
+      <div class="back-button" @click="toggleMobileInstructions">
+        <img src="/assets/chevron-left.svg" >Tagasi
       </div>
-      <h1><slot name="instructions-header"></slot></h1>
+      <h1><slot name="instructions-header" /></h1>
       <div class="instructions">
-        <slot name="instructions"></slot>
+        <slot name="instructions" />
       </div>
     </div>
-    <div id="mobile-results" v-if="showResults" class="mobile">
+    <div v-if="showResults" id="mobile-results" class="mobile">
       <div class="centered-content">
-        <div @click="goBack" class="back-button">
-          <img src="/assets/chevron-left.svg" />Tagasi
+        <div class="back-button" @click="goBack">
+          <img src="/assets/chevron-left.svg" >Tagasi
         </div>
-        <slot name="results"></slot>
+        <slot name="results" />
       </div>
     </div>
   </div>

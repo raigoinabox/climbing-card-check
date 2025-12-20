@@ -2,7 +2,7 @@
   <div>
     <Title>Makse õnnestus - Julgestajakaardi register</Title>
 
-    <div id="left-background"></div>
+    <div id="left-background" />
     <div id="left">
       <div id="form">
         <div>

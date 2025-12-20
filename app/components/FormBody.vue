@@ -1,6 +1,6 @@
 <template>
   <div class="id-input">
-    <slot></slot>
+    <slot />
   </div>
 </template>
 

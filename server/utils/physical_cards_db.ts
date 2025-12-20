@@ -1,5 +1,3 @@
-import { Auth } from "googleapis";
-
 const cardsModel = SheetModel.fixed("Füüsilised kaardid", [
   "issuedCardId",
   "climberId",

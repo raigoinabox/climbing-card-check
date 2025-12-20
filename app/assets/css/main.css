@@ -3,5 +3,5 @@
 
 @theme {
   --font-sans: "Poppins", system-ui, sans-serif;
-  --ui-primary: var(--color-blue-500)
+  --ui-primary: var(--color-blue-500);
 }

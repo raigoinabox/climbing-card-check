@@ -127,10 +127,6 @@ const goBack = () => {
   showMobileInstructions.value = false;
   resetForm();
 };
-const addAnother = () => {
-  submittedData.value = null;
-  resetForm();
-};
 const resetForm = () => {
   formData.value = {
     idCode: "",
@@ -165,8 +161,8 @@ const formatDate = (dateString: string | undefined) => {
   <div>
     <Title>Julgestajakaardi registri vorm</Title>
 
-    <div id="left-background"></div>
-    <div id="left" v-if="submittedData == null">
+    <div id="left-background" />
+    <div v-if="submittedData == null" id="left">
       <!-- Login Form -->
       <form v-if="!isAuthenticated" id="form" @submit.prevent="login">
         <div>
@@ -177,26 +173,26 @@ const formatDate = (dateString: string | undefined) => {
         <div class="form-field">
           <label>Kasutajanimi</label>
           <input
-            type="text"
             v-model.trim="loginData.username"
+            type="text"
             placeholder="kasutaja"
-          />
+          >
         </div>
         <div class="form-field">
           <label>Parool</label>
           <input
-            type="password"
             v-model="loginData.password"
+            type="password"
             placeholder="parool"
-          />
+          >
         </div>
         <div v-if="loginError" class="error-message">{{ loginError }}</div>
         <button :disabled="isLoginDisabled">
           <img
-            class="loading-spinner"
             v-if="isLoggingIn"
+            class="loading-spinner"
             src="/assets/Rolling-1s-200px.svg"
-          />
+          >
           {{ isLoggingIn ? "" : "LOGI SISSE" }}
         </button>
       </form>
@@ -205,7 +201,7 @@ const formatDate = (dateString: string | undefined) => {
         <div>
           <h2>Eesti Ronimisliit</h2>
           <h1>Julgestajakaardi register</h1>
-          <button type="button" @click="logout" class="logout-button">
+          <button type="button" class="logout-button" @click="logout">
             Logi välja
           </button>
         </div>
@@ -213,28 +209,28 @@ const formatDate = (dateString: string | undefined) => {
         <div class="form-field">
           <label>Isikukood</label>
           <input
-            type="text"
+            id="idCode"
             v-model.trim="formData.idCode"
+            type="text"
             placeholder="12345678901"
             maxlength="11"
-            id="idCode"
-          />
+          >
         </div>
         <div class="form-field">
           <label>Ronija nimi</label>
           <input
-            type="text"
             v-model.trim="formData.name"
+            type="text"
             placeholder="Ees Perekonnanimi"
-          />
+          >
         </div>
         <div class="form-field">
           <label>Ronija e-mail</label>
           <input
-            type="email"
             v-model.trim="formData.email"
+            type="email"
             placeholder="ronija@email.ee"
-          />
+          >
         </div>
         <div class="form-field">
           <label>Kaardi tüüp</label>
@@ -246,7 +242,7 @@ const formatDate = (dateString: string | undefined) => {
         </div>
         <div class="form-field">
           <label>Eksami toimumise kuupäev</label>
-          <input type="date" v-model="formData.examDate" />
+          <input v-model="formData.examDate" type="date" >
         </div>
         <div class="form-field">
           <label>Kommentaar</label>
@@ -254,24 +250,24 @@ const formatDate = (dateString: string | undefined) => {
             v-model.trim="formData.comment"
             placeholder="Lisainfo või märkused..."
             rows="3"
-          ></textarea>
+          />
         </div>
         <button :disabled="isSubmitDisabled">
           <img
-            class="loading-spinner"
             v-if="isLoading"
+            class="loading-spinner"
             src="/assets/Rolling-1s-200px.svg"
-          />
+          >
           {{ isLoading ? "" : "SISESTA" }}
         </button>
       </form>
       <div
-        @click="toggleMobileInstructions"
-        class="mobile"
         id="mobile-instructions-link"
+        class="mobile"
+        @click="toggleMobileInstructions"
       >
         <a>Vajad abi? Loe kasutusjuhendit siit</a>
-        <img src="/assets/chevron-right.svg" />
+        <img src="/assets/chevron-right.svg" >
       </div>
     </div>
 
@@ -303,7 +299,7 @@ const formatDate = (dateString: string | undefined) => {
                 <p class="heading">EKSAMI KUUPÄEV</p>
                 <p class="content">{{ formatDate(submittedData.examDate) }}</p>
               </div>
-              <div class="row" v-if="submittedData.comment">
+              <div v-if="submittedData.comment" class="row">
                 <p class="heading">KOMMENTAAR</p>
                 <p class="content">{{ submittedData.comment }}</p>
               </div>
@@ -338,11 +334,11 @@ const formatDate = (dateString: string | undefined) => {
 
       <div
         v-if="showMobileInstructions && submittedData == null"
-        class="mobile"
         id="mobile-instructions"
+        class="mobile"
       >
-        <div @click="toggleMobileInstructions" class="back-button">
-          <img src="/assets/chevron-left.svg" />Tagasi
+        <div class="back-button" @click="toggleMobileInstructions">
+          <img src="/assets/chevron-left.svg" >Tagasi
         </div>
         <h1>Andmete sisestamine</h1>
         <div class="instructions">
@@ -367,10 +363,10 @@ const formatDate = (dateString: string | undefined) => {
         </div>
       </div>
 
-      <div id="mobile-results" v-if="submittedData != null" class="mobile">
+      <div v-if="submittedData != null" id="mobile-results" class="mobile">
         <div class="centered-content">
-          <div @click="goBack" class="back-button">
-            <img src="/assets/chevron-left.svg" />Tagasi
+          <div class="back-button" @click="goBack">
+            <img src="/assets/chevron-left.svg" >Tagasi
           </div>
           <div id="result">
             <div class="green header">ANDMED SISESTATUD</div>
@@ -397,7 +393,7 @@ const formatDate = (dateString: string | undefined) => {
                 <p class="heading">EKSAMI KUUPÄEV</p>
                 <p class="content">{{ formatDate(submittedData.examDate) }}</p>
               </div>
-              <div class="row" v-if="submittedData.comment">
+              <div v-if="submittedData.comment" class="row">
                 <p class="heading">KOMMENTAAR</p>
                 <p class="content">{{ submittedData.comment }}</p>
               </div>

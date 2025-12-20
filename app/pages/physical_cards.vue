@@ -13,6 +13,7 @@ async function login() {
     });
 
     await fetch();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     toast.add({
       title: "Sisselogimine ebaõnnestus",
@@ -59,6 +60,7 @@ async function insertSerialCode() {
 const fetchClimberData = async (id: string) => {
   try {
     return await $fetch(`/api/physical_status?id=${id}`);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     return {
       id,
@@ -79,7 +81,7 @@ function handleModalClose() {
 
 <template>
   <div>
-    <Layout :show-results="climber != null" @go-back="climber = null">
+    <RonLayout :show-results="climber != null" @go-back="climber = null">
       <template #form>
         <div v-if="loggedIn">
           <ClimberSearchForm :submit="searchClimber" />
@@ -94,7 +96,7 @@ function handleModalClose() {
                   v-model="credentials.email"
                   type="email"
                   placeholder="admin@ronimisliit.ee"
-                />
+                >
               </label>
               <label>
                 Parool
@@ -102,10 +104,10 @@ function handleModalClose() {
                   v-model="credentials.password"
                   type="password"
                   placeholder="w5DB5jIm0soTMW"
-                />
+                >
               </label>
 
-              <Button>Logi sisse</Button>
+              <FormButton>Logi sisse</FormButton>
             </form-body>
           </form>
         </div>
@@ -113,13 +115,13 @@ function handleModalClose() {
 
       <template #results>
         <ClimberStatus v-if="climber" :climber="climber">
-          <template #information v-if="climber.certificate != 'none'">
+          <template v-if="climber.certificate != 'none'" #information>
             <div class="row">
               <p class="heading">VÄLJASTATUD KAART</p>
               <p class="content">
                 {{ climber.cardSerialId ?? "PUUDUB" }}
-                <UModal v-on:after:leave="handleModalClose">
-                  <Button>SEO UUEGA</Button>
+                <UModal @after:leave="handleModalClose">
+                  <FormButton>SEO UUEGA</FormButton>
 
                   <template #body>
                     <p v-if="insertStatus.code == 'success'">
@@ -132,15 +134,15 @@ function handleModalClose() {
                         <label>Nimi: {{ climber.name }}</label>
                         <label>
                           Kaardi seerianumber
-                          <input v-model.trim="cardSerialCode" />
+                          <input v-model.trim="cardSerialCode" >
                         </label>
-                        <Button :disabled="!cardSerialCode">
+                        <FormButton :disabled="!cardSerialCode">
                           <img
-                            class="loading-spinner"
                             v-if="insertStatus.code == 'loading'"
+                            class="loading-spinner"
                             src="/assets/Rolling-1s-200px.svg"
-                          /><template v-else>Sisesta</template>
-                        </Button>
+                          ><template v-else>Sisesta</template>
+                        </FormButton>
                         <p v-if="insertStatus.code == 'error'">
                           Sisestamise viga! {{ insertStatus.message }}
                         </p>
@@ -181,6 +183,6 @@ function handleModalClose() {
           <p>Sisesta kaardi kood vormi</p>
         </div>
       </template>
-    </Layout>
+    </RonLayout>
   </div>
 </template>

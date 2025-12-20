@@ -27,19 +27,19 @@ async function submitForm() {
       <label
         >Isikukood
         <input
-          type="text"
           v-model.trim="idCode"
+          type="text"
           maxlength="11"
           placeholder="12345678901"
-        />
+        >
       </label>
-      <Button :disabled="isSubmitDisabled">
+      <FormButton :disabled="isSubmitDisabled">
         <img
-          class="loading-spinner"
           v-if="isLoading"
+          class="loading-spinner"
           src="/assets/Rolling-1s-200px.svg"
-        />{{ isLoading ? "" : "KONTROLLI" }}
-      </Button>
+        >{{ isLoading ? "" : "KONTROLLI" }}
+      </FormButton>
     </FormBody>
   </form>
 </template>

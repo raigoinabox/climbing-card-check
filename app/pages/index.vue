@@ -6,6 +6,7 @@ const climber = ref<{ id: string; certificate: "none" } | ClimberDto | null>(
 const fetchClimberData = async (id: string) => {
   try {
     return await $fetch(`/api/check?id=${id}`);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     return {
       id,
@@ -19,7 +20,7 @@ const submit = async (idCode: string) => {
 </script>
 
 <template>
-  <Layout :show-results="climber != null" @go-back="climber = null">
+  <RonLayout :show-results="climber != null" @go-back="climber = null">
     <template #form>
       <ClimberSearchForm :submit="submit" />
     </template>
@@ -55,5 +56,5 @@ const submit = async (idCode: string) => {
         <p>Veendu, et tal on õigus julgestada</p>
       </div>
     </template>
-  </Layout>
+  </RonLayout>
 </template>

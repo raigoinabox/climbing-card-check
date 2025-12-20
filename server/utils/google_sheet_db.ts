@@ -1,4 +1,4 @@
-import { Auth, google } from "googleapis";
+import { type Auth, google } from "googleapis";
 
 const spreadsheetId = process.env.SPREADSHEET_ID;
 const sheets = google.sheets("v4");
