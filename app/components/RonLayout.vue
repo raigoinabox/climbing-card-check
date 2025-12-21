@@ -34,7 +34,7 @@ const goBack = () => {
         @click="toggleMobileInstructions"
       >
         <a>Vajad abi? Loe kasutusjuhendit siit</a>
-        <img src="/assets/chevron-right.svg" >
+        <img src="/assets/chevron-right.svg" />
       </div>
     </div>
     <div id="right" class="desktop">
@@ -51,7 +51,7 @@ const goBack = () => {
       class="mobile"
     >
       <div class="back-button" @click="toggleMobileInstructions">
-        <img src="/assets/chevron-left.svg" >Tagasi
+        <img src="/assets/chevron-left.svg" />Tagasi
       </div>
       <h1><slot name="instructions-header" /></h1>
       <div class="instructions">
@@ -61,7 +61,7 @@ const goBack = () => {
     <div v-if="showResults" id="mobile-results" class="mobile">
       <div class="centered-content">
         <div class="back-button" @click="goBack">
-          <img src="/assets/chevron-left.svg" >Tagasi
+          <img src="/assets/chevron-left.svg" />Tagasi
         </div>
         <slot name="results" />
       </div>

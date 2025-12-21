@@ -96,7 +96,7 @@ function handleModalClose() {
                   v-model="credentials.email"
                   type="email"
                   placeholder="admin@ronimisliit.ee"
-                >
+                />
               </label>
               <label>
                 Parool
@@ -104,7 +104,7 @@ function handleModalClose() {
                   v-model="credentials.password"
                   type="password"
                   placeholder="w5DB5jIm0soTMW"
-                >
+                />
               </label>
 
               <FormButton>Logi sisse</FormButton>
@@ -134,14 +134,14 @@ function handleModalClose() {
                         <label>Nimi: {{ climber.name }}</label>
                         <label>
                           Kaardi seerianumber
-                          <input v-model.trim="cardSerialCode" >
+                          <input v-model.trim="cardSerialCode" />
                         </label>
                         <FormButton :disabled="!cardSerialCode">
                           <img
                             v-if="insertStatus.code == 'loading'"
                             class="loading-spinner"
                             src="/assets/Rolling-1s-200px.svg"
-                          ><template v-else>Sisesta</template>
+                          /><template v-else>Sisesta</template>
                         </FormButton>
                         <p v-if="insertStatus.code == 'error'">
                           Sisestamise viga! {{ insertStatus.message }}

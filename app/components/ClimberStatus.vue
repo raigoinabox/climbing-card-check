@@ -103,9 +103,9 @@ const invalidateCertificateIfExpired = (climberData: ClimberDto) => {
       ISIKUKOOD: <b>{{ climber.id }}</b>
     </p>
     <p class="no-access-reason">Põhjus: {{ noAccessReason }}</p>
-    <img src="/assets/NoAccesToWall.svg" >
+    <img src="/assets/NoAccesToWall.svg" />
     <div class="no-access-explanation">
-      <img src="/assets/exclamation.svg" >
+      <img src="/assets/exclamation.svg" />
       <p>Sellel isikul ei ole lubatud seinal viibida ilma instruktorita.</p>
     </div>
   </div>

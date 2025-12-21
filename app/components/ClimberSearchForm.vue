@@ -31,14 +31,14 @@ async function submitForm() {
           type="text"
           maxlength="11"
           placeholder="12345678901"
-        >
+        />
       </label>
       <FormButton :disabled="isSubmitDisabled">
         <img
           v-if="isLoading"
           class="loading-spinner"
           src="/assets/Rolling-1s-200px.svg"
-        >{{ isLoading ? "" : "KONTROLLI" }}
+        />{{ isLoading ? "" : "KONTROLLI" }}
       </FormButton>
     </FormBody>
   </form>
