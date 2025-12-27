@@ -28,11 +28,3 @@ export const montonio = {
 
 const { SITE_BASE, VERCEL_URL } = process.env;
 export const siteBase = SITE_BASE || VERCEL_URL;
-
-export default {
-  siteBase,
-  registrationFee,
-  emailAuth,
-  email,
-  montonio,
-};

@@ -75,6 +75,8 @@ const searchClimber = async (idCode: string) => {
 function handleModalClose() {
   if (insertStatus.value.code == "success") {
     climber.value = null;
+    insertStatus.value = { code: "no_insert" };
+    cardSerialCode.value = "";
   }
 }
 </script>

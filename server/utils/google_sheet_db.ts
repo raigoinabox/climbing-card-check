@@ -62,7 +62,7 @@ export class SheetModel<T extends string> {
   private mapAndFilter(data: string[][], filter: (dto: Entity<T>) => boolean) {
     // Ignore human-readable headers(the first row), because those can change any time
     // form is changed. Will use the second row to key the columns
-    const headers = data[1];
+    const headers = data[this.dataRowIndex - 1];
     if (headers == null) {
       throw new Error("Sheet is missing second header row");
     }
@@ -74,7 +74,8 @@ export class SheetModel<T extends string> {
       if (this.dataRowIndex <= index) {
         const dto: Entity<T> = {};
         for (const [header, index] of headerIndexes) {
-          dto[header] = row[index];
+          const value = row[index];
+          dto[header] = value == "" ? undefined : value;
         }
         if (filter(dto)) {
           dtos.push(dto);

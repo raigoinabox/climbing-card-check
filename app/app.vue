@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from "@nuxt/ui";
+const { loggedIn, user, clear } = useUserSession();
 
 const items = computed<NavigationMenuItem[]>(() => [
   { label: "Otsing", to: "/" },
@@ -11,9 +12,19 @@ const items = computed<NavigationMenuItem[]>(() => [
   <UApp>
     <UHeader title="Julgestajakaardi register">
       <UNavigationMenu :items="items" />
-      <template #body
-        ><UNavigationMenu :items="items" orientation="vertical"
-      /></template>
+
+      <template v-if="loggedIn" #right>
+        <div class="hidden lg:block">
+          {{ user.name }}
+          <UButton variant="subtle" @click="clear">Logi välja</UButton>
+        </div>
+      </template>
+
+      <template #body>
+        {{ user.name }}
+        <UButton variant="subtle" @click="clear">Logi välja</UButton>
+        <UNavigationMenu :items="items" orientation="vertical" />
+      </template>
     </UHeader>
     <UMain>
       <NuxtPage />

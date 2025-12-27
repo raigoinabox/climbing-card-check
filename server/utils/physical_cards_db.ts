@@ -25,9 +25,10 @@ export async function insertPhysicalCard(
       statusMessage: "Sellise seeriakoodiga kaarti ei ole",
     });
   } else {
+    const removeCards = [];
     for (const card of cards) {
       if (card.issuedCardId == cardId) {
-        if (card.climberId != null && card.climberId != "") {
+        if (card.climberId != null) {
           throw createError({
             status: 400,
             statusMessage: "Kaart on juba ronijaga seotud",
@@ -38,9 +39,14 @@ export async function insertPhysicalCard(
         card.issuedBy = userName;
         await cardsModel.save(card);
       } else if (card.climberId == climberId) {
-        card.climberId = "";
-        await cardsModel.save(card);
+        // delay it so that that insert errors surface before destructive operations
+        removeCards.push(card);
       }
+    }
+
+    for (const card of removeCards) {
+      card.climberId = "";
+      await cardsModel.save(card);
     }
   }
 }
