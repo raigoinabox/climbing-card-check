@@ -1,16 +1,13 @@
 <script setup lang="ts">
+import type { CardClimberDto } from "~~/shared/types/api_types";
+import { useToast } from "@nuxt/ui/runtime/composables/useToast.js";
+
 const { loggedIn, fetch } = useUserSession();
-const credentials = ref({
-  email: "",
-  password: "",
-});
+const credentials = ref({ email: "", password: "" });
 const toast = useToast();
 async function login() {
   try {
-    await $fetch("/api/login", {
-      method: "POST",
-      body: credentials.value,
-    });
+    await $fetch("/api/login", { method: "POST", body: credentials.value });
 
     await fetch();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -49,28 +46,31 @@ async function insertSerialCode() {
       });
       insertStatus.value = { code: "success" };
     } catch (e) {
-      if (typeof e == "object" && e != null && "statusMessage" in e) {
-        insertStatus.value = { code: "error", message: e.statusMessage };
+      if (
+        typeof e == "object" &&
+        e != null &&
+        "data" in e &&
+        e.data != null &&
+        typeof e.data == "object" &&
+        "data" in e.data
+      ) {
+        insertStatus.value = { code: "error", message: e.data.data };
       } else {
         insertStatus.value = { code: "error" };
       }
     }
   }
 }
-const fetchClimberData = async (id: string) => {
+async function fetchClimberData(id: string) {
   try {
     return await $fetch(`/api/physical_status?id=${id}`);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (e) {
-    return {
-      id,
-      certificate: "none",
-    } as const;
+  } catch {
+    return { id, certificate: "none" } as const;
   }
-};
-const searchClimber = async (idCode: string) => {
+}
+async function searchClimber(idCode: string) {
   climber.value = await fetchClimberData(idCode);
-};
+}
 
 function handleModalClose() {
   if (insertStatus.value.code == "success") {
@@ -123,7 +123,7 @@ function handleModalClose() {
               <p class="content">
                 {{ climber.cardSerialId ?? "PUUDUB" }}
                 <UModal @after:leave="handleModalClose">
-                  <FormButton>SEO UUEGA</FormButton>
+                  <UButton style="vertical-align: middle">SEO UUEGA</UButton>
 
                   <template #body>
                     <p v-if="insertStatus.code == 'success'">

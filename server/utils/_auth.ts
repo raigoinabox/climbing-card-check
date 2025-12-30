@@ -26,10 +26,7 @@ if (validUsers.length === 0) {
 export const genHash = async (password: string) => {
   const salt = randomBytes(3);
   const hash = await deriveHash(salt, password);
-  return {
-    salt: salt.toString(ENC),
-    hash: hash.toString(ENC),
-  };
+  return { salt: salt.toString(ENC), hash: hash.toString(ENC) };
 };
 
 export const deriveHash = (

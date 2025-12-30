@@ -13,10 +13,7 @@ function calculateExpiryDate(examDate: string) {
 
 export default defineEventHandler(async (event) => {
   if (event.method !== "POST") {
-    throw createError({
-      statusCode: 405,
-      statusMessage: "Method not allowed",
-    });
+    throw createError({ statusCode: 405, statusMessage: "Method not allowed" });
   }
 
   const {
@@ -32,10 +29,7 @@ export default defineEventHandler(async (event) => {
   const authUser = await validate(username, password);
 
   if (!authUser) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: "Unauthorized",
-    });
+    throw createError({ statusCode: 401, statusMessage: "Unauthorized" });
   }
 
   // Validate required fields
@@ -55,10 +49,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (!isIdCodeValid(idCode)) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Invalid ID code",
-    });
+    throw createError({ statusCode: 400, statusMessage: "Invalid ID code" });
   }
 
   // Validate email format
@@ -72,10 +63,7 @@ export default defineEventHandler(async (event) => {
 
   // Validate card type
   if (!["green", "red"].includes(cardType)) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Invalid card type",
-    });
+    throw createError({ statusCode: 400, statusMessage: "Invalid card type" });
   }
 
   // Create the record with audit info

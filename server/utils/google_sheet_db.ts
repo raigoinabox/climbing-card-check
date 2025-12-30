@@ -1,4 +1,5 @@
 import { type Auth, google } from "googleapis";
+import { load } from "./_key";
 
 const spreadsheetId = process.env.SPREADSHEET_ID;
 const sheets = google.sheets("v4");

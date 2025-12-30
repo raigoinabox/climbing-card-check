@@ -82,11 +82,7 @@ export const createPaymentLink = async (
     billingAddress: contacts,
     shippingAddress: contacts,
     lineItems: [
-      {
-        name: "Registration",
-        quantity: 1,
-        finalPrice: registrationFee,
-      },
+      { name: "Registration", quantity: 1, finalPrice: registrationFee },
     ],
     payment: {
       method: "paymentInitiation",
@@ -115,12 +111,8 @@ export const createPaymentLink = async (
 
   const response = await fetch(`${montonio.api}/orders`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      data: token,
-    }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data: token }),
   });
 
   if (!response.ok) {
@@ -137,9 +129,5 @@ export const createPaymentLink = async (
     reference: result.merchantReference,
   });
 
-  return {
-    paymentUrl: result.paymentUrl,
-    payload,
-    result,
-  };
+  return { paymentUrl: result.paymentUrl, payload, result };
 };

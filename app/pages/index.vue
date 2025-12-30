@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ClimberDto } from "~~/shared/types/api_types";
 const climber = ref<{ id: string; certificate: "none" } | ClimberDto | null>(
   null,
 );
@@ -8,10 +9,7 @@ const fetchClimberData = async (id: string) => {
     return await $fetch(`/api/check?id=${id}`);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
-    return {
-      id,
-      certificate: "none",
-    } as const;
+    return { id, certificate: "none" } as const;
   }
 };
 const submit = async (idCode: string) => {

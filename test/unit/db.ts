@@ -3,8 +3,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { describe, it } from 'node:test';
-
-import * as utils from '../api/_db.data-utils.js';
+import { findExamById } from "../../server/utils/exams_db";
 
 const getFixture = () => {
 	return readFileSync(join(fileURLToPath(import.meta.url), '../fixture.txt'), 'utf8')
@@ -73,14 +72,14 @@ const invalidCases = {
 describe('DB', () => {
 	for (const [id, expected] of Object.entries(testCases)) {
 		it(`should find ${id}`, () => {
-			const result = utils.findById(getFixture(), id);
+			const result = findExamById(getFixture(), id);
 			assert.deepEqual(result, expected);
 		});
 	}
 
 	for (const [id, expectedError] of Object.entries(invalidCases)) {
 		it(`should error with ${id}`, () => {
-			assert.throws(() => utils.findById(getFixture(), id), expectedError);
+			assert.throws(() => findExamById(getFixture(), id), expectedError);
 		});
 	}
 });

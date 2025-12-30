@@ -94,44 +94,6 @@ input {
   margin: 24px;
 }
 
-#result {
-  max-width: 600px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  filter: drop-shadow(2px 2px 8px rgba(0, 0, 0, 0.15));
-  gap: 16px;
-  background: #f5f5f5;
-  border-radius: 16px 16px 16px 16px;
-}
-
-#result .header {
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  border-radius: 16px 16px 0px 0px;
-  padding: 1em;
-  font-weight: 700;
-  font-size: 28px;
-  line-height: 24px;
-  letter-spacing: 0.02em;
-  color: #ffffff;
-}
-
-.header.green {
-  background: linear-gradient(89.6deg, #388659 29.54%, #3eae6e 99.65%);
-}
-
-.header.red {
-  background: linear-gradient(88.84deg, #ae3939 20.82%, #d13333 97.63%);
-}
-
-.header.gray {
-  justify-content: center;
-  background: linear-gradient(89.14deg, #4d4d4d 28.5%, #8e8e8e 131.48%);
-}
-
 #result-content {
   display: flex;
   flex-direction: column;

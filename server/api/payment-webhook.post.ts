@@ -27,8 +27,5 @@ export default defineEventHandler(async (event) => {
   console.log("URL:", event.path);
   console.log("================================");
 
-  return {
-    success: true,
-    message: "Webhook received and logged",
-  };
+  return { success: true, message: "Webhook received and logged" };
 });

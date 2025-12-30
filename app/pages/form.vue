@@ -1,10 +1,7 @@
 <script setup lang="ts">
 // Authentication state
 const isAuthenticated = ref(false);
-const loginData = ref({
-  username: "",
-  password: "",
-});
+const loginData = ref({ username: "", password: "" });
 const authCredentials = ref<typeof loginData | null>(null);
 const loginError = ref("");
 const isLoggingIn = ref(false);
@@ -48,9 +45,7 @@ const login = () => {
 
   fetch("/api/auth", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(loginData.value),
   })
     .then(async (response) => ({ response, body: await response.json() }))
@@ -91,16 +86,11 @@ const submit = () => {
 
   isLoading.value = true;
 
-  const payload = {
-    ...formData.value,
-    ...authCredentials.value,
-  };
+  const payload = { ...formData.value, ...authCredentials.value };
 
   fetch("/api/add-climber", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   })
     .then((response) => response.json())

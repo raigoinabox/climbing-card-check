@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { ClimberDto } from "~~/shared/types/api_types";
+
 const { climber } = defineProps<{
   climber: { id: string; certificate: "none" } | ClimberDto;
 }>();
@@ -12,9 +14,9 @@ const certificate = computed(() => {
 });
 const resultCardHeaderContent = computed(() => {
   switch (certificate.value) {
-    case "green":
+    case "roheline":
       return "ROHELINE KAART";
-    case "red":
+    case "punane":
       return "PUNANE KAART";
     default:
       return null;
@@ -22,12 +24,12 @@ const resultCardHeaderContent = computed(() => {
 });
 const certificateDescription = computed(() => {
   switch (certificate.value) {
-    case "green":
+    case "roheline":
       return "Sellel isikul on õigus iseseisvalt ülaltjulgestuses ronida ja julgestada.";
-    case "red":
+    case "punane":
       return "Sellel isikul on õigus iseseisvalt altjulgestuses ronida ja julgestada.";
     case "expired":
-      return "Selle isiku julgestajakaart on aegnud. Tal ei ole õigust iseseisvalt ronida enne kaardi uuendamist.";
+      return "Selle isiku julgestajakaart on aegunud. Tal ei ole õigust iseseisvalt ronida enne kaardi uuendamist.";
     default:
       return "Seda isikukoodi ei ole registrisse lisatud. Tal ei ole õigust iseseisvalt ronida.";
   }
@@ -35,14 +37,14 @@ const certificateDescription = computed(() => {
 
 const noAccessReason = computed(() => {
   if (certificate.value === "expired")
-    return "Selle isiku julgestajakaart on aegnud.";
+    return "Selle isiku julgestajakaart on aegunud.";
   return "Seda isikukoodi ei ole registrisse lisatud.";
 });
 
 function isClimberCertified(
   climber: { id: string; certificate: "none" } | ClimberDto,
 ): climber is ClimberDto {
-  return ["green", "red"].includes(certificate.value);
+  return ["roheline", "punane"].includes(certificate.value);
 }
 
 const formattedExamTime = computed(() => {
@@ -69,7 +71,13 @@ const invalidateCertificateIfExpired = (climberData: ClimberDto) => {
 <template>
   <template v-if="isClimberCertified(climber)">
     <div id="result">
-      <div :class="certificate + ' header'">
+      <div
+        class="header"
+        :class="{
+          green: certificate == 'roheline',
+          red: certificate == 'punane',
+        }"
+      >
         {{ resultCardHeaderContent }}
       </div>
       <div id="result-content">
@@ -142,5 +150,38 @@ const invalidateCertificateIfExpired = (climberData: ClimberDto) => {
 }
 .no-access-explanation img {
   height: 1.5em;
+}
+
+#result {
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  filter: drop-shadow(2px 2px 8px rgba(0, 0, 0, 0.15));
+  gap: 16px;
+  background: #f5f5f5;
+  border-radius: 16px 16px 16px 16px;
+}
+
+#result .header {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  border-radius: 16px 16px 0px 0px;
+  padding: 1em;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 24px;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+}
+
+.header.green {
+  background: linear-gradient(89.6deg, #388659 29.54%, #3eae6e 99.65%);
+}
+
+.header.red {
+  background: linear-gradient(88.84deg, #ae3939 20.82%, #d13333 97.63%);
 }
 </style>

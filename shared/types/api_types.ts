@@ -1,9 +1,9 @@
-export type CertificateState = "red" | "green" | "none" | "unknown";
+export type CertificateState = "punane" | "roheline" | "none" | "unknown";
 
 export interface ClimberDto {
   id: string;
   name?: string;
-  certificate: CertificateState | "expired";
+  certificate: CertificateState;
   examTime: string;
   expiryTime: string;
   examiner: string | null;

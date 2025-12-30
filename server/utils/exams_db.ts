@@ -1,31 +1,32 @@
 import { strict as assert } from "node:assert";
 import { inspect } from "node:util";
 import { SheetModel } from "./google_sheet_db";
+import type { IdCode } from "./climber_utils";
+import type { CertificateState } from "~~/shared/types/api_types";
 
 const CODE = {
-  GREEN: "green",
-  RED: "red",
+  GREEN: "roheline",
+  RED: "punane",
   NONE: "none",
   UNKNOWN: "unknown",
 } as const;
 
-const RAW_VALUE_TO_CODE = {
-  roheline: CODE.GREEN,
-  punane: CODE.RED,
-  "": CODE.NONE,
-};
-
 // Raw input from the sheet => valueof CODE
-const normalizeCertificate = (rawCertificate: string) => {
-  const lowered = rawCertificate.toLowerCase();
+function normalizeCertificate(rawCertificate: string | undefined) {
+  if (rawCertificate == null) {
+    return CODE.NONE;
+  }
 
-  if (lowered == "roheline" || lowered == "punane" || lowered == "") {
-    return RAW_VALUE_TO_CODE[lowered];
+  const lowered = rawCertificate.toLowerCase();
+  if (lowered == "punane") {
+    return CODE.RED;
+  } else if (lowered == "roheline") {
+    return CODE.GREEN;
   } else {
     console.error(`Invalid certificate input: ${rawCertificate}`);
     return CODE.UNKNOWN;
   }
-};
+}
 
 const assertValidDate = (parsed: Date) => {
   assert(
@@ -97,24 +98,24 @@ const findBestCertificate = (
   }
 
   const bestCard =
-    bestRedCard || bestGreenCard || anyExpiredCard || anyInvalidCard || null;
+    bestRedCard ?? bestGreenCard ?? anyExpiredCard ?? anyInvalidCard;
   if (bestCard == null) {
     throw new Error("couldn't find any card");
   }
   return bestCard;
 };
 
-const S = 1000;
-const MIN = 60 * S;
-const HR = 60 * MIN;
-const D = 24 * HR;
+const SECOND_IN_MILLISECONDS = 1000;
+const MINUTE_IN_MILLISECONDS = 60 * SECOND_IN_MILLISECONDS;
+const HOUR_IN_MILLISECONDS = 60 * MINUTE_IN_MILLISECONDS;
+const DAY_IN_MILLISECONDS = 24 * HOUR_IN_MILLISECONDS;
 const getExpiryTimeFromFormFillTime = (normDate: Date | null) => {
   if (!normDate) {
     return null;
   }
   assertValidDate(normDate);
   // Add 6 weeks
-  const exp = normDate.valueOf() + 6 * 7 * D;
+  const exp = normDate.valueOf() + 6 * 7 * DAY_IN_MILLISECONDS;
   return new Date(exp);
 };
 
@@ -135,7 +136,7 @@ export async function findExamById(id: IdCode) {
 
   const parsedCertificates = filteredRows.map((row) => {
     const rawCertificate = row.certificate;
-    const certificate = normalizeCertificate(rawCertificate ?? "");
+    const certificate = normalizeCertificate(rawCertificate);
 
     return {
       id,
@@ -144,9 +145,8 @@ export async function findExamById(id: IdCode) {
       examiner: row.examiner || null,
       examTime: parseDate(row.examDate),
       expiryTime:
-        parseDate(row.expiryDate) ||
-        getExpiryTimeFromFormFillTime(parseDate(row.formFillTime)) ||
-        null,
+        parseDate(row.expiryDate) ??
+        getExpiryTimeFromFormFillTime(parseDate(row.formFillTime)),
     };
   });
 
