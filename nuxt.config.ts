@@ -5,6 +5,5 @@ export default defineNuxtConfig({
   app: {
     head: { title: "Ronimisliidu registri otsing", htmlAttrs: { lang: "et" } },
   },
-  typescript: { typeCheck: true },
   imports: { scan: false },
 });
