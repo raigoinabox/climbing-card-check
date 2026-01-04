@@ -1,4 +1,7 @@
-import { insertPhysicalCard } from "../utils/physical_cards_service";
+import {
+  insertPhysicalCard,
+  ValidationError,
+} from "../utils/physical_cards_service";
 import { isIdCodeValid } from "../utils/climber_utils";
 
 export default defineEventHandler(async (event) => {
@@ -13,7 +16,15 @@ export default defineEventHandler(async (event) => {
       data: "Ronija isikukood ei ole õige",
     });
   }
-  await insertPhysicalCard(climberIdCode, serialCode, user.name);
+  try {
+    await insertPhysicalCard(climberIdCode, serialCode, user.name);
+  } catch (e) {
+    if (e instanceof ValidationError) {
+      throw createError({ statusCode: 400, data: e.message });
+    } else {
+      throw e;
+    }
+  }
 
   return {};
 });

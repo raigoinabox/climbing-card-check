@@ -1,5 +1,5 @@
 import { timingSafeEqual } from "crypto";
-import { SheetModel } from "./google_sheet_db";
+import { SheetModel } from "./sheet_model";
 
 const usersModel = SheetModel.fixed("Instruktorite paroolid", [
   "name",

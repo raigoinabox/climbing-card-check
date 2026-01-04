@@ -7,7 +7,6 @@ package.json
 public
 readme.md
 scripts
-test
 tsconfig.json
 vercel.json
 .eslintrc.cjs

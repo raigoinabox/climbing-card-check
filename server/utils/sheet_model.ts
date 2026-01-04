@@ -1,44 +1,17 @@
-import { type Auth, google } from "googleapis";
-import { load } from "./_key";
-
-const spreadsheetId = process.env.SPREADSHEET_ID;
-const sheets = google.sheets("v4");
-
-function isStringTable(data: unknown[][]): data is string[][] {
-  for (const row of data) {
-    for (const cell of row) {
-      if (typeof cell != "string") {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
-let _connection: Auth.JWT | null = null;
-async function getConnection() {
-  if (_connection == null) {
-    const secretKey = load();
-    const jwtClient = new google.auth.JWT({
-      email: secretKey.client_email,
-      key: secretKey.private_key,
-      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-    });
-    await jwtClient.authorize();
-    _connection = jwtClient;
-  }
-
-  return _connection;
-}
+import { SheetAccess } from "./sheet_access";
 
 type Entity<T extends string> = { [P in T]?: string };
 
+// global so that different SheetModels share a connection
+const table = new SheetAccess();
+
 export class SheetModel<T extends string> {
-  sheetName: string;
-  headers: T[];
-  headerIndexes: Map<T, number> | null = null;
-  positions = new WeakMap<Entity<T>, number>();
-  dataRowIndex = 2;
+  private sheetName: string;
+  private headers: T[];
+  private headerIndexes: Map<T, number> | null = null;
+  private positions = new WeakMap<Entity<T>, number>();
+  private fixedHeaders = false;
+  private dataRowIndex = 2;
 
   static fixed<T extends string>(sheetName: string, headers: T[]) {
     const model = new SheetModel<T>(sheetName, headers);
@@ -47,6 +20,7 @@ export class SheetModel<T extends string> {
       model.headerIndexes.set(header, index);
     }
     model.dataRowIndex = 1;
+    model.fixedHeaders = true;
     return model;
   }
 
@@ -88,22 +62,6 @@ export class SheetModel<T extends string> {
     return dtos;
   }
 
-  async appendRow(entity: Entity<T>) {
-    const appendRow = await this.entityToRow(entity);
-
-    const values = [appendRow];
-
-    const result = await sheets.spreadsheets.values.append({
-      auth: await getConnection(),
-      spreadsheetId: spreadsheetId,
-      range: this.sheetName,
-      valueInputOption: "RAW",
-      requestBody: { values },
-    });
-
-    return result;
-  }
-
   private mapHeaderIndexes(headers: string[]) {
     if (this.headerIndexes == null) {
       this.headerIndexes = new Map<T, number>();
@@ -130,26 +88,7 @@ export class SheetModel<T extends string> {
   }
 
   private async fetchTable(range: string) {
-    if (spreadsheetId == null) {
-      throw new Error("spreadSheetId must not be null");
-    }
-
-    const sheet = await sheets.spreadsheets.values.get({
-      auth: await getConnection(),
-      spreadsheetId: spreadsheetId,
-      range,
-    });
-
-    const data: unknown[][] | undefined | null = sheet.data.values;
-    if (data == null) {
-      throw new Error("sheet " + this.sheetName + " is missing");
-    } else if (!isStringTable(data)) {
-      throw new Error(
-        "sheet " + this.sheetName + " has a cell that is not a string",
-      );
-    }
-
-    return data;
+    return await table.getValues(range);
   }
 
   async save(entity: Entity<T>) {
@@ -158,14 +97,7 @@ export class SheetModel<T extends string> {
       throw new Error("Trying to save an entity that has no saved position");
     }
     const row = await this.entityToRow(entity);
-    const values = [row];
-    await sheets.spreadsheets.values.update({
-      auth: await getConnection(),
-      spreadsheetId: spreadsheetId,
-      range: `${this.sheetName}!${position}:${position}`,
-      valueInputOption: "RAW",
-      requestBody: { values },
-    });
+    await table.update(`${this.sheetName}!${position}:${position}`, row);
   }
 
   private async entityToRow(entity: Entity<T>) {
@@ -176,4 +108,20 @@ export class SheetModel<T extends string> {
     }
     return appendRow;
   }
+
+  // async appendRow(entity: Entity<T>) {
+  //   const appendRow = await this.entityToRow(entity);
+
+  //   const values = [appendRow];
+
+  //   const result = await sheets.spreadsheets.values.append({
+  //     auth: await getConnection(),
+  //     spreadsheetId: spreadsheetId,
+  //     range: this.sheetName,
+  //     valueInputOption: "RAW",
+  //     requestBody: { values },
+  //   });
+
+  //   return result;
+  // }
 }

@@ -1,5 +1,5 @@
 import type { IdCode } from "./climber_utils";
-import { SheetModel } from "./google_sheet_db";
+import { SheetModel } from "./sheet_model";
 
 interface Card {
   updatedAt?: string;

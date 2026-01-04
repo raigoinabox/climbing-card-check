@@ -1,6 +1,6 @@
 import { strict as assert } from "node:assert";
 import { inspect } from "node:util";
-import { SheetModel } from "./google_sheet_db";
+import { SheetModel } from "./sheet_model";
 import type { IdCode } from "./climber_utils";
 import type { CertificateState } from "~~/shared/types/api_types";
 
@@ -49,22 +49,18 @@ const parseDate = (rawValue: string | undefined) => {
   return parsed;
 };
 
-const findBestCertificate = (
-  certificates: {
-    id: string;
-    name: string | undefined;
-    examiner: string | null;
+function findBestCertificate<
+  T extends {
     expiryTime: Date | null;
     certificate: CertificateState;
     examTime: Date | null;
-  }[],
-) => {
+  },
+>(certificates: T[]) {
   // The best certificate is found as follows:
   // 1. Last issued RED card (that is still valid)
   // 2. Last issued GREEN card (that is still valid)
   // 3. Any expired card
   // 4. Any invalid card
-
   let bestRedCard = null;
   let bestGreenCard = null;
   let anyExpiredCard = null;
@@ -103,7 +99,7 @@ const findBestCertificate = (
     throw new Error("couldn't find any card");
   }
   return bestCard;
-};
+}
 
 const SECOND_IN_MILLISECONDS = 1000;
 const MINUTE_IN_MILLISECONDS = 60 * SECOND_IN_MILLISECONDS;
@@ -142,7 +138,7 @@ export async function findExamById(id: IdCode) {
       id,
       certificate,
       name: row.name,
-      examiner: row.examiner || null,
+      examiner: row.examiner ?? null,
       examTime: parseDate(row.examDate),
       expiryTime:
         parseDate(row.expiryDate) ??

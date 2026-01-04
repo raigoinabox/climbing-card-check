@@ -1,7 +1,14 @@
-import { createError } from "#imports";
 import type { IdCode } from "./climber_utils";
 import { findCardByCardOrClimber, saveCard } from "./physical_cards_db";
 import { findExamById } from "./exams_db";
+
+export class ValidationError extends Error {
+  static validate(check: boolean, message: string) {
+    if (!check) {
+      throw new ValidationError(message);
+    }
+  }
+}
 
 export async function insertPhysicalCard(
   climberId: IdCode,
@@ -13,20 +20,16 @@ export async function insertPhysicalCard(
   let cardAdded = false;
   for (const card of cards) {
     if (card.issuedCardId == cardId) {
-      if (card.climberId != null) {
-        throw createError({
-          status: 400,
-          data: "Kaart on juba ronijaga seotud",
-        });
-      }
+      ValidationError.validate(
+        card.climberId == null,
+        "Kaart on juba ronijaga seotud",
+      );
 
       const exam = await findExamById(climberId);
-      if (exam.certificate != card.cardType) {
-        throw createError({
-          status: 400,
-          data: "Kaart on valet tüüpi (roheline/punane)",
-        });
-      }
+      ValidationError.validate(
+        exam.certificate == card.cardType,
+        "Kaart on valet tüüpi (roheline/punane)",
+      );
 
       card.climberId = climberId;
       await saveCard(card, userName);
@@ -37,13 +40,8 @@ export async function insertPhysicalCard(
     }
   }
 
-  if (!cardAdded) {
-    // no card found
-    throw createError({
-      statusCode: 400,
-      data: "Sellise seeriakoodiga kaarti ei ole",
-    });
-  }
+  // no card found
+  ValidationError.validate(cardAdded, "Sellise seeriakoodiga kaarti ei ole");
 
   for (const card of removeCards) {
     card.climberId = "";
