@@ -1,5 +1,4 @@
-declare const tag: unique symbol;
-export type IdCode = string & { readonly [tag]: "ID_CODE" };
+import type { IdCode } from "../types/api_types";
 
 export function isIdCodeValid(code: string): code is IdCode {
   if (code.length !== 11) {

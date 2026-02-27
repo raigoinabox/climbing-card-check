@@ -4,8 +4,9 @@ import type { NavigationMenuItem } from "@nuxt/ui";
 const { loggedIn, user, clear } = useUserSession();
 
 const items = computed<NavigationMenuItem[]>(() => [
-  { label: "Otsing", to: "/" },
-  { label: "Väljastamine", to: "/physical_cards" },
+  { label: "Kaardi otsing", to: "/" },
+  { label: "Kaardi väljastamine", to: "/physical_cards" },
+  { label: "Eksami registreerimine", to: "/exam_register" },
 ]);
 </script>
 
@@ -143,45 +144,6 @@ input {
   align-items: center;
 }
 
-.instructions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 0px;
-  gap: 32px;
-}
-
-.instructions .row {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 0px;
-  gap: 16px;
-  font-size: 24px;
-  line-height: 32px;
-}
-
-.instructions .row-number-wrapper {
-  flex: 1;
-}
-
-.instructions .row-number {
-  display: table-cell !important;
-  min-width: 74px;
-  height: 74px;
-  border-radius: 50%;
-  color: #284bb1;
-  vertical-align: middle;
-  text-align: center;
-  background: #d4dbef;
-  gap: 10px;
-}
-.instructions .row-number {
-  background-color: #279af1;
-}
-.instructions .row-number:first-child {
-  background: #d4dbef;
-}
 .loading-spinner {
   height: 24px;
   margin: 0 auto;
@@ -209,14 +171,6 @@ input {
 }
 #form h2 {
   font-size: 16px;
-}
-#form p {
-  font-weight: 400;
-  font-size: 24px;
-  line-height: 1.33;
-  text-align: center;
-  color: #183642;
-  margin-bottom: 12px;
 }
 
 /* Mobile only*/

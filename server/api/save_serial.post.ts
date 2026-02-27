@@ -2,22 +2,28 @@ import {
   insertPhysicalCard,
   ValidationError,
 } from "../utils/physical_cards_service";
-import { isIdCodeValid } from "../utils/climber_utils";
+import { isIdCodeValid } from "#shared/utils/climber_utils";
+import { z } from "zod";
+
+const serialCardSchema = z.object({
+  climberIdCode: z.string(),
+  serialCode: z.string(),
+});
 
 export default defineEventHandler(async (event) => {
-  const { climberIdCode, serialCode } = await readBody(event);
+  const body = await readValidatedBody(event, (body) =>
+    serialCardSchema.parse(body),
+  );
   const { user } = await requireUserSession(event);
 
-  if (typeof climberIdCode != "string") {
-    throw createError({ statusCode: 400, data: "Ronija isikukood on puudu" });
-  } else if (!isIdCodeValid(climberIdCode)) {
+  if (!isIdCodeValid(body.climberIdCode)) {
     throw createError({
       statusCode: 400,
-      data: "Ronija isikukood ei ole õige",
+      message: "Ronija isikukood ei ole õige",
     });
   }
   try {
-    await insertPhysicalCard(climberIdCode, serialCode, user.name);
+    await insertPhysicalCard(body.climberIdCode, body.serialCode, user.name);
   } catch (e) {
     if (e instanceof ValidationError) {
       throw createError({ statusCode: 400, data: e.message });

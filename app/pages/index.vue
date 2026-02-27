@@ -15,10 +15,21 @@ const fetchClimberData = async (id: string) => {
 const submit = async (idCode: string) => {
   climber.value = await fetchClimberData(idCode);
 };
+
+const instructions = [
+  "Küsi ronija isikut tõendavat dokumenti",
+  "Veendu, et tegemist on sama inimesega",
+  "Kontrolli registrist ronija isikukoodi",
+  "Veendu, et tal on õigus julgestada",
+];
 </script>
 
 <template>
-  <RonLayout :show-results="climber != null" @go-back="climber = null">
+  <RonLayout
+    :instructions="instructions"
+    :show-results="climber != null"
+    @go-back="climber = null"
+  >
     <template #form>
       <ClimberSearchForm :submit="submit" />
     </template>
@@ -28,31 +39,5 @@ const submit = async (idCode: string) => {
     </template>
 
     <template #instructions-header>Ronimisõiguse kontrollimine</template>
-    <template #instructions>
-      <div class="row">
-        <div class="row-number-wrapper">
-          <div class="row-number">1</div>
-        </div>
-        <p>Küsi ronija isikut tõendavat dokumenti</p>
-      </div>
-      <div class="row">
-        <div class="row-number-wrapper">
-          <div class="row-number">2</div>
-        </div>
-        <p>Veendu, et tegemist on sama inimesega</p>
-      </div>
-      <div class="row">
-        <div class="row-number-wrapper">
-          <div class="row-number">3</div>
-        </div>
-        <p>Kontrolli registrist ronija isikukoodi</p>
-      </div>
-      <div class="row">
-        <div class="row-number-wrapper">
-          <div class="row-number">4</div>
-        </div>
-        <p>Veendu, et tal on õigus julgestada</p>
-      </div>
-    </template>
   </RonLayout>
 </template>

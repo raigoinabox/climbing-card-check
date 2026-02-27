@@ -1,13 +1,16 @@
-import { isLoginValid } from "../utils/users_db";
+import { getValidLoginUser } from "../utils/users_db";
+import { z } from "zod";
+
+const bodySchema = z.object({ email: z.string(), password: z.string() });
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event);
-  const { email, password } = body;
+  const body = await readValidatedBody(event, (body) => bodySchema.parse(body));
 
-  if (await isLoginValid(email, password)) {
+  const user = await getValidLoginUser(body.email, body.password);
+  if (user != null) {
     await setUserSession(
       event,
-      { user: { name: email } },
+      { user: { name: user.name, email: user.email } },
       { maxAge: 12 * 60 * 60 },
     );
     return {};

@@ -16,16 +16,14 @@ function isStringsConstantTimeEqual(a: string, b: string) {
   }
 }
 
-export async function isLoginValid(email: string, password: string) {
-  return (
-    (
-      await usersModel.fetchData(
-        (dto) =>
-          dto.email != null &&
-          isStringsConstantTimeEqual(dto.email, email) &&
-          dto.password != null &&
-          isStringsConstantTimeEqual(dto.password, password),
-      )
-    ).length > 0
+export async function getValidLoginUser(email: string, password: string) {
+  const users = await usersModel.fetchData(
+    (dto) =>
+      dto.email != null &&
+      isStringsConstantTimeEqual(dto.email, email) &&
+      dto.password != null &&
+      isStringsConstantTimeEqual(dto.password, password),
   );
+
+  return users[0];
 }

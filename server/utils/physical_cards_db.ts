@@ -1,4 +1,4 @@
-import type { IdCode } from "./climber_utils";
+import type { IdCode } from "#shared/types/api_types";
 import { SheetModel } from "./sheet_model";
 
 interface Card {

@@ -10,7 +10,6 @@ export class SheetModel<T extends string> {
   private headers: T[];
   private headerIndexes: Map<T, number> | null = null;
   private positions = new WeakMap<Entity<T>, number>();
-  private fixedHeaders = false;
   private dataRowIndex = 2;
 
   static fixed<T extends string>(sheetName: string, headers: T[]) {
@@ -20,7 +19,6 @@ export class SheetModel<T extends string> {
       model.headerIndexes.set(header, index);
     }
     model.dataRowIndex = 1;
-    model.fixedHeaders = true;
     return model;
   }
 
@@ -100,6 +98,11 @@ export class SheetModel<T extends string> {
     await table.update(`${this.sheetName}!${position}:${position}`, row);
   }
 
+  async appendRow(entity: Entity<T>) {
+    const row = await this.entityToRow(entity);
+    table.append(this.sheetName, row);
+  }
+
   private async entityToRow(entity: Entity<T>) {
     const indexes = await this.getHeaderIndexes();
     const appendRow: (string | undefined)[] = [];
@@ -108,20 +111,4 @@ export class SheetModel<T extends string> {
     }
     return appendRow;
   }
-
-  // async appendRow(entity: Entity<T>) {
-  //   const appendRow = await this.entityToRow(entity);
-
-  //   const values = [appendRow];
-
-  //   const result = await sheets.spreadsheets.values.append({
-  //     auth: await getConnection(),
-  //     spreadsheetId: spreadsheetId,
-  //     range: this.sheetName,
-  //     valueInputOption: "RAW",
-  //     requestBody: { values },
-  //   });
-
-  //   return result;
-  // }
 }

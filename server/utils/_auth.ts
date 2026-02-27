@@ -53,7 +53,7 @@ const compare = async (
   return timingSafeEqual(hash, derivedHash);
 };
 
-export const validate = async (email: string, password: string) => {
+export async function validate(email: string, password: string) {
   email = email.toLowerCase();
 
   if (typeof email !== "string" || !email.length) {
@@ -76,4 +76,4 @@ export const validate = async (email: string, password: string) => {
   }
 
   return null;
-};
+}

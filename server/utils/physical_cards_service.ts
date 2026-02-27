@@ -1,4 +1,4 @@
-import type { IdCode } from "./climber_utils";
+import type { IdCode } from "#shared/types/api_types";
 import { findCardByCardOrClimber, saveCard } from "./physical_cards_db";
 import { findExamById } from "./exams_db";
 

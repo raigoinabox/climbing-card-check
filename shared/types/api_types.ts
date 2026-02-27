@@ -12,3 +12,6 @@ export interface ClimberDto {
 export interface CardClimberDto extends ClimberDto {
   cardSerialId: string | undefined;
 }
+
+declare const tag: unique symbol;
+export type IdCode = string & { readonly [tag]: "ID_CODE" };

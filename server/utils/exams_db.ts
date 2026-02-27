@@ -1,8 +1,9 @@
 import { strict as assert } from "node:assert";
 import { inspect } from "node:util";
 import { SheetModel } from "./sheet_model";
-import type { IdCode } from "./climber_utils";
-import type { CertificateState } from "~~/shared/types/api_types";
+import type { IdCode, CertificateState } from "#shared/types/api_types";
+import type { User } from "#auth-utils";
+import { z } from "zod";
 
 const CODE = {
   GREEN: "roheline",
@@ -116,15 +117,16 @@ const getExpiryTimeFromFormFillTime = (normDate: Date | null) => {
 };
 
 const examsModel = new SheetModel("Andmebaas", [
+  "formFillTime",
   "id",
-  "certificate",
   "name",
-  "examiner",
+  "certificate",
   "examDate",
   "expiryDate",
-  // According to previous code this column might not exist
-  "formFillTime",
-  "cardCode",
+  "examiner",
+  "email",
+  "comment",
+  "formFillerEmail",
 ]);
 
 export async function findExamById(id: IdCode) {
@@ -162,4 +164,28 @@ export async function findExamById(id: IdCode) {
     examTime: formatDate(bestCertificate.examTime),
     expiryTime: formatDate(bestCertificate.expiryTime),
   };
+}
+
+export const examSchema = z.object({
+  climberName: z.string(),
+  climberIdCode: z.string(),
+  climberEmail: z.email("Kontroll emaili aadressi"),
+  examDate: z.iso.date(),
+  examType: z.literal(["roheline", "punane"]),
+  commentary: z.string().nullable(),
+});
+
+export async function addExam(exam: z.infer<typeof examSchema>, user: User) {
+  const timestamp = new Date();
+  examsModel.appendRow({
+    formFillTime: timestamp.toISOString(),
+    id: exam.climberIdCode,
+    name: exam.climberName,
+    email: exam.climberEmail,
+    examiner: user.name,
+    formFillerEmail: user.email,
+    examDate: exam.examDate,
+    certificate: exam.examType.toLowerCase(),
+    comment: exam.commentary ?? undefined,
+  });
 }

@@ -3,6 +3,7 @@ import {
   climberAddedNextSteps,
   climberAddedNotification,
 } from "../utils/_email";
+import { isIdCodeValid } from "#shared/utils/climber_utils";
 
 function calculateExpiryDate(examDate: string) {
   // Add 3 years to exam date for certificate expiry

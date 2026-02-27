@@ -22,7 +22,7 @@ async function submitForm() {
 
 <template>
   <form @submit.prevent="submitForm">
-    <p>Kontrolli ronimisõigust isikukoodi alusel</p>
+    <FormInstruction>Kontrolli ronimisõigust isikukoodi alusel</FormInstruction>
     <FormBody>
       <label
         >Isikukood

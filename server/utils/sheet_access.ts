@@ -59,6 +59,21 @@ export class SheetAccess {
     });
   }
 
+  async append(range: string, value: (string | undefined)[]) {
+    if (spreadsheetId == null) {
+      throw new Error("spreadSheetId must not be null");
+    }
+
+    const values = [value];
+    this.sheets.spreadsheets.values.append({
+      auth: await this.getConnection(),
+      spreadsheetId,
+      range,
+      valueInputOption: "RAW",
+      requestBody: { values },
+    });
+  }
+
   private async getConnection() {
     if (this.connection == null) {
       const secretKey = load();

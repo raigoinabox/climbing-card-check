@@ -1,31 +1,14 @@
 <script setup lang="ts">
 import type { CardClimberDto } from "~~/shared/types/api_types";
-import { useToast } from "@nuxt/ui/runtime/composables/useToast.js";
-
-const { loggedIn, fetch } = useUserSession();
-const credentials = ref({ email: "", password: "" });
-const toast = useToast();
-async function login() {
-  try {
-    await $fetch("/api/login", { method: "POST", body: credentials.value });
-
-    await fetch();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (e) {
-    toast.add({
-      title: "Sisselogimine ebaõnnestus",
-      description: "Kasutajanimi või parool olid valed",
-      color: "error",
-    });
-  }
-}
+import LoggedInLayout from "~/components/LoggedInLayout.vue";
+import { getMessage } from "~/utils/app_utils";
 
 const climber = ref<
   { id: string; certificate: "none" } | CardClimberDto | null
 >(null);
 
 const cardSerialCode = ref("");
-const insertStatus = ref<{ code: string; message?: unknown }>({
+const insertStatus = ref<{ code: string; message?: string | null }>({
   code: "no_insert",
 });
 async function insertSerialCode() {
@@ -46,18 +29,7 @@ async function insertSerialCode() {
       });
       insertStatus.value = { code: "success" };
     } catch (e) {
-      if (
-        typeof e == "object" &&
-        e != null &&
-        "data" in e &&
-        e.data != null &&
-        typeof e.data == "object" &&
-        "data" in e.data
-      ) {
-        insertStatus.value = { code: "error", message: e.data.data };
-      } else {
-        insertStatus.value = { code: "error" };
-      }
+      insertStatus.value = { code: "error", message: getMessage(e) };
     }
   }
 }
@@ -79,40 +51,23 @@ function handleModalClose() {
     cardSerialCode.value = "";
   }
 }
+
+const instructions = [
+  "Küsi ronija isikut tõendavat dokumenti",
+  "Kirjuta inimese nimi kaardile",
+  "Sisesta kaardi kood vormi",
+];
 </script>
 
 <template>
   <div>
-    <RonLayout :show-results="climber != null" @go-back="climber = null">
+    <LoggedInLayout
+      :instructions="instructions"
+      :show-results="climber != null"
+      @go-back="climber = null"
+    >
       <template #form>
-        <div v-if="loggedIn">
-          <ClimberSearchForm :submit="searchClimber" />
-        </div>
-        <div v-else>
-          <p>Logi sisse</p>
-          <form @submit.prevent="login">
-            <form-body>
-              <label>
-                Email
-                <input
-                  v-model="credentials.email"
-                  type="email"
-                  placeholder="admin@ronimisliit.ee"
-                />
-              </label>
-              <label>
-                Parool
-                <input
-                  v-model="credentials.password"
-                  type="password"
-                  placeholder="w5DB5jIm0soTMW"
-                />
-              </label>
-
-              <FormButton>Logi sisse</FormButton>
-            </form-body>
-          </form>
-        </div>
+        <ClimberSearchForm :submit="searchClimber" />
       </template>
 
       <template #results>
@@ -159,32 +114,6 @@ function handleModalClose() {
       </template>
 
       <template #instructions-header>Väljastatud kaardi lisamine</template>
-      <template #instructions>
-        <div class="row">
-          <div class="row-number-wrapper">
-            <div class="row-number">1</div>
-          </div>
-          <p>Logi sisse</p>
-        </div>
-        <div class="row">
-          <div class="row-number-wrapper">
-            <div class="row-number">2</div>
-          </div>
-          <p>Küsi ronija isikut tõendavat dokumenti</p>
-        </div>
-        <div class="row">
-          <div class="row-number-wrapper">
-            <div class="row-number">3</div>
-          </div>
-          <p>Kirjuta inimese nimi kaardile</p>
-        </div>
-        <div class="row">
-          <div class="row-number-wrapper">
-            <div class="row-number">4</div>
-          </div>
-          <p>Sisesta kaardi kood vormi</p>
-        </div>
-      </template>
-    </RonLayout>
+    </LoggedInLayout>
   </div>
 </template>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import LayoutInstructions from "./LayoutInstructions.vue";
 
-defineProps<{ showResults: boolean }>();
+defineProps<{ showResults: boolean; instructions: string[] }>();
 const emit = defineEmits<{ goBack: [] }>();
 
 const showMobileInstructions = ref(false);
@@ -23,8 +24,8 @@ const goBack = () => {
     <div id="left" :class="showResults ? 'desktop' : ''">
       <div id="form">
         <div>
-          <h2>Eesti Ronimisliit</h2>
-          <h1>Julgestajakaardi register</h1>
+          <h2 style="font-weight: bold">Eesti Ronimisliit</h2>
+          <h1 style="font-weight: bold">Julgestajakaardi register</h1>
         </div>
         <slot name="form" />
       </div>
@@ -40,9 +41,7 @@ const goBack = () => {
     <div id="right" class="desktop">
       <div class="centered-content">
         <slot name="results" />
-        <div v-if="!showResults" class="instructions">
-          <slot name="instructions" />
-        </div>
+        <LayoutInstructions v-if="!showResults" :instructions="instructions" />
       </div>
     </div>
     <div
@@ -54,9 +53,7 @@ const goBack = () => {
         <img src="/assets/chevron-left.svg" />Tagasi
       </div>
       <h1><slot name="instructions-header" /></h1>
-      <div class="instructions">
-        <slot name="instructions" />
-      </div>
+      <LayoutInstructions :instructions="instructions" />
     </div>
     <div v-if="showResults" id="mobile-results" class="mobile">
       <div class="centered-content">
