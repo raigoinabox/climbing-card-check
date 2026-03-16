@@ -49,8 +49,7 @@ export default defineEventHandler(async (event) => {
   );
   const resp = await fetch(`${process.env.MONTONIO_API_BASE}/orders`, {
     method: "POST",
-    body: token,
-    headers: { Authorization: `Bearer ${token}` },
+    body: token
   });
 
   const rawJson = await resp.json();
