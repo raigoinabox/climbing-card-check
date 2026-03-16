@@ -10,7 +10,7 @@ const examState = ref({
 
 const route = useRoute();
 const toast = useToast();
-const paymentMethods = ref<string[]>()
+const paymentMethods = ref<string[]>();
 
 async function openPaymentOptions() {
   try {
@@ -76,8 +76,10 @@ async function openPaymentOptions() {
     </template>
 
     <template #results>
-      <p v-for="method in paymentMethods">
-        <button><img :src="method" :alt="method" @click="console.log(method)" /></button>
+      <p v-for="method in paymentMethods" :key="method">
+        <button>
+          <img :src="method" :alt="method" @click="console.log(method)" />
+        </button>
       </p>
     </template>
   </RonLayout>
