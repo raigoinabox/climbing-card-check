@@ -85,14 +85,16 @@ const instructions = [
                       Edukalt salvestatud
                     </p>
                     <form v-else @submit.prevent="insertSerialCode">
-                      <p>Sisesta kaardi seerianumber</p>
+                      <FormInstruction
+                        >Sisesta kaardi seerianumber</FormInstruction
+                      >
                       <form-body>
                         <label>Isikukood: {{ climber.id }}</label>
                         <label>Nimi: {{ climber.name }}</label>
-                        <label>
-                          Kaardi seerianumber
-                          <input v-model.trim="cardSerialCode" />
-                        </label>
+                        <FormField
+                          v-model.trim="cardSerialCode"
+                          label="Kaardi seerianumber"
+                        />
                         <FormButton :disabled="!cardSerialCode">
                           <img
                             v-if="insertStatus.code == 'loading'"

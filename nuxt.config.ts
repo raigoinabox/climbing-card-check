@@ -7,8 +7,6 @@ export default defineNuxtConfig({
     "@nuxt/test-utils/module",
   ],
   css: ["~/assets/css/main.css"],
-  app: {
-    head: { title: "Ronimisliidu registri otsing", htmlAttrs: { lang: "et" } },
-  },
+  app: { head: { title: "Ronimisliidu register", htmlAttrs: { lang: "et" } } },
   imports: { scan: false },
 });

@@ -12,6 +12,22 @@ const CODE = {
   UNKNOWN: "unknown",
 } as const;
 
+const examsModel = new SheetModel("Andmebaas", [
+  "formFillTime",
+  "id",
+  "name",
+  "certificate",
+  "examDate",
+  "expiryDate",
+  "examiner",
+  "email",
+  "comment",
+  "formFillerEmail",
+  "montonioUuid",
+  "dataConsent",
+  "responsiblityConsent",
+]);
+
 // Raw input from the sheet => valueof CODE
 function normalizeCertificate(rawCertificate: string | undefined) {
   if (rawCertificate == null) {
@@ -116,19 +132,6 @@ const getExpiryTimeFromFormFillTime = (normDate: Date | null) => {
   return new Date(exp);
 };
 
-const examsModel = new SheetModel("Andmebaas", [
-  "formFillTime",
-  "id",
-  "name",
-  "certificate",
-  "examDate",
-  "expiryDate",
-  "examiner",
-  "email",
-  "comment",
-  "formFillerEmail",
-]);
-
 export async function findExamById(id: IdCode) {
   const filteredRows = await examsModel.fetchData((dto) => dto.id == id);
 
@@ -177,7 +180,7 @@ export const examSchema = z.object({
 
 export async function addExam(exam: z.infer<typeof examSchema>, user: User) {
   const timestamp = new Date();
-  examsModel.appendRow({
+  await examsModel.appendRow({
     formFillTime: timestamp.toISOString(),
     id: exam.climberIdCode,
     name: exam.climberName,
@@ -187,5 +190,19 @@ export async function addExam(exam: z.infer<typeof examSchema>, user: User) {
     examDate: exam.examDate,
     certificate: exam.examType.toLowerCase(),
     comment: exam.commentary ?? undefined,
+    montonioUuid: crypto.randomUUID(),
   });
+}
+
+export async function registerLegalConfirmations(uuid: string) {
+  const exams = await examsModel.fetchData((dto) => dto.montonioUuid == uuid);
+  const exam = exams[0];
+  if (exam == null) {
+    throw new ValidationError("Sellist eksamit ei ole meil registreeritud");
+  }
+
+  const now = new Date().toISOString();
+  exam.dataConsent = now;
+  exam.responsiblityConsent = now;
+  await examsModel.save(exam);
 }

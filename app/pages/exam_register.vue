@@ -4,6 +4,8 @@ import LoggedInLayout from "~/components/LoggedInLayout.vue";
 import FormBody from "~/components/FormBody.vue";
 import { isIdCodeValid } from "#shared/utils/climber_utils";
 import { getMessage } from "~/utils/app_utils";
+import FormField from "~/components/FormField.vue";
+import { useToast } from "@nuxt/ui/runtime/composables/useToast.js";
 
 const climber = ref<
   { id: string; certificate: "none" } | CardClimberDto | null
@@ -26,29 +28,40 @@ const instructions = [
   "Ronijale saadetakse email",
 ];
 
-const formState = ref<{
-  error?: string | null;
-  saving?: boolean;
-  saved?: boolean;
-}>({});
+const formSaving = ref<boolean>(false);
 const examForm = ref(initialFormValues());
+const toast = useToast();
 
 async function submitExam() {
   if (
     examForm.value.climberIdCode == null ||
     !isIdCodeValid(examForm.value.climberIdCode)
   ) {
-    formState.value = { error: "Ronija isikukood ei valideeru" };
+    toast.add({
+      color: "error",
+      title: "Viga",
+      description: "Ronija isikukood ei valideeru",
+    });
     return;
   }
 
-  formState.value = { saving: true };
+  formSaving.value = true;
   try {
     await $fetch("/api/save_exam", { method: "POST", body: examForm.value });
-    formState.value = { saved: true };
+    toast.add({
+      color: "success",
+      title: "Salvestatud",
+      description: "Registreerisime eksami ja saatsime ronijale emaili",
+    });
     examForm.value = initialFormValues();
   } catch (error) {
-    formState.value = { error: getMessage(error) };
+    toast.add({
+      color: "error",
+      title: "Viga",
+      description: getMessage(error) ?? "Andmete viga",
+    });
+  } finally {
+    formSaving.value = false;
   }
 }
 </script>
@@ -63,36 +76,31 @@ async function submitExam() {
       <template #form>
         <form @submit.prevent="submitExam">
           <FormInstruction>Sisesta eksami andmed</FormInstruction>
-          <p v-if="formState.error" class="text-red-500">
-            Viga: {{ formState.error }}
-          </p>
-          <p v-if="formState.saved">Salvestatud</p>
           <FormBody>
-            <label>
-              Ronija nimi
-              <input v-model.trim="examForm.climberName" required />
-            </label>
-            <label>
-              Ronija isikukood
-              <input
-                v-model.trim="examForm.climberIdCode"
-                required
-                maxlength="11"
-                placeholder="12345678901"
-              />
-            </label>
-            <label>
-              Ronija email
-              <input
-                v-model.trim="examForm.climberEmail"
-                type="email"
-                required
-              />
-            </label>
-            <label>
-              Eksami toimumise kuupäev
-              <input v-model.trim="examForm.examDate" type="date" required />
-            </label>
+            <FormField
+              v-model.trim="examForm.climberName"
+              label="Ronija nimi"
+              required
+            />
+            <FormField
+              v-model.trim="examForm.climberIdCode"
+              label="Ronija isikukood"
+              required
+              :maxlength="11"
+              placeholder="12345678901"
+            />
+            <FormField
+              v-model.trim="examForm.climberEmail"
+              label="Ronija email"
+              type="email"
+              required
+            />
+            <FormField
+              v-model.trim="examForm.examDate"
+              label="Eksami toimumise kuupäev"
+              type="date"
+              required
+            />
             <label>
               Eksami tüüp
               <USelect
@@ -110,7 +118,7 @@ async function submitExam() {
                 class="w-full"
               />
             </label>
-            <FormButton :disabled="formState.saving">Sisesta</FormButton>
+            <FormButton :disabled="formSaving">Sisesta</FormButton>
           </FormBody>
         </form>
       </template>

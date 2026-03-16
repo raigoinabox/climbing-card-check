@@ -71,27 +71,6 @@ h6 {
   isolation: isolate;
 }
 
-label {
-  font-weight: 500;
-  width: 100%;
-}
-
-input {
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 16px;
-  gap: 10px;
-  background: #f1faff;
-  border: 1px solid #183642;
-  border-radius: 24px;
-  /* Inside auto layout */
-  flex: none;
-  flex-grow: 0;
-  font-weight: 400;
-}
-
 .centered-content {
   margin: 24px;
 }

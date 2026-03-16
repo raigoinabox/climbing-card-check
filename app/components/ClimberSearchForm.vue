@@ -24,15 +24,13 @@ async function submitForm() {
   <form @submit.prevent="submitForm">
     <FormInstruction>Kontrolli ronimisõigust isikukoodi alusel</FormInstruction>
     <FormBody>
-      <label
-        >Isikukood
-        <input
-          v-model.trim="idCode"
-          type="text"
-          maxlength="11"
-          placeholder="12345678901"
-        />
-      </label>
+      <FormField
+        v-model.trim="idCode"
+        label="Isikukood"
+        type="text"
+        :maxlength="11"
+        placeholder="12345678901"
+      />
       <FormButton :disabled="isSubmitDisabled">
         <img
           v-if="isLoading"

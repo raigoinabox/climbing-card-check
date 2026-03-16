@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useToast } from "@nuxt/ui/runtime/composables/useToast.js";
+import FormField from "./FormField.vue";
 
 const { showResults, instructions } = defineProps<{
   showResults: boolean;
@@ -34,26 +35,21 @@ const improvedInstructions = ["Logi sisse", ...instructions];
         <slot name="form"></slot>
       </div>
       <div v-else>
-        <p>Logi sisse</p>
+        <FormInstruction>Logi sisse</FormInstruction>
         <form @submit.prevent="login">
           <form-body>
-            <label>
-              Email
-              <input
-                v-model="credentials.email"
-                type="email"
-                placeholder="admin@ronimisliit.ee"
-              />
-            </label>
-            <label>
-              Parool
-              <input
-                v-model="credentials.password"
-                type="password"
-                placeholder="w5DB5jIm0soTMW"
-              />
-            </label>
-
+            <FormField
+              v-model="credentials.email"
+              label="Email"
+              type="email"
+              placeholder="admin@ronimisliit.ee"
+            />
+            <FormField
+              v-model="credentials.password"
+              label="Parool"
+              type="password"
+              placeholder="w5DB5jIm0soTMW"
+            />
             <FormButton>Logi sisse</FormButton>
           </form-body>
         </form>
