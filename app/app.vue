@@ -5,8 +5,8 @@ const { loggedIn, user, clear } = useUserSession();
 
 const items = computed<NavigationMenuItem[]>(() => [
   { label: "Kaardi otsing", to: "/" },
-  { label: "Kaardi väljastamine", to: "/physical_cards" },
-  { label: "Eksami registreerimine", to: "/exam_register" },
+  { label: "Kaardi väljastamine", to: "/physical-cards" },
+  { label: "Eksami registreerimine", to: "/register-exam" },
 ]);
 </script>
 

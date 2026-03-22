@@ -10,7 +10,6 @@ const examState = ref({
 
 const route = useRoute();
 const toast = useToast();
-const paymentMethods = ref<string[]>();
 
 async function openPaymentOptions() {
   try {
@@ -32,11 +31,11 @@ async function openPaymentOptions() {
 
 <template>
   <RonLayout
-    :show-results="paymentMethods != null"
+    :show-results="false"
     :instructions="[
       'Kinnita seaduslik osa',
       'Maksa ronimisliidu tasu',
-      'Saad kohe ronima minna!',
+      'Su kaart registreeritakse',
     ]"
   >
     <template #instructions-header>Ronijaks registreerimine</template>
@@ -73,14 +72,6 @@ async function openPaymentOptions() {
           <FormButton>Maksa tasu</FormButton>
         </FormBody>
       </form>
-    </template>
-
-    <template #results>
-      <p v-for="method in paymentMethods" :key="method">
-        <button>
-          <img :src="method" :alt="method" @click="console.log(method)" />
-        </button>
-      </p>
     </template>
   </RonLayout>
 </template>

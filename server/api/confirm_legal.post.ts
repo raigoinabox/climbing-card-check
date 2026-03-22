@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { registerLegalConfirmations } from "../utils/exams_db";
-import jwt from "jsonwebtoken";
+import { registerLegalConfirmations } from "#server/utils/exams_db";
+import { getMontonioTokenMapper } from "#server/utils/montonio_service";
 
 const schema = z.object({
   examUuid: z.string().min(1),
@@ -23,37 +23,27 @@ export default defineEventHandler(async (event) => {
     throw e;
   }
 
-  if (
-    process.env.MONTONIO_SECRET_KEY == null ||
-    process.env.MONTONIO_ACCESS_KEY == null ||
-    process.env.MONTONIO_API_BASE == null ||
-    process.env.VERCEL_URL == null
-  ) {
-    throw createError("Montonio secret key is not configured");
+  if (process.env.MONTONIO_API_BASE == null || process.env.VERCEL_URL == null) {
+    throw createError("Montonio urls are not configured");
   }
 
-  const baseUrl = `https://${process.env.VERCEL_URL}`;
-  const token = jwt.sign(
-    {
-      accessKey: process.env.MONTONIO_ACCESS_KEY,
-      merchantReference: body.examUuid,
-      returnUrl: baseUrl,
-      notificationUrl: `${baseUrl}/api/montonio_notification`,
-      grandTotal: 0.1,
-      currency: "EUR",
-      payment: { amount: 0.1, currency: "EUR", method: "paymentInitiation" },
-      locale: "et",
-    },
-    process.env.MONTONIO_SECRET_KEY,
-    { algorithm: "HS256", expiresIn: "1h" },
-  );
-  const resp = await fetch(`${process.env.MONTONIO_API_BASE}/orders`, {
-    method: "POST",
-    body: JSON.stringify({ data: token })
+  const baseUrl = `https://${process.env.VERCEL_URL}/register_exam/climber-success`;
+  const token = getMontonioTokenMapper().create({
+    merchantReference: body.examUuid,
+    returnUrl: baseUrl,
+    notificationUrl: `${baseUrl}/api/montonio_notification`,
+    grandTotal: 12,
+    currency: "EUR",
+    payment: { amount: 12, currency: "EUR", method: "paymentInitiation" },
+    locale: "et",
   });
 
-  const rawJson = await resp.json();
-  console.log(rawJson);
-  const result = montonioOrder.parse(rawJson);
+  const resp = await fetch(`${process.env.MONTONIO_API_BASE}/orders`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data: token }),
+  });
+
+  const result = montonioOrder.parse(await resp.json());
   return result.paymentUrl;
 });
