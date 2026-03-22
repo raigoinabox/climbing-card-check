@@ -44,6 +44,12 @@ export default defineEventHandler(async (event) => {
     body: JSON.stringify({ data: token }),
   });
 
-  const result = montonioOrder.parse(await resp.json());
+  const response = await resp.json();
+  try {
+  const result = montonioOrder.parse(response);
   return result.paymentUrl;
+  } catch (e) {
+    console.log(response)
+    throw e;
+  }
 });
