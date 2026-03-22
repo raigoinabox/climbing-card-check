@@ -8,7 +8,10 @@ const schema = z.object({
   confirmPrivacyPolicy: z.literal(true),
 });
 
-const montonioOrder = z.object({ paymentUrl: z.string() });
+const montonioOrder = z.union([
+  z.object({ paymentUrl: z.string() }),
+  z.object({ message: z.string(), error: z.string(), statusCode: z.number() }),
+]);
 
 export default defineEventHandler(async (event) => {
   const body = await readValidatedBody(event, (body) => schema.parse(body));
@@ -45,11 +48,13 @@ export default defineEventHandler(async (event) => {
   });
 
   const response = await resp.json();
-  try {
   const result = montonioOrder.parse(response);
-  return result.paymentUrl;
-  } catch (e) {
-    console.log(response)
-    throw e;
+  if ("paymentUrl" in result) {
+    return result.paymentUrl;
+  } else if (result.message == "ALREADY_PAID_FOR") {
+    throw createError({ statusCode: 400, statusMessage: "Juba on makstud" });
+  } else {
+    console.log(response);
+    throw new Error(result.message);
   }
 });
