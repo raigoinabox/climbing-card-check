@@ -208,7 +208,7 @@ export const isIdCodeValid = (code) => {
 		return nr[10] === controlCode;
 	}
 
-	return nr[10] === (
+	const controlCode2 = (
 		nr[0]*3 +
 		nr[1]*4 +
 		nr[2]*5 +
@@ -220,4 +220,10 @@ export const isIdCodeValid = (code) => {
 		nr[8]*2 +
 		nr[9]*3
 	) % 11;
+
+	if (controlCode2 !== 10) {
+		return nr[10] === controlCode2;
+	}
+
+	return nr[10];
 };
