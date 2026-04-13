@@ -225,5 +225,5 @@ export const isIdCodeValid = (code) => {
 		return nr[10] === controlCode2;
 	}
 
-	return nr[10];
+	return nr[10] === 0;
 };
