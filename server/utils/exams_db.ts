@@ -222,6 +222,7 @@ function formatDate2(date: Date) {
 }
 
 export async function registerPayment(uuid: string) {
+  console.log("registerPayment", uuid);
   const exams = await examsModel.fetchData((dto) => dto.montonioUuid == uuid);
   const exam = exams[0];
   if (exam == null || exam.examDate == null) {
@@ -235,6 +236,7 @@ export async function registerPayment(uuid: string) {
 }
 
 export async function removePayment(uuid: string) {
+  console.log("removePayment", uuid)
   const exams = await examsModel.fetchData((dto) => dto.montonioUuid == uuid);
   const exam = exams[0];
   if (exam == null || exam.examDate == null) {

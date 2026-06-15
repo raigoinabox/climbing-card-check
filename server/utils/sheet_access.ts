@@ -49,6 +49,7 @@ export class SheetAccess {
       throw new Error("spreadSheetId must not be null");
     }
 
+    console.log(range, "update", value);
     const values = [value];
     this.sheets.spreadsheets.values.update({
       auth: await this.getConnection(),

@@ -90,6 +90,7 @@ export class SheetModel<T extends string> {
   }
 
   async save(entity: Entity<T>) {
+    console.log("SheetModel.save", entity)
     const position = this.positions.get(entity);
     if (position == null) {
       throw new Error("Trying to save an entity that has no saved position");

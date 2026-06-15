@@ -7,6 +7,6 @@ export default defineEventHandler(async (event) => {
   const { orderToken } = await readValidatedBody(event, (body) =>
     schema.parse(body),
   );
-  handleMontonioEvent(orderToken);
+  await handleMontonioEvent(orderToken);
   setResponseStatus(event, 201);
 });

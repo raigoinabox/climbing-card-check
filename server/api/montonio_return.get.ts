@@ -5,6 +5,7 @@ const schema = z.object({
 });
 
 export default defineEventHandler(async (event) => {
+    console.log("montonio_return.get.ts")
     const params = await getValidatedQuery(event, query => schema.parse(query))
     
     // TODO lisa try catch ja kasutajale mõnus ümber suunamine
