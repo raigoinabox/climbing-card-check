@@ -29,7 +29,8 @@ export function getMontonioTokenMapper() {
     create(body: object) {
       return jwt.sign({ ...body, accessKey }, secretKey, {
         algorithm: "HS256",
-        expiresIn: "1h",
+        // in case of errors Montonio will retry the webhook for 48 hours
+        expiresIn: "50h",
       });
     },
 

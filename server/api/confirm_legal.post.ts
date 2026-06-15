@@ -35,10 +35,10 @@ export default defineEventHandler(async (event) => {
     throw createError("Montonio url is not configured");
   }
 
-  const baseUrl = createUrl("/register-exam/climber-success");
+  const returnUrl = createUrl("/api/montonio_return");
   const token = getMontonioTokenMapper().create({
     merchantReference: body.examUuid,
-    returnUrl: baseUrl,
+    returnUrl,
     notificationUrl: createUrl("/api/montonio_notification"),
     grandTotal: REGISTRATION_FEE,
     currency: "EUR",
