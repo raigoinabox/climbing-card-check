@@ -45,7 +45,7 @@ export function getMontonioTokenMapper() {
 }
 
 export async function handleMontonioEvent(orderToken: string) {
-    console.log("handleMontonioEvent", orderToken)
+  console.log("handleMontonioEvent", orderToken);
   const body = getMontonioTokenMapper().decode(orderToken);
   if (body.paymentStatus == "PAID") {
     registerPayment(body.merchantReference);

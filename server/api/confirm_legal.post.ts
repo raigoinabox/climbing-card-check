@@ -49,9 +49,7 @@ export default defineEventHandler(async (event) => {
       methodOptions: { paymentDescription: `${exam.name} registritasu` },
     },
     locale: "et",
-    billingAddress: {
-      email: exam.email
-    }
+    billingAddress: { email: exam.email },
   });
 
   const resp = await fetch(`${process.env.MONTONIO_API_BASE}/orders`, {

@@ -232,11 +232,11 @@ export async function registerPayment(uuid: string) {
   const newExpiryDate = new Date(exam.examDate);
   newExpiryDate.setFullYear(newExpiryDate.getFullYear() + 4);
   exam.expiryDate = formatDate2(newExpiryDate);
-  examsModel.save(exam);
+  await examsModel.save(exam);
 }
 
 export async function removePayment(uuid: string) {
-  console.log("removePayment", uuid)
+  console.log("removePayment", uuid);
   const exams = await examsModel.fetchData((dto) => dto.montonioUuid == uuid);
   const exam = exams[0];
   if (exam == null || exam.examDate == null) {
@@ -244,6 +244,6 @@ export async function removePayment(uuid: string) {
   }
 
   exam.expiryDate = "";
-  examsModel.save(exam);
+  await examsModel.save(exam);
   return exam;
 }
