@@ -1,4 +1,5 @@
 import { isIdCodeValid } from "#shared/utils/climber_utils";
+import { sendRegistrationEmail } from "../utils/email_service";
 import { addExam, examSchema } from "../utils/exams_db";
 
 export default defineEventHandler(async (event) => {
@@ -12,7 +13,9 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  await addExam(body, user);
+  const uuid = await addExam(body, user);
+
+  await sendRegistrationEmail(body.climberEmail, uuid);
 
   return {};
 });

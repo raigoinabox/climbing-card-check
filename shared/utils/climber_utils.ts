@@ -26,5 +26,9 @@ export function isIdCodeValid(code: string): code is IdCode {
     nr.reduce((acc, value, index) => acc + value * (((index + 2) % 9) + 1), 0) %
     11;
 
-  return givenControlCode === controlCode2;
+  if (controlCode2 !== 10) {
+    return givenControlCode === controlCode2;
+  }
+
+  return givenControlCode === 0;
 }

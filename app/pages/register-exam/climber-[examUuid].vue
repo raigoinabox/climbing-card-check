@@ -33,7 +33,7 @@ async function openPaymentOptions() {
   <RonLayout
     :show-results="false"
     :instructions="[
-      'Kinnita seaduslik osa',
+      'Kinnita nõusolek',
       'Maksa ronimisliidu tasu',
       'Su kaart registreeritakse',
     ]"

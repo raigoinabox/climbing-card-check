@@ -1,6 +1,6 @@
 import type { sheets_v4, Auth } from "googleapis";
 import { google } from "googleapis";
-import { load } from "./_key";
+import { getGoogleKey } from "./google_key_access";
 
 const spreadsheetId = process.env.SPREADSHEET_ID;
 
@@ -64,6 +64,7 @@ export class SheetAccess {
       throw new Error("spreadSheetId must not be null");
     }
 
+    console.log(`${range}: append ${value}`);
     const values = [value];
     this.sheets.spreadsheets.values.append({
       auth: await this.getConnection(),
@@ -76,7 +77,7 @@ export class SheetAccess {
 
   private async getConnection() {
     if (this.connection == null) {
-      const secretKey = load();
+      const secretKey = getGoogleKey();
       const jwtClient = new google.auth.JWT({
         email: secretKey.client_email,
         key: secretKey.private_key,

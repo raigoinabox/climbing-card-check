@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { z } from "zod";
 import { registerPayment, removePayment } from "./exams_db";
+import { sendRejectionEmail } from "./email_service";
 
 const responseSchema = z.object({
   accessKey: z.string(),
@@ -14,6 +15,8 @@ const responseSchema = z.object({
     "ABANDONED",
   ]),
 });
+
+export const REGISTRATION_FEE = 12;
 
 export function getMontonioTokenMapper() {
   const secretKey = process.env.MONTONIO_SECRET_KEY;
@@ -40,14 +43,16 @@ export function getMontonioTokenMapper() {
   };
 }
 
-export function handleMontonioEvent(orderToken: string) {
+export async function handleMontonioEvent(orderToken: string) {
   const body = getMontonioTokenMapper().decode(orderToken);
   if (body.paymentStatus == "PAID") {
     registerPayment(body.merchantReference);
   } else if (body.paymentStatus != "PENDING") {
-    console.log(
-      "TODO saada kasutajale email, et me eemaldasime tema nimekirjast",
-    );
-    removePayment(body.merchantReference);
+    const exam = await removePayment(body.merchantReference);
+    if (!exam.email) {
+      throw new ValidationError("Eksamist on emaili aadress puudu");
+    }
+
+    await sendRejectionEmail(exam.email);
   }
 }

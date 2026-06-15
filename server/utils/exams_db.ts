@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 import { inspect } from "node:util";
 import { SheetModel } from "./sheet_model";
-import type { IdCode, CertificateState } from "#shared/types/api_types";
+import type { CertificateState } from "#shared/types/api_types";
 import type { User } from "#auth-utils";
 import { z } from "zod";
 
@@ -132,7 +132,7 @@ const getExpiryTimeFromFormFillTime = (normDate: Date | null) => {
   return new Date(exp);
 };
 
-export async function findExamById(id: IdCode) {
+export async function findExamById(id: string) {
   const filteredRows = await examsModel.fetchData((dto) => dto.id == id);
 
   const parsedCertificates = filteredRows.map((row) => {
@@ -177,9 +177,11 @@ export const examSchema = z.object({
   examType: z.literal(["roheline", "punane"]),
   commentary: z.string().nullable(),
 });
+export type ExamSchema = z.infer<typeof examSchema>;
 
-export async function addExam(exam: z.infer<typeof examSchema>, user: User) {
+export async function addExam(exam: ExamSchema, user: User) {
   const timestamp = new Date();
+  const montonioUuid = crypto.randomUUID();
   await examsModel.appendRow({
     formFillTime: timestamp.toISOString(),
     id: exam.climberIdCode,
@@ -190,8 +192,10 @@ export async function addExam(exam: z.infer<typeof examSchema>, user: User) {
     examDate: exam.examDate,
     certificate: exam.examType.toLowerCase(),
     comment: exam.commentary ?? undefined,
-    montonioUuid: crypto.randomUUID(),
+    montonioUuid,
   });
+
+  return montonioUuid;
 }
 
 export async function registerLegalConfirmations(uuid: string) {
@@ -205,6 +209,7 @@ export async function registerLegalConfirmations(uuid: string) {
   exam.dataConsent = now;
   exam.responsiblityConsent = now;
   await examsModel.save(exam);
+  return exam;
 }
 
 function formatDate2(date: Date) {
@@ -238,4 +243,5 @@ export async function removePayment(uuid: string) {
 
   exam.expiryDate = "";
   examsModel.save(exam);
+  return exam;
 }

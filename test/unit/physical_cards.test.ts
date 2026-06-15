@@ -1,7 +1,7 @@
 import { describe, test, expect } from "vitest";
 import { findCardByClimber } from "../../server/utils/physical_cards_db";
 import { insertPhysicalCard } from "../../server/utils/physical_cards_service";
-import { isIdCodeValid } from "../../server/utils/climber_utils";
+import { isIdCodeValid } from "../../shared/utils/climber_utils";
 
 describe("Physical cards", () => {
   test("Query cards", async () => {

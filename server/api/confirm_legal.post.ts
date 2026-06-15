@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { registerLegalConfirmations } from "#server/utils/exams_db";
-import { getMontonioTokenMapper } from "#server/utils/montonio_service";
+import {
+  getMontonioTokenMapper,
+  REGISTRATION_FEE,
+} from "#server/utils/montonio_service";
+import { createUrl } from "../utils/urls_client";
 
 const schema = z.object({
   examUuid: z.string().min(1),
@@ -16,8 +20,9 @@ const montonioOrder = z.union([
 export default defineEventHandler(async (event) => {
   const body = await readValidatedBody(event, (body) => schema.parse(body));
 
+  let exam;
   try {
-    await registerLegalConfirmations(body.examUuid);
+    exam = await registerLegalConfirmations(body.examUuid);
   } catch (e) {
     if (e instanceof ValidationError) {
       throw createError({ statusCode: 400, message: e.message });
@@ -26,18 +31,23 @@ export default defineEventHandler(async (event) => {
     throw e;
   }
 
-  if (process.env.MONTONIO_API_BASE == null || process.env.VERCEL_URL == null) {
-    throw createError("Montonio urls are not configured");
+  if (process.env.MONTONIO_API_BASE == null) {
+    throw createError("Montonio url is not configured");
   }
 
-  const baseUrl = `https://${process.env.VERCEL_URL}/register_exam/climber-success`;
+  const baseUrl = createUrl("/register-exam/climber-success");
   const token = getMontonioTokenMapper().create({
     merchantReference: body.examUuid,
     returnUrl: baseUrl,
-    notificationUrl: `${baseUrl}/api/montonio_notification`,
-    grandTotal: 12,
+    notificationUrl: createUrl("/api/montonio_notification"),
+    grandTotal: REGISTRATION_FEE,
     currency: "EUR",
-    payment: { amount: 12, currency: "EUR", method: "paymentInitiation" },
+    payment: {
+      amount: REGISTRATION_FEE,
+      currency: "EUR",
+      method: "paymentInitiation",
+      methodOptions: { paymentDescription: `${exam.name} registritasu` },
+    },
     locale: "et",
   });
 

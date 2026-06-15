@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { findExamById } from "../../server/utils/exams_db";
-import { isIdCodeValid } from "../../server/utils/climber_utils";
+import { isIdCodeValid } from "../../shared/utils/climber_utils";
 
 const testCases = [
   {

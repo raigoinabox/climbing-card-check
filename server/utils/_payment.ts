@@ -1,7 +1,18 @@
 import assert from "node:assert";
 import jwt from "jsonwebtoken";
+import process from "node:process";
 
-import { montonio, registrationFee, siteBase } from "./_config";
+export const registrationFee = 10;
+
+const { MONTONIO_ACCESS_KEY, MONTONIO_SECRET_KEY } = process.env;
+export const montonio = {
+  api: "https://sandbox-stargate.montonio.com/api",
+  accessKey: MONTONIO_ACCESS_KEY ?? "test",
+  secretKey: MONTONIO_SECRET_KEY ?? "test",
+};
+
+const { SITE_BASE, VERCEL_URL } = process.env;
+export const siteBase = SITE_BASE || VERCEL_URL;
 
 assert.equal(
   typeof montonio.accessKey,

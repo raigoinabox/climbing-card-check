@@ -1,15 +1,10 @@
 <script setup lang="ts">
-import type { CardClimberDto } from "~~/shared/types/api_types";
 import LoggedInLayout from "~/components/LoggedInLayout.vue";
 import FormBody from "~/components/FormBody.vue";
 import { isIdCodeValid } from "#shared/utils/climber_utils";
 import { getMessage } from "~/utils/app_utils";
 import FormField from "~/components/FormField.vue";
 import { useToast } from "@nuxt/ui/runtime/composables/useToast.js";
-
-const climber = ref<
-  { id: string; certificate: "none" } | CardClimberDto | null
->(null);
 
 function initialFormValues() {
   return {
@@ -53,7 +48,10 @@ async function submitExam() {
       title: "Salvestatud",
       description: "Registreerisime eksami ja saatsime ronijale emaili",
     });
-    examForm.value = initialFormValues();
+
+    examForm.value.climberName = null;
+    examForm.value.climberIdCode = null;
+    examForm.value.climberEmail = null;
   } catch (error) {
     toast.add({
       color: "error",
@@ -68,11 +66,7 @@ async function submitExam() {
 
 <template>
   <div>
-    <LoggedInLayout
-      :instructions="instructions"
-      :show-results="climber != null"
-      @go-back="climber = null"
-    >
+    <LoggedInLayout :instructions="instructions" :show-results="false">
       <template #form>
         <form @submit.prevent="submitExam">
           <FormInstruction>Sisesta eksami andmed</FormInstruction>
@@ -122,8 +116,6 @@ async function submitExam() {
           </FormBody>
         </form>
       </template>
-
-      <template #results></template>
 
       <template #instructions-header>Väljastatud kaardi lisamine</template>
     </LoggedInLayout>
