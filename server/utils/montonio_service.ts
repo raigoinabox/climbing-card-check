@@ -47,7 +47,7 @@ export function getMontonioTokenMapper() {
 export async function handleMontonioEvent(orderToken: string) {
   const body = getMontonioTokenMapper().decode(orderToken);
   if (body.paymentStatus == "PAID") {
-    registerPayment(body.merchantReference);
+    await registerPayment(body.merchantReference);
   } else if (body.paymentStatus != "PENDING") {
     const exam = await removePayment(body.merchantReference);
     if (!exam.email) {
