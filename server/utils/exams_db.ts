@@ -226,9 +226,11 @@ export async function registerPayment(uuid: string) {
   const exams = await examsModel.fetchData((dto) => dto.montonioUuid == uuid);
   const exam = exams[0];
   if (exam == null || exam.examDate == null) {
+    console.log("No such exam", exam);
     throw new ValidationError("Sellist eksamit ei ole meil registreeritud");
   }
 
+  console.log("Setting expiryDate for exam", exam);
   const newExpiryDate = new Date(exam.examDate);
   newExpiryDate.setFullYear(newExpiryDate.getFullYear() + 4);
   exam.expiryDate = formatDate2(newExpiryDate);
