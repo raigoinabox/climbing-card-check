@@ -1,35 +1,12 @@
 <script setup lang="ts">
-import type { InputAutoCompleteAttribute, InputTypeHTMLAttribute } from "vue";
-
-defineProps<{
-  label: string;
-  type?: InputTypeHTMLAttribute;
-  maxlength?: number;
-  placeholder?: string;
-  required?: boolean;
-  pattern?: string;
-  title?: string;
-  autocomplete?: InputAutoCompleteAttribute;
-}>();
+defineProps<{ label: string }>();
 const model = defineModel<string | null>({ required: true });
-const emit = defineEmits<{ (e: "change" | "input"): void }>();
 </script>
 
 <template>
   <label>
     {{ label }}
-    <input
-      v-model="model"
-      :type="type"
-      :maxlength="maxlength"
-      :placeholder="placeholder"
-      :required="required"
-      :pattern="pattern"
-      :title="title"
-      :autocomplete="autocomplete"
-      @change="emit('change')"
-      @input="emit('input')"
-    />
+    <input v-model="model" v-bind="$attrs" />
   </label>
 </template>
 
@@ -44,11 +21,11 @@ input {
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 16px;
-  gap: 10px;
+  padding: 1em;
+  gap: 0.625em;
   background: #f1faff;
   border: 1px solid #183642;
-  border-radius: 24px;
+  border-radius: 1.5em;
   /* Inside auto layout */
   flex: none;
   flex-grow: 0;

@@ -1,9 +1,6 @@
-import { SheetAccess } from "./sheet_access";
+import { sheetAccess } from "./sheet_access";
 
 type Entity<T extends string> = { [P in T]?: string };
-
-// global so that different SheetModels share a connection
-const table = new SheetAccess();
 
 export class SheetModel<T extends string> {
   private sheetName: string;
@@ -86,7 +83,7 @@ export class SheetModel<T extends string> {
   }
 
   private async fetchTable(range: string) {
-    return await table.getValues(range);
+    return await sheetAccess.getValues(range);
   }
 
   async save(entity: Entity<T>) {
@@ -96,12 +93,12 @@ export class SheetModel<T extends string> {
       throw new Error("Trying to save an entity that has no saved position");
     }
     const row = await this.entityToRow(entity);
-    await table.update(`${this.sheetName}!${position}:${position}`, row);
+    await sheetAccess.update(`${this.sheetName}!${position}:${position}`, row);
   }
 
   async appendRow(entity: Entity<T>) {
     const row = await this.entityToRow(entity);
-    table.append(this.sheetName, row);
+    sheetAccess.append(this.sheetName, row);
   }
 
   private async entityToRow(entity: Entity<T>) {

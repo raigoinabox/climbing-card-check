@@ -5,27 +5,12 @@ import { isIdCodeValid } from "#shared/utils/climber_utils";
 import { getMessage } from "~/utils/app_utils";
 import FormField from "~/components/FormField.vue";
 import { useToast } from "@nuxt/ui/runtime/composables/useToast.js";
+import type { AccordionItem } from "@nuxt/ui";
+import ClimberFormBody from "~/components/ClimberFormBody.vue";
+import type { ExamDto, ExamClimberDto } from "#shared/types/api_types";
 
-interface ExamData {
-  climberName: string | null;
-  climberIdCode: string | null;
-  climberIdCodeForeign: boolean;
-  climberEmail: string | null;
-  examDate: string | null;
-  examType: "roheline";
-  commentary: string;
-}
-
-function initialFormValues() {
-  return {
-    climberName: null,
-    climberIdCode: null,
-    climberIdCodeForeign: false,
-    climberEmail: null,
-    examDate: null,
-    examType: "roheline",
-    commentary: "",
-  } satisfies ExamData;
+function createClimber() {
+  return { name: "", idCode: "", email: "", foreigner: false, comment: "" };
 }
 
 const instructions = [
@@ -35,51 +20,74 @@ const instructions = [
 ];
 
 const formSaving = ref<boolean>(false);
-const examForm = ref<ExamData>(initialFormValues());
-const suggestForeigner = ref(false);
-
+const examForm = ref({
+  examDate: null,
+  examType: "roheline",
+  climbers: [createClimber()],
+} satisfies ExamDto);
+const sentClimbers = ref<ExamClimberDto[]>([]);
+const openClimber = ref("0");
+const climberTabs = computed(() =>
+  sentClimbers.value
+    .map(
+      (climber) => ({ label: climber.name, disabled: true }) as AccordionItem,
+    )
+    .concat(
+      examForm.value.climbers.map(
+        (climber, idx) =>
+          ({
+            label: climber.name || `Ronija ${idx == 0 ? "" : idx + 1}`,
+          }) satisfies AccordionItem,
+      ),
+    ),
+);
 const toast = useToast();
 
-function handleIdCodeChange() {
-  const idCode = examForm.value.climberIdCode;
-  if (idCode != null && !isIdCodeValid(idCode)) {
-    suggestForeigner.value = true;
-  }
-}
-
-function handleIdCodeInput() {
-  const idCode = examForm.value.climberIdCode;
-  if (idCode != null && 12 <= idCode.length) {
-    suggestForeigner.value = true;
-  }
-}
-
 async function submitExam() {
-  if (
-    examForm.value.climberIdCode == null ||
-    (!examForm.value.climberIdCodeForeign &&
-      !isIdCodeValid(examForm.value.climberIdCode))
-  ) {
+  if (examForm.value.climbers.length == 0) {
     toast.add({
       color: "error",
       title: "Viga",
-      description: "Ronija isikukood ei valideeru",
+      description: "Ronijad puuduvad",
     });
     return;
   }
 
+  for (const climber of examForm.value.climbers) {
+    if (!climber.foreigner && !isIdCodeValid(climber.idCode)) {
+      toast.add({
+        color: "error",
+        title: "Viga",
+        description: `${climber.name} isikukood ei valideeru`,
+      });
+      return;
+    }
+  }
+
   formSaving.value = true;
   try {
-    await $fetch("/api/save_exam", { method: "POST", body: examForm.value });
+    const { savedCount } = await $fetch("/api/save_exam", {
+      method: "POST",
+      body: examForm.value,
+    });
     toast.add({
       color: "success",
       title: "Salvestatud",
-      description: "Registreerisime eksami ja saatsime ronijale emaili",
+      description: "Registreerisime eksami ja saatsime ronijatele emailid",
     });
 
-    examForm.value.climberName = null;
-    examForm.value.climberIdCode = null;
-    examForm.value.climberEmail = null;
+    for (const saved of examForm.value.climbers.splice(0, savedCount)) {
+      sentClimbers.value.push(saved);
+    }
+
+    const firstClimber = examForm.value.climbers[0];
+    if (firstClimber != null) {
+      toast.add({
+        color: "error",
+        title: "Viga",
+        description: `Ronija ${firstClimber.name} andmete saatmisega viga.`,
+      });
+    }
   } catch (error) {
     toast.add({
       color: "error",
@@ -93,68 +101,84 @@ async function submitExam() {
 </script>
 
 <template>
-    <LoggedInLayout :instructions="instructions" :show-results="false">
-      <template #form>
-        <form @submit.prevent="submitExam">
-          <FormInstruction>Sisesta eksami andmed</FormInstruction>
-          <FormBody>
-            <FormField
-              v-model.trim="examForm.climberName"
-              label="Ronija nimi"
+  <LoggedInLayout :instructions="instructions" :show-results="false">
+    <template #form>
+      <form @submit.prevent="submitExam">
+        <FormInstruction>Sisesta eksami andmed</FormInstruction>
+        <FormBody>
+          <FormField
+            v-model.trim="examForm.examDate"
+            label="Eksami toimumise kuupäev"
+            type="date"
+            required
+          />
+          <label>
+            Eksami tüüp
+            <USelect
+              v-model="examForm.examType"
+              :items="['roheline', 'punane']"
               required
+              class="w-full"
             />
+          </label>
 
-            <FormField
-              v-model.trim="examForm.climberIdCode"
-              label="Ronija isikukood"
-              required
-              :maxlength="100"
-              pattern="\d+"
-              title="Ainult numbrimärgid"
-              placeholder="12345678901"
-              @change="handleIdCodeChange"
-              @input="handleIdCodeInput"
-            />
-            <UCheckbox
-              v-if="suggestForeigner"
-              v-model="examForm.climberIdCodeForeign"
-              label="Kas on välismaalase isikukood?"
-              description="Siis jätame isikukoodi kontrolli vahele"
-            />
-            <FormField
-              v-model.trim="examForm.climberEmail"
-              label="Ronija email"
-              type="email"
-              required
-            />
-            <FormField
-              v-model.trim="examForm.examDate"
-              label="Eksami toimumise kuupäev"
-              type="date"
-              required
-            />
-            <label>
-              Eksami tüüp
-              <USelect
-                v-model="examForm.examType"
-                :items="['roheline', 'punane']"
-                required
-                class="w-full"
+          <UAccordion
+            v-model="openClimber"
+            :items="climberTabs"
+            style="border-top: thin solid var(--ui-border)"
+          >
+            <template #trailing="{ index, open }">
+              <UBadge v-if="index < sentClimbers.length">Saadetud</UBadge>
+              <UButton
+                v-else
+                :class="{ invisible: !open }"
+                icon="i-carbon-close"
+                color="warning"
+                variant="outline"
+                size="xs"
+                @click="
+                  (event) => {
+                    event.stopPropagation();
+                    examForm.climbers.splice(index - sentClimbers.length, 1);
+                  }
+                "
               />
-            </label>
-            <label>
-              Kommentaar (valikuline)
-              <UTextarea
-                v-model="examForm.commentary"
-                autoresize
-                class="w-full"
+            </template>
+            <template #body="{ index }">
+              <ClimberFormBody
+                v-if="examForm.climbers[index - sentClimbers.length] != null"
+                v-model:climber="
+                  examForm.climbers[index - sentClimbers.length]!
+                "
               />
-            </label>
-            <FormButton :disabled="formSaving">Sisesta</FormButton>
-          </FormBody>
-        </form>
-      </template>
+            </template>
+          </UAccordion>
+          <div>
+            <UButton
+              icon="i-carbon-add"
+              class="mb-3"
+              @click="
+                () => {
+                  const climbers = examForm.climbers;
+                  const newClimber = createClimber();
+                  const lastClimber = climbers[climbers.length - 1];
+                  if (lastClimber != null) {
+                    newClimber.comment = lastClimber.comment;
+                  }
+                  climbers.push(newClimber);
+                  openClimber = String(
+                    sentClimbers.length + climbers.length - 1,
+                  );
+                }
+              "
+              >Lisa eksamineeritav</UButton
+            >
+          </div>
+          <FormButton :disabled="formSaving">Sisesta</FormButton>
+        </FormBody>
+      </form>
+    </template>
 
-      <template #instructions-header>Väljastatud kaardi lisamine</template>
-    </LoggedInLayout>
+    <template #instructions-header>Väljastatud kaardi lisamine</template>
+  </LoggedInLayout>
 </template>

@@ -31,7 +31,7 @@ function getSheets() {
   return _sheets;
 }
 
-export class SheetAccess {
+export const sheetAccess = {
   async getValues(range: string) {
     if (spreadsheetId == null) {
       throw new Error("spreadSheetId must not be null");
@@ -50,7 +50,7 @@ export class SheetAccess {
     }
 
     return data;
-  }
+  },
 
   async update(range: string, value: (string | undefined)[]) {
     if (spreadsheetId == null) {
@@ -65,7 +65,7 @@ export class SheetAccess {
       valueInputOption: "RAW",
       requestBody: { values },
     });
-  }
+  },
 
   async append(range: string, value: (string | undefined)[]) {
     if (spreadsheetId == null) {
@@ -80,5 +80,5 @@ export class SheetAccess {
       valueInputOption: "RAW",
       requestBody: { values },
     });
-  }
-}
+  },
+};

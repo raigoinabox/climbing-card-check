@@ -12,7 +12,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "typecheck": "nuxt typecheck",
-    "format": "prettier --write --list-different .",
+    "format": "prettier --write --log-level=warn .",
     "prep": "npm run format && npm run typecheck && npm run lint:fix"
   },
   "keywords": [],
@@ -38,7 +38,7 @@
     "happy-dom": "^20.11.2",
     "playwright-core": "^1.62.1",
     "prettier": "^3.9.6",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "vitest": "^3.2.7",
     "vue-tsc": "^3.3.10"
   },

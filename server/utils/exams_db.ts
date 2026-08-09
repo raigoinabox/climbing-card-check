@@ -1,9 +1,10 @@
 import { strict as assert } from "node:assert";
 import { inspect } from "node:util";
 import { SheetModel } from "./sheet_model";
-import type { CertificateState } from "#shared/types/api_types";
+import type { CertificateState, ExamDto } from "#shared/types/api_types";
 import type { User } from "#auth-utils";
 import { z } from "zod";
+import type { ExamClimberDto } from "../../shared/types/api_types";
 
 const CODE = {
   GREEN: "roheline",
@@ -170,28 +171,36 @@ export async function findExamById(id: string) {
 }
 
 export const examSchema = z.object({
-  climberName: z.string(),
-  climberIdCode: z.string().regex(/^\d+$/).max(100),
-  climberEmail: z.email("Kontroll emaili aadressi"),
   examDate: z.iso.date(),
   examType: z.literal(["roheline", "punane"]),
-  commentary: z.string().nullable(),
-});
-export type ExamSchema = z.infer<typeof examSchema>;
+  climbers: z.array(
+    z.object({
+      name: z.string().trim().max(100),
+      idCode: z.string().trim().regex(/^\d+$/).max(100),
+      foreigner: z.boolean(),
+      email: z.email(),
+      comment: z.string().trim().max(100),
+    }),
+  ),
+}) satisfies z.ZodType<ExamDto>;
 
-export async function addExam(exam: ExamSchema, user: User) {
-  const timestamp = new Date();
+const timestamp = new Date();
+export async function addExam(
+  exam: ExamDto,
+  climber: ExamClimberDto,
+  user: User,
+) {
   const montonioUuid = crypto.randomUUID();
   await examsModel.appendRow({
     formFillTime: timestamp.toISOString(),
-    id: exam.climberIdCode,
-    name: exam.climberName,
-    email: exam.climberEmail,
+    id: climber.idCode,
+    name: climber.name,
+    email: climber.email,
     examiner: user.name,
     formFillerEmail: user.email,
-    examDate: exam.examDate,
+    examDate: exam.examDate ?? undefined,
     certificate: exam.examType.toLowerCase(),
-    comment: exam.commentary ?? undefined,
+    comment: climber.comment,
     montonioUuid,
   });
 

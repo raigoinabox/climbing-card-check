@@ -60,60 +60,60 @@ const instructions = [
 </script>
 
 <template>
-    <LoggedInLayout
-      :instructions="instructions"
-      :show-results="climber != null"
-      @go-back="climber = null"
-    >
-      <template #form>
-        <ClimberSearchForm :submit="searchClimber" />
-      </template>
+  <LoggedInLayout
+    :instructions="instructions"
+    :show-results="climber != null"
+    @go-back="climber = null"
+  >
+    <template #form>
+      <ClimberSearchForm :submit="searchClimber" />
+    </template>
 
-      <template #results>
-        <ClimberStatus v-if="climber" :climber="climber">
-          <template v-if="climber.certificate != 'none'" #information>
-            <div class="row">
-              <p class="heading">VÄLJASTATUD KAART</p>
-              <p class="content">
-                {{ climber.cardSerialId ?? "PUUDUB" }}
-                <UModal @after:leave="handleModalClose">
-                  <UButton style="vertical-align: middle">SEO UUEGA</UButton>
+    <template #results>
+      <ClimberStatus v-if="climber" :climber="climber">
+        <template v-if="climber.certificate != 'none'" #information>
+          <div class="row">
+            <p class="heading">VÄLJASTATUD KAART</p>
+            <p class="content">
+              {{ climber.cardSerialId ?? "PUUDUB" }}
+              <UModal @after:leave="handleModalClose">
+                <UButton style="vertical-align: middle">SEO UUEGA</UButton>
 
-                  <template #body>
-                    <p v-if="insertStatus.code == 'success'">
-                      Edukalt salvestatud
-                    </p>
-                    <form v-else @submit.prevent="insertSerialCode">
-                      <FormInstruction
-                        >Sisesta kaardi seerianumber</FormInstruction
-                      >
-                      <form-body>
-                        <label>Isikukood: {{ climber.id }}</label>
-                        <label>Nimi: {{ climber.name }}</label>
-                        <FormField
-                          v-model.trim="cardSerialCode"
-                          label="Kaardi seerianumber"
-                        />
-                        <FormButton :disabled="!cardSerialCode">
-                          <img
-                            v-if="insertStatus.code == 'loading'"
-                            class="loading-spinner"
-                            src="/assets/Rolling-1s-200px.svg"
-                          /><template v-else>Sisesta</template>
-                        </FormButton>
-                        <p v-if="insertStatus.code == 'error'">
-                          Sisestamise viga! {{ insertStatus.message }}
-                        </p>
-                      </form-body>
-                    </form>
-                  </template>
-                </UModal>
-              </p>
-            </div>
-          </template>
-        </ClimberStatus>
-      </template>
+                <template #body>
+                  <p v-if="insertStatus.code == 'success'">
+                    Edukalt salvestatud
+                  </p>
+                  <form v-else @submit.prevent="insertSerialCode">
+                    <FormInstruction
+                      >Sisesta kaardi seerianumber</FormInstruction
+                    >
+                    <form-body>
+                      <label>Isikukood: {{ climber.id }}</label>
+                      <label>Nimi: {{ climber.name }}</label>
+                      <FormField
+                        v-model.trim="cardSerialCode"
+                        label="Kaardi seerianumber"
+                      />
+                      <FormButton :disabled="!cardSerialCode">
+                        <img
+                          v-if="insertStatus.code == 'loading'"
+                          class="loading-spinner"
+                          src="/assets/Rolling-1s-200px.svg"
+                        /><template v-else>Sisesta</template>
+                      </FormButton>
+                      <p v-if="insertStatus.code == 'error'">
+                        Sisestamise viga! {{ insertStatus.message }}
+                      </p>
+                    </form-body>
+                  </form>
+                </template>
+              </UModal>
+            </p>
+          </div>
+        </template>
+      </ClimberStatus>
+    </template>
 
-      <template #instructions-header>Väljastatud kaardi lisamine</template>
-    </LoggedInLayout>
+    <template #instructions-header>Väljastatud kaardi lisamine</template>
+  </LoggedInLayout>
 </template>
