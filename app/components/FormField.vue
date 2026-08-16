@@ -7,8 +7,11 @@ defineProps<{
   maxlength?: number;
   placeholder?: string;
   required?: boolean;
+  pattern?: string;
+  title?: string;
 }>();
 const model = defineModel<string | null>({ required: true });
+const emit = defineEmits<{ (e: "change" | "input"): void }>();
 </script>
 
 <template>
@@ -20,6 +23,10 @@ const model = defineModel<string | null>({ required: true });
       :maxlength="maxlength"
       :placeholder="placeholder"
       :required="required"
+      :pattern="pattern"
+      :title="title"
+      @change="emit('change')"
+      @input="emit('input')"
     />
   </label>
 </template>

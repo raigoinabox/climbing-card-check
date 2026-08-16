@@ -171,7 +171,7 @@ export async function findExamById(id: string) {
 
 export const examSchema = z.object({
   climberName: z.string(),
-  climberIdCode: z.string(),
+  climberIdCode: z.string().regex(/^\d+$/).max(100),
   climberEmail: z.email("Kontroll emaili aadressi"),
   examDate: z.iso.date(),
   examType: z.literal(["roheline", "punane"]),

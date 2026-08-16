@@ -6,15 +6,26 @@ import { getMessage } from "~/utils/app_utils";
 import FormField from "~/components/FormField.vue";
 import { useToast } from "@nuxt/ui/runtime/composables/useToast.js";
 
+interface ExamData {
+  climberName: string | null;
+  climberIdCode: string | null;
+  climberIdCodeForeign: boolean;
+  climberEmail: string | null;
+  examDate: string | null;
+  examType: "roheline";
+  commentary: string;
+}
+
 function initialFormValues() {
   return {
     climberName: null,
     climberIdCode: null,
+    climberIdCodeForeign: false,
     climberEmail: null,
     examDate: null,
     examType: "roheline",
-    commentary: null,
-  };
+    commentary: "",
+  } satisfies ExamData;
 }
 
 const instructions = [
@@ -24,13 +35,30 @@ const instructions = [
 ];
 
 const formSaving = ref<boolean>(false);
-const examForm = ref(initialFormValues());
+const examForm = ref<ExamData>(initialFormValues());
+const suggestForeigner = ref(false);
+
 const toast = useToast();
+
+function handleIdCodeChange() {
+  const idCode = examForm.value.climberIdCode;
+  if (idCode != null && !isIdCodeValid(idCode)) {
+    suggestForeigner.value = true;
+  }
+}
+
+function handleIdCodeInput() {
+  const idCode = examForm.value.climberIdCode;
+  if (idCode != null && 12 <= idCode.length) {
+    suggestForeigner.value = true;
+  }
+}
 
 async function submitExam() {
   if (
     examForm.value.climberIdCode == null ||
-    !isIdCodeValid(examForm.value.climberIdCode)
+    (!examForm.value.climberIdCodeForeign &&
+      !isIdCodeValid(examForm.value.climberIdCode))
   ) {
     toast.add({
       color: "error",
@@ -76,12 +104,23 @@ async function submitExam() {
               label="Ronija nimi"
               required
             />
+
             <FormField
               v-model.trim="examForm.climberIdCode"
               label="Ronija isikukood"
               required
-              :maxlength="11"
+              :maxlength="100"
+              pattern="\d+"
+              title="Ainult numbrimärgid"
               placeholder="12345678901"
+              @change="handleIdCodeChange"
+              @input="handleIdCodeInput"
+            />
+            <UCheckbox
+              v-if="suggestForeigner"
+              v-model="examForm.climberIdCodeForeign"
+              label="Kas on välismaalase isikukood?"
+              description="Siis jätame isikukoodi kontrolli vahele"
             />
             <FormField
               v-model.trim="examForm.climberEmail"

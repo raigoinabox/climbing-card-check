@@ -1,4 +1,4 @@
-import type { sheets_v4, Auth } from "googleapis";
+import type { sheets_v4 } from "googleapis";
 import { google } from "googleapis";
 import { getGoogleKey } from "./google_key_access";
 
@@ -15,21 +15,29 @@ function isStringTable(data: unknown[][]): data is string[][] {
   return true;
 }
 
-export class SheetAccess {
-  private connection: Auth.JWT | null = null;
-  private readonly sheets: sheets_v4.Sheets;
-
-  constructor() {
-    this.sheets = google.sheets("v4");
+let _sheets: sheets_v4.Sheets | null = null;
+function getSheets() {
+  if (_sheets == null) {
+    const secretKey = getGoogleKey();
+    _sheets = google.sheets({
+      version: "v4",
+      auth: new google.auth.JWT({
+        email: secretKey.client_email,
+        key: secretKey.private_key,
+        scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+      }),
+    });
   }
+  return _sheets;
+}
 
+export class SheetAccess {
   async getValues(range: string) {
     if (spreadsheetId == null) {
       throw new Error("spreadSheetId must not be null");
     }
 
-    const sheet = await this.sheets.spreadsheets.values.get({
-      auth: await this.getConnection(),
+    const sheet = await getSheets().spreadsheets.values.get({
       spreadsheetId: spreadsheetId,
       range,
     });
@@ -51,8 +59,7 @@ export class SheetAccess {
 
     console.log(range, "update", value);
     const values = [value];
-    this.sheets.spreadsheets.values.update({
-      auth: await this.getConnection(),
+    getSheets().spreadsheets.values.update({
       spreadsheetId,
       range,
       valueInputOption: "RAW",
@@ -67,26 +74,11 @@ export class SheetAccess {
 
     console.log(`${range}: append ${value}`);
     const values = [value];
-    this.sheets.spreadsheets.values.append({
-      auth: await this.getConnection(),
+    getSheets().spreadsheets.values.append({
       spreadsheetId,
       range,
       valueInputOption: "RAW",
       requestBody: { values },
     });
-  }
-
-  private async getConnection() {
-    if (this.connection == null) {
-      const secretKey = getGoogleKey();
-      const jwtClient = new google.auth.JWT({
-        email: secretKey.client_email,
-        key: secretKey.private_key,
-        scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-      });
-      await jwtClient.authorize();
-      this.connection = jwtClient;
-    }
-    return this.connection;
   }
 }

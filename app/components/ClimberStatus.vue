@@ -44,7 +44,7 @@ const noAccessReason = computed(() => {
 function isClimberCertified(
   climber: { id: string; certificate: "none" } | ClimberDto,
 ): climber is ClimberDto {
-  return ["roheline", "punane"].includes(certificate.value);
+  return ["roheline", "punane"].includes(climber.certificate);
 }
 
 const formattedExamTime = computed(() => {

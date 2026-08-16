@@ -19,28 +19,28 @@
   "author": "Estonian Climbing Association",
   "license": "GPL-3.0-only",
   "dependencies": {
-    "@nuxt/eslint": "^1.15.1",
-    "@nuxt/ui": "^4.4.0",
-    "eslint": "^9.39.3",
+    "@nuxt/eslint": "^1.17.0",
+    "@nuxt/ui": "^4.10.0",
+    "eslint": "^9.39.5",
     "googleapis": "^167.0.0",
     "jsonwebtoken": "^9.0.3",
     "nodemailer": "^7.0.13",
     "nuxt": "^4.2.1",
-    "nuxt-auth-utils": "^0.5.29",
-    "zod": "^4.3.6"
+    "nuxt-auth-utils": "^0.5.30",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@nuxt/test-utils": "^3.23.0",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/nodemailer": "^7.0.11",
-    "@vue/test-utils": "^2.4.6",
+    "@types/nodemailer": "^7.0.12",
+    "@vue/test-utils": "^2.4.11",
     "eslint-config-prettier": "^10.1.8",
-    "happy-dom": "^20.7.0",
-    "playwright-core": "^1.58.2",
-    "prettier": "^3.8.1",
+    "happy-dom": "^20.11.2",
+    "playwright-core": "^1.62.1",
+    "prettier": "^3.9.6",
     "typescript": "^5.9.3",
-    "vitest": "^3.2.4",
-    "vue-tsc": "^3.2.5"
+    "vitest": "^3.2.7",
+    "vue-tsc": "^3.3.10"
   },
   "prettier": {
     "objectWrap": "collapse"
