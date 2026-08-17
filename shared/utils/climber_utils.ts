@@ -1,6 +1,4 @@
-import type { IdCode } from "../types/api_types";
-
-export function isIdCodeValid(code: string): code is IdCode {
+export function isIdCodeValid(code: string) {
   if (code.length !== 11) {
     return false;
   }

@@ -1,4 +1,3 @@
-import type { IdCode } from "#shared/types/api_types";
 import { SheetModel } from "./sheet_model";
 
 interface Card {
@@ -19,7 +18,7 @@ export async function findCardByClimber(climberId: string) {
   return cards.length == 0 ? null : cards[0];
 }
 
-export function findCardByCardOrClimber(cardId: string, climberId: IdCode) {
+export function findCardByCardOrClimber(cardId: string, climberId: string) {
   return cardsModel.fetchData(
     (dto) => dto.issuedCardId == cardId || dto.climberId == climberId,
   );

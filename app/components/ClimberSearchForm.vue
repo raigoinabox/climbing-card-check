@@ -7,7 +7,7 @@ const idCode = ref("");
 const isLoading = ref(false);
 
 const isSubmitDisabled = computed(() => {
-  return !idCode.value || idCode.value.length !== 11;
+  return !idCode.value || idCode.value.length < 11;
 });
 async function submitForm() {
   if (!idCode.value) return;
@@ -28,7 +28,7 @@ async function submitForm() {
         v-model.trim="idCode"
         label="Isikukood"
         type="text"
-        :maxlength="11"
+        :maxlength="100"
         placeholder="12345678901"
       />
       <FormButton :disabled="isSubmitDisabled">

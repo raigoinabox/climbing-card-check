@@ -1,6 +1,5 @@
 import { describe, test, expect } from "vitest";
 import { findExamById } from "../../server/utils/exams_db";
-import { isIdCodeValid } from "../../shared/utils/climber_utils";
 
 const testCases = [
   {
@@ -62,21 +61,13 @@ const invalidCases = [
 
 describe("Exams", () => {
   test.for(testCases)("should find $id", async (expected) => {
-    const id = expected.id;
-    if (!isIdCodeValid(id)) {
-      throw new Error(id);
-    }
-
-    const result = await findExamById(id);
+    const result = await findExamById(expected.id);
     expect(result).toEqual(expected);
   });
 
   test.for(invalidCases)(
     "should error with $id",
     async ({ id, expectedError }) => {
-      if (!isIdCodeValid(id)) {
-        throw new Error(id);
-      }
       await expect(() => findExamById(id)).rejects.toThrowError(expectedError);
     },
   );

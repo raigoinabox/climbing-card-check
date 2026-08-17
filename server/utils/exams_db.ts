@@ -72,7 +72,7 @@ function findBestCertificate<
     certificate: CertificateState;
     examTime: Date | null;
   },
->(certificates: T[]) {
+>(certificates: T[]): T & { valid: boolean } {
   // The best certificate is found as follows:
   // 1. Last issued RED card (that is still valid)
   // 2. Last issued GREEN card (that is still valid)
@@ -85,16 +85,16 @@ function findBestCertificate<
 
   for (const card of certificates) {
     if (!card.expiryTime) {
-      anyInvalidCard = card;
+      anyInvalidCard = { ...card, valid: false };
     } else if (card.expiryTime.getTime() < Date.now()) {
-      anyExpiredCard = card;
+      anyExpiredCard = { ...card, valid: false };
     } else if (card.certificate === CODE.GREEN) {
       if (
         !bestGreenCard ||
         bestGreenCard.examTime == null ||
         (card.examTime != null && card.examTime > bestGreenCard.examTime)
       ) {
-        bestGreenCard = card;
+        bestGreenCard = { ...card, valid: true };
       }
     } else if (card.certificate === CODE.RED) {
       if (
@@ -102,11 +102,11 @@ function findBestCertificate<
         bestRedCard.examTime == null ||
         (card.examTime != null && card.examTime > bestRedCard.examTime)
       ) {
-        bestRedCard = card;
+        bestRedCard = { ...card, valid: true };
       }
     } else {
       // The card doesn't have a valid certificate (neither green nor red)
-      anyInvalidCard = card;
+      anyInvalidCard = { ...card, valid: false };
     }
   }
 

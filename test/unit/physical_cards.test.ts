@@ -1,7 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { findCardByClimber } from "../../server/utils/physical_cards_db";
 import { insertPhysicalCard } from "../../server/utils/physical_cards_service";
-import { isIdCodeValid } from "../../shared/utils/climber_utils";
 
 describe("Physical cards", () => {
   test("Query cards", async () => {
@@ -21,9 +20,6 @@ describe("Physical cards", () => {
   test("Add card failures", async () => {
     const id = "10001010002";
     const fakeId = "10001010013";
-    if (!isIdCodeValid(id) || !isIdCodeValid(fakeId)) {
-      throw new Error();
-    }
     await expect(() =>
       insertPhysicalCard(id, "Ei ole olemas", "test"),
     ).rejects.toThrowError("Sellise seeriakoodiga kaarti ei ole");

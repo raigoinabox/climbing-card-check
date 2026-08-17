@@ -1,4 +1,3 @@
-import type { IdCode } from "#shared/types/api_types";
 import { findCardByCardOrClimber, saveCard } from "./physical_cards_db";
 import { findExamById } from "./exams_db";
 
@@ -11,11 +10,14 @@ export class ValidationError extends Error {
 }
 
 export async function insertPhysicalCard(
-  climberId: IdCode,
+  climberId: string,
   cardId: string,
   userName: string,
 ) {
   const cards = await findCardByCardOrClimber(cardId, climberId);
+  const exam = await findExamById(climberId);
+  ValidationError.validate(exam.valid, "Ronijal ei ole ronimisõigust");
+
   const removeCards = [];
   let cardAdded = false;
   for (const card of cards) {
@@ -24,8 +26,6 @@ export async function insertPhysicalCard(
         card.climberId == null,
         "Kaart on juba ronijaga seotud",
       );
-
-      const exam = await findExamById(climberId);
       ValidationError.validate(
         exam.certificate == card.cardType,
         "Kaart on valet tüüpi (roheline/punane)",
