@@ -23,8 +23,10 @@ const items = computed<NavigationMenuItem[]>(() => [
       </template>
 
       <template #body>
-        {{ user.name }}
-        <UButton variant="subtle" @click="clear">Logi välja</UButton>
+        <template v-if="loggedIn">
+          {{ user.name }}
+          <UButton variant="subtle" @click="clear">Logi välja</UButton>
+        </template>
         <UNavigationMenu :items="items" orientation="vertical" />
       </template>
     </UHeader>
