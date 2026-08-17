@@ -21,7 +21,10 @@ const goBack = () => {
     <div class="left-background">
       <div class="left-background2" />
     </div>
-    <div id="left" :class="showResults ? 'desktop' : ''">
+    <div
+      id="left"
+      :class="showResults || showMobileInstructions ? 'desktop' : ''"
+    >
       <div id="form">
         <div>
           <h2 style="font-weight: bold">Eesti Ronimisliit</h2>
@@ -114,7 +117,7 @@ const goBack = () => {
     justify-content: space-evenly;
   }
   #mobile-instructions {
-    height: 100%;
+    min-height: calc(100vh - var(--ui-header-height));
     width: 100%;
     position: absolute;
     background: #f4f7ff;
