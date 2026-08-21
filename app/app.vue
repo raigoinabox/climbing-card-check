@@ -30,9 +30,7 @@ const items = computed<NavigationMenuItem[]>(() => [
         <UNavigationMenu :items="items" orientation="vertical" />
       </template>
     </UHeader>
-    <UMain>
-      <NuxtPage />
-    </UMain>
+    <NuxtPage />
   </UApp>
 </template>
 

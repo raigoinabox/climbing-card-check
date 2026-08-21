@@ -93,7 +93,6 @@ async function submitExam() {
 </script>
 
 <template>
-  <div>
     <LoggedInLayout :instructions="instructions" :show-results="false">
       <template #form>
         <form @submit.prevent="submitExam">
@@ -158,5 +157,4 @@ async function submitExam() {
 
       <template #instructions-header>Väljastatud kaardi lisamine</template>
     </LoggedInLayout>
-  </div>
 </template>

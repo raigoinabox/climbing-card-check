@@ -60,7 +60,6 @@ const instructions = [
 </script>
 
 <template>
-  <div>
     <LoggedInLayout
       :instructions="instructions"
       :show-results="climber != null"
@@ -117,5 +116,4 @@ const instructions = [
 
       <template #instructions-header>Väljastatud kaardi lisamine</template>
     </LoggedInLayout>
-  </div>
 </template>

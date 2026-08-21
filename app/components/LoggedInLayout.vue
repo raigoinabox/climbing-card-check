@@ -43,12 +43,14 @@ const improvedInstructions = ["Logi sisse", ...instructions];
               label="Email"
               type="email"
               placeholder="admin@ronimisliit.ee"
+              autocomplete="username"
             />
             <FormField
               v-model="credentials.password"
               label="Parool"
               type="password"
               placeholder="w5DB5jIm0soTMW"
+              autocomplete="current-password"
             />
             <FormButton>Logi sisse</FormButton>
           </form-body>

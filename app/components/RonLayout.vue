@@ -17,7 +17,7 @@ const goBack = () => {
 </script>
 
 <template>
-  <div style="display: flex">
+  <UMain class="layout-container">
     <div class="left-background">
       <div class="left-background2" />
     </div>
@@ -66,10 +66,13 @@ const goBack = () => {
         <slot name="results" />
       </div>
     </div>
-  </div>
+  </UMain>
 </template>
 
 <style scoped>
+.layout-container {
+  display: flex;
+}
 .left-background {
   position: fixed;
   left: 0;
@@ -80,7 +83,7 @@ const goBack = () => {
   background-repeat: no-repeat;
   background-size: cover;
   width: 100%;
-  height: 100%;
+  height: calc(100lvh - var(--ui-header-height));;
   filter: blur(4px);
 }
 .left-background2 {
@@ -89,7 +92,6 @@ const goBack = () => {
 }
 
 #left {
-  min-height: calc(100vh - var(--ui-header-height));
   width: 50%;
   display: flex;
   justify-content: center;
@@ -112,7 +114,6 @@ const goBack = () => {
     display: none !important;
   }
   #left {
-    padding-top: 48px;
     width: 100%;
     justify-content: space-evenly;
   }

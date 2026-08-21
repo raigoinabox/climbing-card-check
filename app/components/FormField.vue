@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { InputTypeHTMLAttribute } from "vue";
+import type { InputAutoCompleteAttribute, InputTypeHTMLAttribute } from "vue";
 
 defineProps<{
   label: string;
@@ -9,6 +9,7 @@ defineProps<{
   required?: boolean;
   pattern?: string;
   title?: string;
+  autocomplete?: InputAutoCompleteAttribute;
 }>();
 const model = defineModel<string | null>({ required: true });
 const emit = defineEmits<{ (e: "change" | "input"): void }>();
@@ -25,6 +26,7 @@ const emit = defineEmits<{ (e: "change" | "input"): void }>();
       :required="required"
       :pattern="pattern"
       :title="title"
+      :autocomplete="autocomplete"
       @change="emit('change')"
       @input="emit('input')"
     />
