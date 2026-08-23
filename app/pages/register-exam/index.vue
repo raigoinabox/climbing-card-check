@@ -85,7 +85,7 @@ async function submitExam() {
       toast.add({
         color: "error",
         title: "Viga",
-        description: `Ronija ${firstClimber.name} andmete saatmisega viga.`,
+        description: `Andmete salvestamisel viga.`,
       });
     }
   } catch (error) {
@@ -119,6 +119,7 @@ async function submitExam() {
               :items="['roheline', 'punane']"
               required
               class="w-full"
+              :content="{ bodyLock: false }"
             />
           </label>
 

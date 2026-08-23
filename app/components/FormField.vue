@@ -1,5 +1,6 @@
 <script setup lang="ts">
 defineProps<{ label: string }>();
+defineOptions({ inheritAttrs: false });
 const model = defineModel<string | null>({ required: true });
 </script>
 
