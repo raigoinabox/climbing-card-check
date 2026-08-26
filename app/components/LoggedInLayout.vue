@@ -2,9 +2,9 @@
 import { useToast } from "@nuxt/ui/runtime/composables/useToast.js";
 import FormField from "./FormField.vue";
 
-const { showResults, instructions } = defineProps<{
+const { showResults, instructions = null } = defineProps<{
   showResults: boolean;
-  instructions: string[];
+  instructions?: string[];
 }>();
 
 const { loggedIn, fetch } = useUserSession();
@@ -25,19 +25,20 @@ async function login() {
   }
 }
 
-const improvedInstructions = ["Logi sisse", ...instructions];
+const improvedInstructions =
+  instructions == null ? undefined : ["Logi sisse", ...instructions];
 </script>
 
 <template>
-  <RonLayout :show-results="showResults" :instructions="improvedInstructions">
+  <RonLayout :show-results="showResults" :instructions="improvedInstructions" :wider="instructions == null && loggedIn">
     <template #form>
-      <div v-if="loggedIn">
+      <div v-if="loggedIn" :class="{['w-full']: instructions == null}">
         <slot name="form"></slot>
       </div>
       <div v-else>
         <FormInstruction>Logi sisse</FormInstruction>
         <form @submit.prevent="login">
-          <form-body>
+          <FormBody>
             <FormField
               v-model="credentials.email"
               label="Email"
@@ -53,7 +54,7 @@ const improvedInstructions = ["Logi sisse", ...instructions];
               autocomplete="current-password"
             />
             <FormButton>Logi sisse</FormButton>
-          </form-body>
+          </FormBody>
         </form>
       </div>
     </template>
@@ -62,6 +63,8 @@ const improvedInstructions = ["Logi sisse", ...instructions];
       <slot name="results"></slot>
     </template>
 
-    <template #instructions-header>Väljastatud kaardi lisamine</template>
+    <template #instructions-header
+      ><slot name="instructions-header"></slot
+    ></template>
   </RonLayout>
 </template>

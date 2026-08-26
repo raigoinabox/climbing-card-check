@@ -13,12 +13,6 @@ function createClimber() {
   return { name: "", idCode: "", email: "", foreigner: false, comment: "" };
 }
 
-const instructions = [
-  "Sisesta eksami andmed",
-  "Kontrolli need üle ja salvesta",
-  "Ronijale saadetakse email",
-];
-
 const formSaving = ref<boolean>(false);
 const examForm = ref({
   examDate: null,
@@ -101,7 +95,7 @@ async function submitExam() {
 </script>
 
 <template>
-  <LoggedInLayout :instructions="instructions" :show-results="false">
+  <LoggedInLayout :show-results="false">
     <template #form>
       <form @submit.prevent="submitExam">
         <FormInstruction>Sisesta eksami andmed</FormInstruction>
@@ -128,14 +122,16 @@ async function submitExam() {
             :items="climberTabs"
             style="border-top: thin solid var(--ui-border)"
           >
-            <template #trailing="{ index, open }">
-              <UBadge v-if="index < sentClimbers.length">Saadetud</UBadge>
+            <template #leading="{ index, open }">
+              <UBadge v-if="index < sentClimbers.length" color="success"
+                >Saadetud</UBadge
+              >
               <UButton
                 v-else
                 :class="{ invisible: !open }"
-                icon="i-carbon-close"
+                icon="i-lucide-trash"
                 color="warning"
-                variant="outline"
+                variant="ghost"
                 size="xs"
                 @click="
                   (event) => {
@@ -156,7 +152,7 @@ async function submitExam() {
           </UAccordion>
           <div>
             <UButton
-              icon="i-carbon-add"
+              icon="i-lucide-plus"
               class="mb-3"
               @click="
                 () => {
@@ -175,11 +171,9 @@ async function submitExam() {
               >Lisa eksamineeritav</UButton
             >
           </div>
-          <FormButton :disabled="formSaving">Sisesta</FormButton>
+          <FormButton :disabled="formSaving">Salvesta</FormButton>
         </FormBody>
       </form>
     </template>
-
-    <template #instructions-header>Väljastatud kaardi lisamine</template>
   </LoggedInLayout>
 </template>

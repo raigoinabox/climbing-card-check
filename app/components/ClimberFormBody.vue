@@ -25,10 +25,11 @@ function handleIdCodeInput(idCode: string) {
 </script>
 
 <template>
-  <FormBody>
+  <FormBody style="flex-flow: wrap">
     <FormField
       v-model:model-value="climber.name"
       label="Ronija nimi"
+      root-class="fieldValue"
       required
       @update:model-value="
         (name) => (climber = { ...climber, name: name?.trim() ?? '' })
@@ -44,6 +45,7 @@ function handleIdCodeInput(idCode: string) {
       title="Ainult numbrimärgid"
       placeholder="12345678901"
       inputmode="numeric"
+      root-class="fieldValue"
       @update:model-value="
         (rawIdCode) => {
           const idCode = rawIdCode?.trim() ?? '';
@@ -71,7 +73,9 @@ function handleIdCodeInput(idCode: string) {
       v-model:model-value="climber.email"
       label="Ronija email"
       type="email"
+      autocomplete="email"
       required
+      root-class="fieldValue"
       @update:model-value="
         (email) => (climber = { ...climber, email: email?.trim() ?? '' })
       "
@@ -79,9 +83,16 @@ function handleIdCodeInput(idCode: string) {
     <FormField
       v-model:model-value="climber.comment"
       label="Kommentaar (valikuline)"
+      root-class="fieldValue"
       @update:model-value="
         (comment) => (climber = { ...climber, comment: comment?.trim() ?? '' })
       "
     />
   </FormBody>
 </template>
+
+<style lang="css" scoped>
+.fieldValue {
+  flex: 15em;
+}
+</style>

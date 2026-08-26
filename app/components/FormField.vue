@@ -1,11 +1,13 @@
 <script setup lang="ts">
-defineProps<{ label: string }>();
+import type { ClassValue } from "vue";
+
+defineProps<{ label: string; rootClass?: ClassValue }>();
 defineOptions({ inheritAttrs: false });
 const model = defineModel<string | null>({ required: true });
 </script>
 
 <template>
-  <label>
+  <label :class="rootClass">
     {{ label }}
     <input v-model="model" v-bind="$attrs" />
   </label>

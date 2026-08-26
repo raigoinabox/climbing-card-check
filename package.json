@@ -19,6 +19,7 @@
   "author": "Estonian Climbing Association",
   "license": "GPL-3.0-only",
   "dependencies": {
+    "@iconify-json/lucide": "^1.2.126",
     "@nuxt/eslint": "^1.17.0",
     "@nuxt/ui": "^4.10.0",
     "eslint": "^9.39.5",
