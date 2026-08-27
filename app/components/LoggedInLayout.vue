@@ -30,9 +30,13 @@ const improvedInstructions =
 </script>
 
 <template>
-  <RonLayout :show-results="showResults" :instructions="improvedInstructions" :wider="instructions == null && loggedIn">
+  <RonLayout
+    :show-results="showResults"
+    :instructions="improvedInstructions"
+    :wider="instructions == null && loggedIn"
+  >
     <template #form>
-      <div v-if="loggedIn" :class="{['w-full']: instructions == null}">
+      <div v-if="loggedIn" :class="{ ['w-full']: instructions == null }">
         <slot name="form"></slot>
       </div>
       <div v-else>

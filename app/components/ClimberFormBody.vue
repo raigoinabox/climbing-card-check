@@ -60,6 +60,7 @@ function handleIdCodeInput(idCode: string) {
       v-model:model-value="climber.foreigner"
       label="Kas on välismaalase isikukood?"
       description="Siis jätame isikukoodi kontrolli vahele"
+      class="w-full"
       @update:model-value="
         (foreigner) =>
           (climber = {

@@ -2,7 +2,11 @@
 import { ref } from "vue";
 import LayoutInstructions from "./LayoutInstructions.vue";
 
-defineProps<{ showResults: boolean, wider?: boolean; instructions?: string[] }>();
+defineProps<{
+  showResults: boolean;
+  wider?: boolean;
+  instructions?: string[];
+}>();
 const emit = defineEmits<{ goBack: [] }>();
 
 const showMobileInstructions = ref(false);

@@ -124,7 +124,7 @@ async function submitExam() {
           >
             <template #leading="{ index, open }">
               <UBadge v-if="index < sentClimbers.length" color="success"
-                >Saadetud</UBadge
+                >Salvestatud</UBadge
               >
               <UButton
                 v-else
