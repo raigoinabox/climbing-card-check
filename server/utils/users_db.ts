@@ -5,6 +5,7 @@ const usersModel = SheetModel.fixed("Instruktorite paroolid", [
   "name",
   "email",
   "password",
+  "hashedPassword",
 ]);
 
 function isStringsConstantTimeEqual(a: string, b: string) {
@@ -17,13 +18,37 @@ function isStringsConstantTimeEqual(a: string, b: string) {
 }
 
 export async function getValidLoginUser(email: string, password: string) {
-  const users = await usersModel.fetchData(
-    (dto) =>
-      dto.email != null &&
-      isStringsConstantTimeEqual(dto.email, email) &&
-      dto.password != null &&
-      isStringsConstantTimeEqual(dto.password, password),
-  );
+  const users = await usersModel.fetchData();
 
-  return users[0];
+  for (const user of users) {
+    const emailMatch =
+      user.email != null && isStringsConstantTimeEqual(user.email, email);
+    const passwordMatch =
+      user.password != null &&
+      isStringsConstantTimeEqual(user.password, password);
+    const hashedPassword = user.hashedPassword;
+    const hashedPasswordMatch =
+      hashedPassword != null &&
+      (await verifyPassword(hashedPassword, password));
+
+    if (emailMatch && passwordMatch) {
+      user.hashedPassword = await hashPassword(password);
+      user.password = "";
+      await usersModel.save(user);
+      return user;
+    } else if (emailMatch && hashedPasswordMatch) {
+      if (user.password != null) {
+        user.password = "";
+        await usersModel.save(user);
+      }
+      if (passwordNeedsReHash(hashedPassword)) {
+        user.hashedPassword = await hashPassword(password);
+        await usersModel.save(user);
+      }
+
+      return user;
+    }
+  }
+
+  return null;
 }

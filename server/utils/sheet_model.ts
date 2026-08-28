@@ -24,12 +24,12 @@ export class SheetModel<T extends string> {
     this.headers = headers;
   }
 
-  async fetchData(filter: (dto: Entity<T>) => boolean) {
+  async fetchData(filter?: (dto: Entity<T>) => boolean) {
     const data = await this.fetchTable(this.sheetName);
     return this.mapAndFilter(data, filter);
   }
 
-  private mapAndFilter(data: string[][], filter: (dto: Entity<T>) => boolean) {
+  private mapAndFilter(data: string[][], filter?: (dto: Entity<T>) => boolean) {
     // Ignore human-readable headers(the first row), because those can change any time
     // form is changed. Will use the second row to key the columns
     const headers = data[this.dataRowIndex - 1];
@@ -47,7 +47,7 @@ export class SheetModel<T extends string> {
           const value = row[index];
           dto[header] = value == "" ? undefined : value;
         }
-        if (filter(dto)) {
+        if (filter == null || filter(dto)) {
           dtos.push(dto);
           this.positions.set(dto, index + 1);
         }
