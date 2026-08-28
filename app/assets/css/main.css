@@ -5,3 +5,9 @@
   --font-sans: "Poppins", system-ui, sans-serif;
   --ui-primary: var(--color-blue-500);
 }
+
+@layer base {
+  html {
+    scrollbar-gutter: stable;
+  }
+}
