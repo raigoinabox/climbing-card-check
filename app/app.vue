@@ -12,7 +12,14 @@ const items = computed<NavigationMenuItem[]>(() => [
 
 <template>
   <UApp>
-    <UHeader title="Julgestajakaardi register">
+    <UHeader>
+      <template #title>
+        <div>
+        <p style="font-size: small" class="text-blue-800">Eesti Ronimisliit</p>
+        <p>Julgestajakaardi register</p>
+        </div>
+        
+      </template>
       <UNavigationMenu :items="items" />
 
       <template v-if="loggedIn" #right>

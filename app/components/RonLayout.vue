@@ -33,10 +33,6 @@ const goBack = () => {
       }"
     >
       <div class="form" :class="{ widerForm: wider }">
-        <div>
-          <h2 style="font-weight: bold">Eesti Ronimisliit</h2>
-          <h1 style="font-weight: bold">Julgestajakaardi register</h1>
-        </div>
         <slot name="form" />
       </div>
       <div

@@ -1,14 +1,12 @@
 <template>
-  <p><slot name="default"></slot></p>
+  <h2><slot name="default"></slot></h2>
 </template>
 
 <style lang="css" scoped>
-p {
-  font-weight: 400;
-  font-size: 24px;
-  line-height: 1.33;
+h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
   text-align: center;
-  color: #183642;
-  margin-bottom: 12px;
+  margin-bottom: 1em;
 }
 </style>
