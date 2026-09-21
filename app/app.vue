@@ -15,10 +15,11 @@ const items = computed<NavigationMenuItem[]>(() => [
     <UHeader>
       <template #title>
         <div>
-        <p style="font-size: small" class="text-blue-800">Eesti Ronimisliit</p>
-        <p>Julgestajakaardi register</p>
+          <p style="font-size: small" class="text-blue-800">
+            Eesti Ronimisliit
+          </p>
+          <p>Julgestajakaardi register</p>
         </div>
-        
       </template>
       <UNavigationMenu :items="items" />
 

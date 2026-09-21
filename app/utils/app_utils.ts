@@ -1,23 +1,37 @@
-export function getMessage(e: unknown) {
+export function parseError(error: unknown) {
   if (
-    e != null &&
-    typeof e == "object" &&
-    "data" in e &&
-    e.data != null &&
-    typeof e.data == "object" &&
-    "message" in e.data &&
-    typeof e.data.message == "string"
+    error != null &&
+    typeof error == "object" &&
+    "data" in error &&
+    error.data != null &&
+    typeof error.data == "object"
   ) {
-    const message = e.data.message;
-    try {
-      const errors = JSON.parse(message);
-      if (1 <= errors.length) {
-        return errors[0].message;
-      }
-    } catch {
-      return message;
+    const data = error.data;
+    let payload;
+    if ("data" in data && typeof data.data == "object") {
+      payload = data.data;
     }
-  }
 
-  return null;
+    let message;
+    if (
+      "message" in data &&
+      typeof data.message == "string" &&
+      1 <= data.message.length
+    ) {
+      try {
+        const errors = JSON.parse(data.message);
+        if (1 <= errors.length) {
+          message = errors[0].message;
+        }
+      } catch {
+        message = data.message;
+      }
+    }
+
+    return { payload, message };
+  }
+}
+
+export function getMessage(e: unknown) {
+  return parseError(e)?.message;
 }

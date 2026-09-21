@@ -5,6 +5,7 @@ import type { CertificateState, ExamDto } from "#shared/types/api_types";
 import type { User } from "#auth-utils";
 import { z } from "zod";
 import type { ExamClimberDto } from "../../shared/types/api_types";
+import { getIsoNow } from "./date_utils";
 
 const CODE = {
   GREEN: "roheline",
@@ -214,7 +215,7 @@ export async function registerLegalConfirmations(uuid: string) {
     throw new ValidationError("Sellist eksamit ei ole meil registreeritud");
   }
 
-  const now = new Date().toISOString();
+  const now = getIsoNow();
   exam.dataConsent = now;
   exam.responsiblityConsent = now;
   await examsModel.save(exam);
