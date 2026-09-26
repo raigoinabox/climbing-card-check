@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getMessage } from "~/utils/app_utils";
+import { useMutation } from "~/composables/useMutation";
 
 const route = useRoute();
 const passwords = ref({
@@ -7,33 +7,23 @@ const passwords = ref({
   newPassword: "",
   passwordRepeat: "",
 });
-const toast = useToast();
 const { fetch } = useUserSession();
+const resetPassword = useMutation(async () => {
+  await $fetch("/api/reset_password", {
+    method: "POST",
+    body: passwords.value,
+  });
+  await fetch();
+  await navigateTo("/");
+});
 
 async function submitForm() {
   if (passwords.value.newPassword != passwords.value.passwordRepeat) {
-    toast.add({
-      color: "error",
-      title: "Paroolid ei ühti",
-      description: "Tee kindlaks, et sa sisestasid mõlemad paroolid õigesti",
-    });
+    resetPassword.setError("Paroolid ei ühti");
     return;
   }
 
-  try {
-    await $fetch("/api/reset_password", {
-      method: "POST",
-      body: passwords.value,
-    });
-    await fetch();
-    await navigateTo("/");
-  } catch (error) {
-    toast.add({
-      color: "error",
-      title: "Viga",
-      description: getMessage(error) ?? "Süsteemi viga",
-    });
-  }
+  resetPassword.mutate();
 }
 </script>
 
@@ -59,7 +49,10 @@ async function submitForm() {
             minlength="14"
             required
           />
-          <FormButton>Salvesta</FormButton>
+          <FormButton :loading="resetPassword.pending.value"
+            >Salvesta</FormButton
+          >
+          <FormError :error="resetPassword.error.value" />
         </FormBody>
       </form>
     </template>

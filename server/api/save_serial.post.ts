@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     await insertPhysicalCard(body.climberIdCode, body.serialCode, user.name);
   } catch (e) {
     if (e instanceof ValidationError) {
-      throw createError({ statusCode: 400, data: e.message });
+      throw createError({ statusCode: 400, message: e.message });
     } else {
       throw e;
     }

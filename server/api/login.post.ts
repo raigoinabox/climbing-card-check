@@ -15,6 +15,12 @@ export default defineEventHandler(async (event) => {
     );
     return {};
   } else {
-    throw createError({ statusCode: 401, message: "Bad credentials" });
+    throw createError({
+      statusCode: 401,
+      data: {
+        title: "Sisselogimine ebaõnnestus",
+        description: "Vale kasutajanimi või parool",
+      },
+    });
   }
 });

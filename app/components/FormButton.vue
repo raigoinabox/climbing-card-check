@@ -1,5 +1,16 @@
+<script setup lang="ts">
+defineProps<{ loading: boolean, disabled?: boolean }>();
+</script>
+
 <template>
-  <button><slot /></button>
+  <button :disabled="loading || disabled">
+    <img
+      v-if="loading"
+      class="loading-spinner"
+      src="/assets/Rolling-1s-200px.svg"
+    />
+    <slot v-else />
+  </button>
 </template>
 
 <style scoped>

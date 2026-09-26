@@ -8,11 +8,18 @@ export function parseError(error: unknown) {
   ) {
     const data = error.data;
     let payload;
-    if ("data" in data && typeof data.data == "object") {
+    let title;
+    let description: string | undefined;
+    if ("data" in data && typeof data.data == "object" && data.data != null) {
       payload = data.data;
+      if ("title" in payload && typeof payload.title == "string") {
+        title = payload.title;
+      }
+      if ("description" in payload && typeof payload.description == "string") {
+        description = payload.description;
+      }
     }
 
-    let message;
     if (
       "message" in data &&
       typeof data.message == "string" &&
@@ -21,17 +28,17 @@ export function parseError(error: unknown) {
       try {
         const errors = JSON.parse(data.message);
         if (1 <= errors.length) {
-          message = errors[0].message;
+          description = errors[0].message;
         }
       } catch {
-        message = data.message;
+        description = data.message;
       }
     }
 
-    return { payload, message };
+    return { payload, title, description };
   }
 }
 
 export function getMessage(e: unknown) {
-  return parseError(e)?.message;
+  return parseError(e)?.description;
 }

@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { useToast } from "@nuxt/ui/runtime/composables/useToast.js";
 import FormField from "./FormField.vue";
-import { parseError } from "~/utils/app_utils.ts";
+import { useMutation } from "~/composables/useMutation.ts";
 
 const { showResults, instructions = null } = defineProps<{
   showResults: boolean;
@@ -10,52 +9,41 @@ const { showResults, instructions = null } = defineProps<{
 
 const { loggedIn, fetch } = useUserSession();
 const credentials = ref({ email: "", password: "" });
-const forgotPassword = ref<undefined | "form" | "sent">(undefined);
-const toast = useToast();
+const openForgotPassword = ref(false);
+
+const loginFetch = useMutation(async () => {
+  await $fetch("/api/login", { method: "POST", body: credentials.value });
+  await fetch();
+});
+const forgotPasswordFetch = useMutation(async () => {
+  await $fetch("/api/forgot_password", {
+    method: "POST",
+    body: credentials.value,
+  });
+});
+const forgotPasswordError = computed(() => {
+  const error = forgotPasswordFetch.error.value;
+  const data = error?.payload;
+  if (
+    data != null &&
+    "retryAfter" in data &&
+    typeof data.retryAfter == "string"
+  ) {
+    const retryAfter = new Date(data.retryAfter);
+    return {
+      title: `Palun proovige uuesti ${retryAfter.toLocaleString(undefined, {dateStyle: "medium", timeStyle: "short"})}`,
+      description: `Turvalisuse kaalutlustel piirame saadetud emailide hulka.`,
+    };
+  } else {
+    return undefined;
+  }
+});
 
 async function login() {
-  if (!forgotPassword.value) {
-    try {
-      await $fetch("/api/login", { method: "POST", body: credentials.value });
-
-      await fetch();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) {
-      toast.add({
-        title: "Sisselogimine ebaõnnestus",
-        description: "Kasutajanimi või parool olid valed",
-        color: "error",
-      });
-    }
+  if (!openForgotPassword.value) {
+    await loginFetch.mutate();
   } else {
-    try {
-      await $fetch("/api/forgot_password", {
-        method: "POST",
-        body: credentials.value,
-      });
-      forgotPassword.value = "sent";
-    } catch (unknownError) {
-      const error = parseError(unknownError);
-      const data = error?.payload;
-      if (
-        data != null &&
-        "retryAfter" in data &&
-        typeof data.retryAfter == "string"
-      ) {
-        const retryAfter = new Date(data.retryAfter);
-        toast.add({
-          color: "error",
-          title: "Palun proovige hiljem uuesti",
-          description: `${retryAfter.toLocaleString()} võib uuesti proovida. Turvalisuse kaalutlustel piirame saadetud emailide hulka.`,
-        });
-      } else {
-        toast.add({
-          title: "Viga",
-          description: error?.message ?? "Midagi läks valesti",
-          color: "error",
-        });
-      }
-    }
+    await forgotPasswordFetch.mutate();
   }
 }
 
@@ -74,12 +62,10 @@ const improvedInstructions =
         <slot name="form"></slot>
       </div>
       <div v-else>
-        <FormInstruction v-if="forgotPassword == null"
-          >Logi sisse</FormInstruction
-        >
+        <FormInstruction v-if="!openForgotPassword">Logi sisse</FormInstruction>
         <FormInstruction v-else>Sisesta email</FormInstruction>
         <form @submit.prevent="login">
-          <FormBody v-if="forgotPassword == null">
+          <FormBody v-if="!openForgotPassword">
             <FormField
               v-model.trim="credentials.email"
               label="Email"
@@ -97,15 +83,18 @@ const improvedInstructions =
               autocomplete="current-password"
               required
             />
-            <FormButton>Logi sisse</FormButton>
+            <FormButton :loading="loginFetch.pending.value"
+              >Logi sisse</FormButton
+            >
+            <FormError :error="loginFetch.error.value" />
             <UButton
               variant="link"
               class="self-end"
-              @click="forgotPassword = 'form'"
+              @click="openForgotPassword = true"
               >Unustasid salasõna?</UButton
             >
           </FormBody>
-          <FormBody v-else-if="forgotPassword == 'form'">
+          <FormBody v-else-if="!forgotPasswordFetch.success.value">
             <FormField
               v-model.trim="credentials.email"
               label="Email"
@@ -114,7 +103,12 @@ const improvedInstructions =
               autocomplete="username"
               required
             />
-            <FormButton>Saada email</FormButton>
+            <FormButton :loading="forgotPasswordFetch.pending.value"
+              >Saada email</FormButton
+            >
+            <FormError
+              :error="forgotPasswordError ?? forgotPasswordFetch.error.value"
+            />
           </FormBody>
           <FormBody v-else>
             <FormField

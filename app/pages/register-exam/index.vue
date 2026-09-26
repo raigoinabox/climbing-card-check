@@ -2,18 +2,16 @@
 import LoggedInLayout from "~/components/LoggedInLayout.vue";
 import FormBody from "~/components/FormBody.vue";
 import { isIdCodeValid } from "#shared/utils/climber_utils";
-import { getMessage } from "~/utils/app_utils";
 import FormField from "~/components/FormField.vue";
-import { useToast } from "@nuxt/ui/runtime/composables/useToast.js";
 import type { AccordionItem } from "@nuxt/ui";
 import ClimberFormBody from "~/components/ClimberFormBody.vue";
 import type { ExamDto, ExamClimberDto } from "#shared/types/api_types";
+import { useMutation } from "~/composables/useMutation";
 
 function createClimber() {
   return { name: "", idCode: "", email: "", foreigner: false, comment: "" };
 }
 
-const formSaving = ref<boolean>(false);
 const examForm = ref({
   examDate: null,
   examType: "roheline",
@@ -35,61 +33,36 @@ const climberTabs = computed(() =>
       ),
     ),
 );
-const toast = useToast();
+
+const saveExam = useMutation(async () => {
+  const { savedCount } = await $fetch("/api/save_exam", {
+    method: "POST",
+    body: examForm.value,
+  });
+
+  for (const saved of examForm.value.climbers.splice(0, savedCount)) {
+    sentClimbers.value.push(saved);
+  }
+});
 
 async function submitExam() {
   if (examForm.value.climbers.length == 0) {
-    toast.add({
-      color: "error",
-      title: "Viga",
-      description: "Ronijad puuduvad",
-    });
+    saveExam.setError("Ronijad puuduvad");
     return;
   }
 
   for (const climber of examForm.value.climbers) {
     if (!climber.foreigner && !isIdCodeValid(climber.idCode)) {
-      toast.add({
-        color: "error",
-        title: "Viga",
-        description: `${climber.name} isikukood ei valideeru`,
-      });
+      saveExam.setError(`${climber.name} isikukood ei valideeru`);
       return;
     }
   }
 
-  formSaving.value = true;
-  try {
-    const { savedCount } = await $fetch("/api/save_exam", {
-      method: "POST",
-      body: examForm.value,
-    });
-    toast.add({
-      color: "success",
-      title: "Salvestatud",
-      description: "Registreerisime eksami ja saatsime ronijatele emailid",
-    });
+  await saveExam.mutate();
 
-    for (const saved of examForm.value.climbers.splice(0, savedCount)) {
-      sentClimbers.value.push(saved);
-    }
-
-    const firstClimber = examForm.value.climbers[0];
-    if (firstClimber != null) {
-      toast.add({
-        color: "error",
-        title: "Viga",
-        description: `Andmete salvestamisel viga.`,
-      });
-    }
-  } catch (error) {
-    toast.add({
-      color: "error",
-      title: "Viga",
-      description: getMessage(error) ?? "Andmete viga",
-    });
-  } finally {
-    formSaving.value = false;
+  const firstClimber = examForm.value.climbers[0];
+  if (firstClimber != null) {
+    saveExam.setError("Andmete salvestamisel viga");
   }
 }
 </script>
@@ -171,7 +144,15 @@ async function submitExam() {
               >Lisa eksamineeritav</UButton
             >
           </div>
-          <FormButton :disabled="formSaving">Salvesta</FormButton>
+          <FormButton :loading="saveExam.pending.value">Salvesta</FormButton>
+          <UAlert
+            v-if="saveExam.success.value"
+            color="success"
+            variant="subtle"
+            title="Salvestatud"
+            description="Registreerisime eksami ja saatsime ronijatele emailid"
+          />
+          <FormError :error="saveExam.error.value" />
         </FormBody>
       </form>
     </template>

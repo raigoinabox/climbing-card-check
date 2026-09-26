@@ -1,22 +1,21 @@
 <script setup lang="ts">
+import { useMutation } from "~/composables/useMutation";
+
 const { submit } = defineProps<{
-  submit: (climberId: string) => Promise<unknown>;
+  submit: (climberId: string) => Promise<void>;
 }>();
 
 const idCode = ref("");
-const isLoading = ref(false);
 
 const isSubmitDisabled = computed(() => {
   return !idCode.value || idCode.value.length < 11;
 });
+
+const submitMutation = useMutation(() => submit(idCode.value));
+
 async function submitForm() {
   if (!idCode.value) return;
-  isLoading.value = true;
-  try {
-    await submit(idCode.value);
-  } finally {
-    isLoading.value = false;
-  }
+  await submitMutation.mutate();
 }
 </script>
 
@@ -31,12 +30,11 @@ async function submitForm() {
         :maxlength="100"
         placeholder="12345678901"
       />
-      <FormButton :disabled="isSubmitDisabled">
-        <img
-          v-if="isLoading"
-          class="loading-spinner"
-          src="/assets/Rolling-1s-200px.svg"
-        />{{ isLoading ? "" : "KONTROLLI" }}
+      <FormButton
+        :loading="submitMutation.pending.value"
+        :disabled="isSubmitDisabled"
+      >
+        KONTROLLI
       </FormButton>
     </FormBody>
   </form>

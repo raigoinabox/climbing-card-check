@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { useToast } from "@nuxt/ui/runtime/composables/useToast.js";
 import FormButton from "~/components/FormButton.vue";
-import { getMessage } from "~/utils/app_utils";
+import { useMutation } from "~/composables/useMutation";
 
 const examState = ref({
   confirmResponsibilityDeclaration: false,
@@ -9,24 +8,13 @@ const examState = ref({
 });
 
 const route = useRoute();
-const toast = useToast();
-
-async function openPaymentOptions() {
-  try {
-    const val = await $fetch("/api/confirm_legal", {
-      method: "POST",
-      body: { examUuid: route.params.examUuid, ...examState.value },
-    });
-    window.location.href = val;
-    toast.add({ title: "Töötab" });
-  } catch (e) {
-    toast.add({
-      color: "error",
-      title: "Viga",
-      description: getMessage(e) ?? "Maksemeetodi saamine ebaõnnestus",
-    });
-  }
-}
+const confirmLegal = useMutation(async () => {
+  const val = await $fetch("/api/confirm_legal", {
+    method: "POST",
+    body: { examUuid: route.params.examUuid, ...examState.value },
+  });
+  window.location.href = val;
+});
 </script>
 
 <template>
@@ -40,7 +28,7 @@ async function openPaymentOptions() {
   >
     <template #instructions-header>Ronijaks registreerimine</template>
     <template #form>
-      <form @submit.prevent="openPaymentOptions">
+      <form @submit.prevent="confirmLegal.mutate()">
         <FormInstruction>Viimased sammud</FormInstruction>
         <FormBody>
           <label
@@ -69,7 +57,10 @@ async function openPaymentOptions() {
               >Andmekaitsetingimustega</RonLink
             ></label
           >
-          <FormButton>Maksa tasu</FormButton>
+          <FormButton :loading="confirmLegal.pending.value"
+            >Maksa tasu</FormButton
+          >
+          <FormError :error="confirmLegal.error.value" />
         </FormBody>
       </form>
     </template>
