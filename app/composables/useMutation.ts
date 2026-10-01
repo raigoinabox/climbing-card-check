@@ -29,8 +29,8 @@ export function useMutation(mutation: () => Promise<void>) {
       success.value = false;
       error.value = undefined;
     },
-    setError(message: string) {
-      error.value = { description: message };
+    setError(newError: { description: string; title?: string }) {
+      error.value = newError;
     },
   };
 }

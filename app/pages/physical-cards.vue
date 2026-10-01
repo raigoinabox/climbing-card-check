@@ -63,7 +63,10 @@ const instructions = [
             <p class="heading">VÄLJASTATUD KAART</p>
             <p class="content">
               {{ climber.cardSerialId ?? "PUUDUB" }}
-              <UModal title="Sisesta kaardi seerianumber" @after:leave="handleModalClose">
+              <UModal
+                title="Sisesta kaardi seerianumber"
+                @after:leave="handleModalClose"
+              >
                 <UButton style="vertical-align: middle">SEO UUEGA</UButton>
 
                 <template #body>

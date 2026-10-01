@@ -19,7 +19,7 @@ const resetPassword = useMutation(async () => {
 
 async function submitForm() {
   if (passwords.value.newPassword != passwords.value.passwordRepeat) {
-    resetPassword.setError("Paroolid ei ühti");
+    resetPassword.setError({ description: "Paroolid ei ühti" });
     return;
   }
 

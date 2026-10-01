@@ -34,18 +34,16 @@ export async function getValidLoginUser(email: string, password: string) {
       (await verifyPassword(hashedPassword, password));
 
     if (emailMatch && passwordMatch) {
-      return user;
+      return { resetPassword: true, user };
     } else if (emailMatch && hashedPasswordMatch) {
       if (passwordNeedsReHash(hashedPassword)) {
         user.hashedPassword = await hashPassword(password);
         await usersModel.save(user);
       }
 
-      return user;
+      return { user };
     }
   }
-
-  return null;
 }
 
 export async function getAllUsers() {
@@ -69,6 +67,17 @@ export async function hashUserPassword(email: string, password: string) {
   const users = await usersModel.fetchData((user) => user.email == email);
 
   for (const user of users) {
+    user.hashedPassword = await hashPassword(password);
+    usersModel.save(user);
+    return user;
+  }
+}
+
+export async function setSecurePassword(email: string, password: string) {
+  const users = await usersModel.fetchData((user) => user.email == email);
+
+  for (const user of users) {
+    user.password = "";
     user.hashedPassword = await hashPassword(password);
     usersModel.save(user);
     return user;

@@ -47,13 +47,15 @@ const saveExam = useMutation(async () => {
 
 async function submitExam() {
   if (examForm.value.climbers.length == 0) {
-    saveExam.setError("Ronijad puuduvad");
+    saveExam.setError({ description: "Ronijad puuduvad" });
     return;
   }
 
   for (const climber of examForm.value.climbers) {
     if (!climber.foreigner && !isIdCodeValid(climber.idCode)) {
-      saveExam.setError(`${climber.name} isikukood ei valideeru`);
+      saveExam.setError({
+        description: `${climber.name} isikukood ei valideeru`,
+      });
       return;
     }
   }
@@ -62,7 +64,7 @@ async function submitExam() {
 
   const firstClimber = examForm.value.climbers[0];
   if (firstClimber != null) {
-    saveExam.setError("Andmete salvestamisel viga");
+    saveExam.setError({ description: "Andmete salvestamisel viga" });
   }
 }
 </script>
