@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { useMutation } from "~/composables/useMutation";
 
+const emit = defineEmits<{ (e: "back"): void }>();
+
 const email = ref("");
 
 const forgotPasswordFetch = useMutation(async () => {
@@ -30,6 +32,14 @@ const forgotPasswordError = computed(() => {
 </script>
 
 <template>
+  <UButton
+    variant="ghost"
+    color="neutral"
+    icon="i-lucide-arrow-left"
+    size="sm"
+    @click="emit('back')"
+    >Tagasi</UButton
+  >
   <FormInstruction>Sisesta email</FormInstruction>
   <form @submit.prevent="forgotPasswordFetch.mutate()">
     <FormBody v-if="!forgotPasswordFetch.success.value">

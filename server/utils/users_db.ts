@@ -50,17 +50,12 @@ export async function getAllUsers() {
   return usersModel.fetchData();
 }
 
-export async function markUserForgotPassword(
-  users: { email?: string; forgotPasswordAt?: string }[],
-  email: string,
-) {
-  for (const user of users) {
-    if (user.email == email) {
-      user.forgotPasswordAt = getIsoNow();
-      usersModel.save(user);
-      return user;
-    }
-  }
+export async function markUserForgotPassword(user: {
+  email?: string;
+  forgotPasswordAt?: string;
+}) {
+  user.forgotPasswordAt = getIsoNow();
+  usersModel.save(user);
 }
 
 export async function hashUserPassword(email: string, password: string) {

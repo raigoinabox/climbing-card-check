@@ -33,7 +33,7 @@ const improvedInstructions =
   >
     <template #form>
       <div v-if="openForgotPassword">
-        <ForgotPasswordForm />
+        <ForgotPasswordForm @back="openForgotPassword = false" />
       </div>
       <div v-else-if="resetPassword && loggedIn">
         <SecureNewPasswordForm
