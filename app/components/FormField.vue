@@ -1,15 +1,24 @@
 <script setup lang="ts">
 import type { ClassValue } from "vue";
 
-defineProps<{ label: string; rootClass?: ClassValue }>();
+const { rootClass = undefined, customValidity = "" } = defineProps<{
+  label: string;
+  rootClass?: ClassValue;
+  customValidity?: string;
+}>();
 defineOptions({ inheritAttrs: false });
 const model = defineModel<string | null>({ required: true });
+
+const inputRef = useTemplateRef("input");
+watchEffect(() => {
+  inputRef.value?.setCustomValidity(customValidity);
+});
 </script>
 
 <template>
   <label :class="rootClass">
     {{ label }}
-    <input v-model="model" v-bind="$attrs" />
+    <input ref="input" v-model="model" v-bind="$attrs" />
   </label>
 </template>
 

@@ -1,12 +1,9 @@
 <script setup lang="ts">
+import NewPasswordFields from "~/components/NewPasswordFields.vue";
 import { useMutation } from "~/composables/useMutation";
 
 const route = useRoute();
-const passwords = ref({
-  token: route.query.token,
-  newPassword: "",
-  passwordRepeat: "",
-});
+const passwords = ref({ token: route.query.token, newPassword: "" });
 const { fetch } = useUserSession();
 const resetPassword = useMutation(async () => {
   await $fetch("/api/reset_password", {
@@ -16,39 +13,15 @@ const resetPassword = useMutation(async () => {
   await fetch();
   await navigateTo("/");
 });
-
-async function submitForm() {
-  if (passwords.value.newPassword != passwords.value.passwordRepeat) {
-    resetPassword.setError({ description: "Paroolid ei ühti" });
-    return;
-  }
-
-  resetPassword.mutate();
-}
 </script>
 
 <template>
   <RonLayout :show-results="false">
     <template #form>
-      <form @submit.prevent="submitForm">
+      <form @submit.prevent="resetPassword.mutate()">
         <FormBody>
           <FormInstruction>Sisesta oma uus parool</FormInstruction>
-          <FormField
-            v-model.trim="passwords.newPassword"
-            label="Uus parool"
-            type="password"
-            autocomplete="new-password"
-            minlength="14"
-            required
-          />
-          <FormField
-            v-model.trim="passwords.passwordRepeat"
-            label="Sama parool uuesti"
-            type="password"
-            autocomplete="new-password"
-            minlength="14"
-            required
-          />
+          <NewPasswordFields v-model="passwords.newPassword" />
           <FormButton :loading="resetPassword.pending.value"
             >Salvesta</FormButton
           >

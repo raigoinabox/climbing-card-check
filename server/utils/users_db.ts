@@ -19,24 +19,42 @@ function isStringsConstantTimeEqual(a: string, b: string) {
   }
 }
 
+async function isValidUser(
+  user: { email?: string; password?: string; hashedPassword?: string },
+  email: string,
+  password: string,
+) {
+  const emailMatch =
+    user.email != null && isStringsConstantTimeEqual(user.email, email);
+  const passwordMatch =
+    user.password != null &&
+    isStringsConstantTimeEqual(user.password, password);
+  const hashedPassword = user.hashedPassword;
+  const hashedPasswordMatch =
+    hashedPassword != null && (await verifyPassword(hashedPassword, password));
+  return {
+    passwordMatch: emailMatch && passwordMatch,
+    hashedPasswordMatch: emailMatch && hashedPasswordMatch,
+  };
+}
+
 export async function getValidLoginUser(email: string, password: string) {
   const users = await usersModel.fetchData();
 
   for (const user of users) {
-    const emailMatch =
-      user.email != null && isStringsConstantTimeEqual(user.email, email);
-    const passwordMatch =
-      user.password != null &&
-      isStringsConstantTimeEqual(user.password, password);
-    const hashedPassword = user.hashedPassword;
-    const hashedPasswordMatch =
-      hashedPassword != null &&
-      (await verifyPassword(hashedPassword, password));
+    const { passwordMatch, hashedPasswordMatch } = await isValidUser(
+      user,
+      email,
+      password,
+    );
 
-    if (emailMatch && passwordMatch) {
+    if (passwordMatch) {
       return { resetPassword: true, user };
-    } else if (emailMatch && hashedPasswordMatch) {
-      if (passwordNeedsReHash(hashedPassword)) {
+    } else if (hashedPasswordMatch) {
+      if (
+        user.hashedPassword != null &&
+        passwordNeedsReHash(user.hashedPassword)
+      ) {
         user.hashedPassword = await hashPassword(password);
         await usersModel.save(user);
       }
@@ -68,13 +86,32 @@ export async function hashUserPassword(email: string, password: string) {
   }
 }
 
-export async function setSecurePassword(email: string, password: string) {
+export async function changePassword(
+  email: string,
+  oldPassword: string,
+  newPassword: string,
+) {
   const users = await usersModel.fetchData((user) => user.email == email);
 
   for (const user of users) {
-    user.password = "";
-    user.hashedPassword = await hashPassword(password);
-    usersModel.save(user);
-    return user;
+    const { passwordMatch, hashedPasswordMatch } = await isValidUser(
+      user,
+      email,
+      oldPassword,
+    );
+    if (passwordMatch || hashedPasswordMatch) {
+      user.password = "";
+      user.hashedPassword = await hashPassword(newPassword);
+      usersModel.save(user);
+      return;
+    }
   }
+
+  throw createError({
+    statusCode: 401,
+    data: {
+      title: "Parooli vahetamine ebaõnnestus",
+      description: "Vale vana parool",
+    },
+  });
 }

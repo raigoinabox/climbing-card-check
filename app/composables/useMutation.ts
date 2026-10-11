@@ -1,13 +1,15 @@
 import { parseError } from "~/utils/app_utils";
 
+interface Error {
+  payload?: object;
+  title?: string;
+  description?: string;
+}
+
 export function useMutation(mutation: () => Promise<void>) {
   const pending = ref(false);
   const success = ref(false);
-  const error = ref<{
-    payload?: object;
-    title?: string;
-    description?: string;
-  }>();
+  const error = ref<Error>();
   return {
     pending,
     success,
@@ -29,7 +31,7 @@ export function useMutation(mutation: () => Promise<void>) {
       success.value = false;
       error.value = undefined;
     },
-    setError(newError: { description: string; title?: string }) {
+    setError(newError: Error) {
       error.value = newError;
     },
   };

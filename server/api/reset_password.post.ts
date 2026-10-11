@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 
 const bodySchema = z.object({
   token: z.string().min(1),
-  newPassword: z.string().min(14),
+  newPassword: z.string().min(15),
 });
 
 export default defineEventHandler(async (event) => {

@@ -8,6 +8,25 @@ const items = computed<NavigationMenuItem[]>(() => [
   { label: "Kaardi väljastamine", to: "/physical-cards" },
   { label: "Eksami registreerimine", to: "/register-exam" },
 ]);
+
+const userItems = [
+  [
+    {
+      icon: "i-lucide-asterisk",
+      label: "Muuda parooli",
+      to: "change-password",
+    },
+  ],
+  [
+    {
+      icon: "i-lucide-log-out",
+      label: "Logi välja",
+      onSelect: () => {
+        clear();
+      },
+    },
+  ],
+];
 </script>
 
 <template>
@@ -25,17 +44,24 @@ const items = computed<NavigationMenuItem[]>(() => [
 
       <template v-if="loggedIn" #right>
         <div class="hidden lg:block">
-          {{ user.name }}
-          <UButton variant="subtle" @click="clear">Logi välja</UButton>
+          <UDropdownMenu :items="userItems">
+            <UButton color="neutral" variant="outline">{{ user.name }}</UButton>
+          </UDropdownMenu>
         </div>
       </template>
 
       <template #body>
-        <template v-if="loggedIn">
-          {{ user.name }}
-          <UButton variant="subtle" @click="clear">Logi välja</UButton>
-        </template>
         <UNavigationMenu :items="items" orientation="vertical" />
+        <template v-if="loggedIn">
+          <UDropdownMenu :items="userItems" :content="{ align: 'start' }">
+            <UButton
+              color="neutral"
+              variant="outline"
+              style="margin-block: 0.5em"
+              >{{ user.name }}</UButton
+            >
+          </UDropdownMenu>
+        </template>
       </template>
     </UHeader>
     <NuxtPage />
