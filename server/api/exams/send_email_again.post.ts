@@ -7,5 +7,5 @@ export default defineEventHandler(async (event) => {
   const body = await readValidatedBody(event, (body) => bodySchema.parse(body));
   const { user } = await requireUserSession(event);
 
-  sendRegistrationEmail(user.email, body.uuid);
+  await sendRegistrationEmail(user.email, body.uuid);
 });
