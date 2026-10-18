@@ -6,7 +6,7 @@ const route = useRoute();
 const passwords = ref({ token: route.query.token, newPassword: "" });
 const { fetch } = useUserSession();
 const resetPassword = useMutation(async () => {
-  await $fetch("/api/reset_password", {
+  await $fetch("/api/auth/reset_password", {
     method: "POST",
     body: passwords.value,
   });

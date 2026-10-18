@@ -8,7 +8,7 @@ const emit = defineEmits<{ (e: "submit"): void }>();
 const newPassword = ref("");
 
 const createPassword = useMutation(async () => {
-  await $fetch("/api/change_password", {
+  await $fetch("/api/auth/change_password", {
     method: "POST",
     body: { oldPassword, newPassword: newPassword.value },
   });

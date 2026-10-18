@@ -2,6 +2,9 @@ import { sheetAccess } from "./sheet_access";
 
 type Entity<T extends string> = { [P in T]?: string };
 
+export type sheetInfer<T extends SheetModel<string>> =
+  T extends SheetModel<infer Inner> ? Entity<Inner> : never;
+
 export class SheetModel<T extends string> {
   private sheetName: string;
   private headers: T[];

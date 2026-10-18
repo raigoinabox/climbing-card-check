@@ -2,9 +2,14 @@
 import FormField from "./FormField.vue";
 import { useMutation } from "~/composables/useMutation.ts";
 
-const { showResults, instructions = null } = defineProps<{
-  showResults: boolean;
+const {
+  showResults = false,
+  instructions = undefined,
+  formWidth = undefined,
+} = defineProps<{
+  showResults?: boolean;
   instructions?: string[];
+  formWidth?: string;
 }>();
 
 const { loggedIn, fetch } = useUserSession();
@@ -13,7 +18,7 @@ const openForgotPassword = ref(false);
 const resetPassword = ref(false);
 
 const login = useMutation(async () => {
-  const result = await $fetch("/api/login", {
+  const result = await $fetch("/api/auth/login", {
     method: "POST",
     body: credentials.value,
   });
@@ -30,6 +35,7 @@ const improvedInstructions =
     :show-results="showResults"
     :instructions="improvedInstructions"
     :wider="instructions == null && loggedIn"
+    :form-width="instructions == null && loggedIn ? formWidth : undefined"
   >
     <template #form>
       <div v-if="openForgotPassword">

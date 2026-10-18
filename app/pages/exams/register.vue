@@ -35,7 +35,7 @@ const climberTabs = computed(() =>
 );
 
 const saveExam = useMutation(async () => {
-  const { savedCount } = await $fetch("/api/save_exam", {
+  const { savedCount } = await $fetch("/api/exams/save_exam", {
     method: "POST",
     body: examForm.value,
   });
@@ -72,6 +72,14 @@ async function submitExam() {
 <template>
   <LoggedInLayout :show-results="false">
     <template #form>
+      <UButton
+        color="neutral"
+        variant="outline"
+        icon="i-lucide-history"
+        to="/exams"
+        size="sm"
+        >Varasemad</UButton
+      >
       <form @submit.prevent="submitExam">
         <FormInstruction>Sisesta eksami andmed</FormInstruction>
         <FormBody>

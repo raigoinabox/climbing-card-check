@@ -6,7 +6,7 @@ const emit = defineEmits<{ (e: "back"): void }>();
 const email = ref("");
 
 const forgotPasswordFetch = useMutation(async () => {
-  await $fetch("/api/forgot_password", {
+  await $fetch("/api/auth/forgot_password", {
     method: "POST",
     body: { email: email.value },
   });

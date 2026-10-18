@@ -1,4 +1,4 @@
-import { getValidLoginUser } from "../utils/users_db";
+import { getValidLoginUser } from "#server/utils/users_db";
 import { z } from "zod";
 
 const bodySchema = z.object({ email: z.string(), password: z.string() });

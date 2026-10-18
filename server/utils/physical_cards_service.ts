@@ -1,5 +1,4 @@
 import { findCardByCardOrClimber, saveCard } from "./physical_cards_db";
-import { findExamById } from "./exams_db";
 
 export class ValidationError extends Error {
   static validate(check: boolean, message: string) {

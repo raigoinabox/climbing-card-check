@@ -1,5 +1,4 @@
 import type { CardClimberDto } from "~~/shared/types/api_types";
-import { findExamById } from "../utils/exams_db";
 import { findCardByClimber } from "../utils/physical_cards_db";
 import { z } from "zod";
 

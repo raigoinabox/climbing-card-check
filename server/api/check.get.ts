@@ -1,5 +1,4 @@
 import type { ClimberDto } from "~~/shared/types/api_types";
-import { findExamById } from "../utils/exams_db";
 import { z } from "zod";
 
 const querySchema = z.object({ id: z.string().min(1) });

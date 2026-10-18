@@ -4,9 +4,9 @@ import type { NavigationMenuItem } from "@nuxt/ui";
 const { loggedIn, user, clear } = useUserSession();
 
 const items = computed<NavigationMenuItem[]>(() => [
-  { label: "Kaardi otsing", to: "/" },
+  { label: "Ronija otsing", to: "/" },
   { label: "Kaardi väljastamine", to: "/physical-cards" },
-  { label: "Eksami registreerimine", to: "/register-exam" },
+  { label: "Eksami registreerimine", to: "/exams/register" },
 ]);
 
 const userItems = [

@@ -7,7 +7,7 @@ import { useMutation } from "~/composables/useMutation";
 const formFields = ref({ oldPassword: "", newPassword: "" });
 
 const changePassword = useMutation(async () => {
-  await $fetch("/api/change_password", {
+  await $fetch("/api/auth/change_password", {
     method: "POST",
     body: formFields.value,
   });

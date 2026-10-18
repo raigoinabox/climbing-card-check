@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { changePassword } from "../utils/users_db";
+import { changePassword } from "../../utils/users_db";
 
 const bodySchema = z.object({
   oldPassword: z.string(),

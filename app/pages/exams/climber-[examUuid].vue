@@ -9,7 +9,7 @@ const examState = ref({
 
 const route = useRoute();
 const confirmLegal = useMutation(async () => {
-  const val = await $fetch("/api/confirm_legal", {
+  const val = await $fetch("/api/exams/confirm_legal", {
     method: "POST",
     body: { examUuid: route.params.examUuid, ...examState.value },
   });

@@ -4,7 +4,7 @@ import {
   getMontonioTokenMapper,
   REGISTRATION_FEE,
 } from "#server/utils/montonio_service";
-import { createUrl } from "../utils/urls_client";
+import { createUrl } from "#server/utils/urls_client";
 
 const schema = z.object({
   examUuid: z.string().min(1),
@@ -14,7 +14,11 @@ const schema = z.object({
 
 const montonioOrder = z.union([
   z.object({ paymentUrl: z.string() }),
-  z.object({ message: z.string(), error: z.string(), statusCode: z.number() }),
+  z.object({
+    message: z.union([z.string(), z.array(z.string())]),
+    error: z.string(),
+    statusCode: z.number(),
+  }),
 ]);
 
 export default defineEventHandler(async (event) => {
@@ -35,11 +39,11 @@ export default defineEventHandler(async (event) => {
     throw createError("Montonio url is not configured");
   }
 
-  const returnUrl = createUrl("/api/montonio_return");
+  const returnUrl = createUrl("/api/exams/montonio_return");
   const token = getMontonioTokenMapper().create({
     merchantReference: body.examUuid,
     returnUrl,
-    notificationUrl: createUrl("/api/montonio_notification"),
+    notificationUrl: createUrl("/api/exams/montonio_notification"),
     grandTotal: REGISTRATION_FEE,
     currency: "EUR",
     payment: {
@@ -66,6 +70,6 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: "Juba on makstud" });
   } else {
     console.log(response);
-    throw new Error(result.message);
+    throw new Error(String(result.message));
   }
 });

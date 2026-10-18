@@ -5,6 +5,7 @@ import LayoutInstructions from "./LayoutInstructions.vue";
 defineProps<{
   showResults: boolean;
   wider?: boolean;
+  formWidth?: string;
   instructions?: string[];
 }>();
 const emit = defineEmits<{ goBack: [] }>();
@@ -32,7 +33,11 @@ const goBack = () => {
         fullLeft: instructions == null,
       }"
     >
-      <div class="form" :class="{ widerForm: wider }">
+      <div
+        class="form"
+        :style="{ maxWidth: formWidth }"
+        :class="{ widerForm: wider || formWidth != null }"
+      >
         <slot name="form" />
       </div>
       <div

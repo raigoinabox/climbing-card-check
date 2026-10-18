@@ -1,5 +1,5 @@
-import { sendRegistrationEmail } from "../utils/email_service";
-import { addExam, examSchema } from "../utils/exams_db";
+import { sendRegistrationEmail } from "#server/utils/email_service";
+import { addExam, examSchema } from "#server/utils/exams_db";
 
 export default defineEventHandler(async (event) => {
   const body = await readValidatedBody(event, (body) => examSchema.parse(body));

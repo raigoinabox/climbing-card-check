@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { sendForgotPasswordEmail } from "../utils/email_service";
-import { getAllUsers, markUserForgotPassword } from "../utils/users_db";
-import { createJwt } from "../utils/jwt_service";
-import { parseIsoDateTime } from "../utils/date_utils";
+import { sendForgotPasswordEmail } from "#server/utils/email_service";
+import { getAllUsers, markUserForgotPassword } from "#server/utils/users_db";
+import { createJwt } from "#server/utils/jwt_service";
+import { parseIsoDateTime } from "#server/utils/date_utils";
 
 const bodySchema = z.object({ email: z.string() });
 

@@ -1,6 +1,6 @@
-import { hashUserPassword } from "../utils/users_db";
+import { hashUserPassword } from "#server/utils/users_db";
 import { z } from "zod";
-import { verifyJwt } from "../utils/jwt_service";
+import { verifyJwt } from "#server/utils/jwt_service";
 import jwt from "jsonwebtoken";
 
 const bodySchema = z.object({

@@ -26,7 +26,7 @@ Ronimisliidu meeskond</p>`,
 }
 
 export function sendRegistrationEmail(email: string, uuid: string) {
-  const registrationUrl = createUrl(`/register-exam/climber-${uuid}`);
+  const registrationUrl = createUrl(`/exams/climber-${uuid}`);
 
   return sendEmail(
     email,
@@ -59,13 +59,13 @@ export function sendRejectionEmail(email: string) {
     "Teid eemaldati julgestajakaartide registrist",
     `Tere!
 
-Seoses ronimisliidu tasu maksu tagasi võtmisega on teid meie julgestajakaarti
+Seoses ronimisliidu tasu makse tagasi võtmisega on teid meie julgestajakaarti
 registrist eemaldatud.
 
 Parimat
 Ronimisliidu meeskond`,
     `<p>Tere!</p>
-<p>Seoses ronimisliidu tasu maksu tagasi võtmisega on teid meie julgestajakaarti
+<p>Seoses ronimisliidu tasu makse tagasi võtmisega on teid meie julgestajakaarti
 registrist eemaldatud.</p>
 <p>Parimat<br />
 Ronimisliidu meeskond</p>`,
