@@ -71,9 +71,9 @@ export function getExamStatus(exam: Exam) {
       return "inactive";
     } else if (expiryTime.getTime() < Date.now()) {
       return "expired";
-    } else if (exam.certificate === CODE.GREEN) {
+    } else if (exam.certificate === "roheline") {
       return "roheline";
-    } else if (exam.certificate === CODE.RED) {
+    } else if (exam.certificate === "punane") {
       return "punane";
     } else {
       // The card doesn't have a valid certificate (neither green nor red)

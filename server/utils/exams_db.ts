@@ -1,7 +1,6 @@
 import { type sheetInfer, SheetModel } from "./sheet_model";
 import type { ExamDto } from "#shared/types/api_types";
 import type { User } from "#auth-utils";
-import { z } from "zod";
 import type { ExamClimberDto } from "../../shared/types/api_types";
 import { getIsoNow } from "./date_utils";
 
@@ -23,22 +22,12 @@ const examsModel = new SheetModel("Andmebaas", [
 
 export type Exam = sheetInfer<typeof examsModel>;
 
-export const examSchema = z.object({
-  examDate: z.iso.date(),
-  examType: z.literal(["roheline", "punane"]),
-  climbers: z.array(
-    z.object({
-      name: z.string().trim().max(100),
-      idCode: z.string().trim().regex(/^\d+$/).max(100),
-      foreigner: z.boolean(),
-      email: z.email(),
-      comment: z.string().trim().max(100),
-    }),
-  ),
-}) satisfies z.ZodType<ExamDto>;
-
 export function findExamsByClimberId(id: string) {
   return examsModel.fetchData((dto) => dto.id == id);
+}
+
+export function findExamsByUuid(uuid: string) {
+  return examsModel.fetchData((dto) => dto.montonioUuid == uuid);
 }
 
 const timestamp = new Date();
