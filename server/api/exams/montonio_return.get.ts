@@ -8,5 +8,5 @@ export default defineEventHandler(async (event) => {
 
   // TODO lisa try catch ja kasutajale mõnus ümber suunamine
   await handleMontonioEvent(params["order-token"]);
-  await sendRedirect(event, "/register-exam/climber-success");
+  await sendRedirect(event, "/exams/climber-success");
 });
