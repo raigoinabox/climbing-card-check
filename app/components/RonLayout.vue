@@ -3,8 +3,7 @@ import { ref } from "vue";
 import LayoutInstructions from "./LayoutInstructions.vue";
 
 defineProps<{
-  showResults: boolean;
-  wider?: boolean;
+  showResults?: boolean;
   formWidth?: string;
   instructions?: string[];
 }>();
@@ -36,9 +35,9 @@ const goBack = () => {
       <div
         class="form"
         :style="{ maxWidth: formWidth }"
-        :class="{ widerForm: wider || formWidth != null }"
+        :class="{ widerForm: instructions == null && formWidth != null }"
       >
-        <slot name="form" />
+        <slot />
       </div>
       <div
         v-if="instructions != null"
@@ -136,7 +135,6 @@ const goBack = () => {
   font-size: 16px;
 }
 .widerForm {
-  max-width: 700px;
   width: 100%;
 }
 

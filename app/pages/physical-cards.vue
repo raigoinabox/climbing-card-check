@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { CardClimberDto } from "~~/shared/types/api_types";
-import LoggedInLayout from "~/components/LoggedInLayout.vue";
 import { useMutation } from "~/composables/useMutation";
+
+definePageMeta({ middleware: "login" });
 
 const climber = ref<{ id: string; certificate: "none" } | CardClimberDto>();
 
@@ -47,14 +48,12 @@ const instructions = [
 </script>
 
 <template>
-  <LoggedInLayout
+  <RonLayout
     :instructions="instructions"
     :show-results="climber != null"
     @go-back="climber = undefined"
   >
-    <template #form>
-      <ClimberSearchForm :submit="searchClimber" />
-    </template>
+    <ClimberSearchForm :submit="searchClimber" />
 
     <template #results>
       <ClimberStatus v-if="climber" :climber="climber">
@@ -62,12 +61,17 @@ const instructions = [
           <div class="row">
             <p class="heading">VÄLJASTATUD KAART</p>
             <p class="content">
-              {{ climber.cardSerialId ?? "PUUDUB" }}
+              {{ climber.cardSerialId ?? "PUUDUB" }}<br />
               <UModal
                 title="Sisesta kaardi seerianumber"
                 @after:leave="handleModalClose"
               >
-                <UButton style="vertical-align: middle">SEO UUEGA</UButton>
+                <UButton
+                  color="primary"
+                  variant="subtle"
+                  style="vertical-align: middle"
+                  >Seo uuega</UButton
+                >
 
                 <template #body>
                   <p v-if="saveSerial.success.value">Edukalt salvestatud</p>
@@ -97,5 +101,5 @@ const instructions = [
     </template>
 
     <template #instructions-header>Väljastatud kaardi lisamine</template>
-  </LoggedInLayout>
+  </RonLayout>
 </template>

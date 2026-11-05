@@ -34,7 +34,7 @@ async function submitForm() {
         :loading="submitMutation.pending.value"
         :disabled="isSubmitDisabled"
       >
-        KONTROLLI
+        Kontrolli
       </FormButton>
     </FormBody>
   </form>

@@ -1,8 +1,9 @@
 import { type sheetInfer, SheetModel } from "./sheet_model";
 import type { ExamDto } from "#shared/types/api_types";
-import type { User } from "#auth-utils";
 import type { ExamClimberDto } from "../../shared/types/api_types";
 import { getIsoNow } from "./date_utils";
+import { z } from "zod";
+import type { User } from "#auth-utils";
 
 const examsModel = new SheetModel("Andmebaas", [
   "formFillTime",
@@ -67,13 +68,14 @@ export async function registerLegalConfirmations(uuid: string) {
   return exam;
 }
 
-function formatDate2(date: Date) {
-  const year = date.getFullYear().toString();
-  const month = date
-    .getMonth()
-    .toLocaleString("en", { minimumIntegerDigits: 2 });
-  const day = date.getDate().toLocaleString("en", { minimumIntegerDigits: 2 });
-  return year + "-" + month + "-" + day;
+export function formatDate(parsed: Date) {
+  return parsed.toISOString().substring(0, 10);
+}
+
+function calculateExpiryDate(date: string) {
+  const newExpiryDate = new Date(date);
+  newExpiryDate.setUTCFullYear(newExpiryDate.getUTCFullYear() + 4);
+  return formatDate(newExpiryDate);
 }
 
 export async function registerPayment(uuid: string) {
@@ -86,9 +88,7 @@ export async function registerPayment(uuid: string) {
   }
 
   console.log("Setting expiryDate for exam", exam);
-  const newExpiryDate = new Date(exam.examDate);
-  newExpiryDate.setFullYear(newExpiryDate.getFullYear() + 4);
-  exam.expiryDate = formatDate2(newExpiryDate);
+  exam.expiryDate = calculateExpiryDate(exam.examDate);
   await examsModel.save(exam);
 }
 
@@ -107,4 +107,41 @@ export async function removePayment(uuid: string) {
 
 export function getExams(userEmail: string) {
   return examsModel.fetchData((exam) => exam.formFillerEmail == userEmail);
+}
+
+export const adminExamFormSchema = z.object({
+  examinerName: z.string(),
+  examDate: z.iso.date(),
+  examType: z.literal(["roheline", "punane"]),
+  climber: z.object({
+    name: z.string().trim().max(100),
+    idCode: z.string().trim().regex(/^\d+$/).max(100),
+    foreigner: z.boolean(),
+    email: z.email(),
+    comment: z.string().trim().max(100),
+  }),
+});
+
+export async function adminAddExam(
+  exam: z.infer<typeof adminExamFormSchema>,
+  user: User,
+) {
+  const montonioUuid = crypto.randomUUID();
+  const now = getIsoNow();
+  await examsModel.appendRow({
+    formFillTime: timestamp.toISOString(),
+    id: exam.climber.idCode,
+    name: exam.climber.name,
+    email: exam.climber.email,
+    examiner: exam.examinerName,
+    formFillerEmail: user.email,
+    examDate: exam.examDate,
+    expiryDate: calculateExpiryDate(exam.examDate),
+    certificate: exam.examType.toLowerCase(),
+    comment: exam.climber.comment,
+
+    dataConsent: now,
+    responsiblityConsent: now,
+    montonioUuid,
+  });
 }

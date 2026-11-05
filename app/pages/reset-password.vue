@@ -16,18 +16,14 @@ const resetPassword = useMutation(async () => {
 </script>
 
 <template>
-  <RonLayout :show-results="false">
-    <template #form>
-      <form @submit.prevent="resetPassword.mutate()">
-        <FormBody>
-          <FormInstruction>Sisesta oma uus parool</FormInstruction>
-          <NewPasswordFields v-model="passwords.newPassword" />
-          <FormButton :loading="resetPassword.pending.value"
-            >Salvesta</FormButton
-          >
-          <FormError :error="resetPassword.error.value" />
-        </FormBody>
-      </form>
-    </template>
+  <RonLayout>
+    <form @submit.prevent="resetPassword.mutate()">
+      <FormBody>
+        <FormInstruction>Sisesta oma uus parool</FormInstruction>
+        <NewPasswordFields v-model="passwords.newPassword" />
+        <FormButton :loading="resetPassword.pending.value">Salvesta</FormButton>
+        <FormError :error="resetPassword.error.value" />
+      </FormBody>
+    </form>
   </RonLayout>
 </template>

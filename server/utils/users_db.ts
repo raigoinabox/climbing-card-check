@@ -6,6 +6,7 @@ const usersModel = SheetModel.fixed("Instruktorite paroolid", [
   "name",
   "email",
   "password",
+  "role",
   "hashedPassword",
   "forgotPasswordAt",
 ]);

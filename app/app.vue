@@ -7,6 +7,9 @@ const items = computed<NavigationMenuItem[]>(() => [
   { label: "Ronija otsing", to: "/" },
   { label: "Kaardi väljastamine", to: "/physical-cards" },
   { label: "Eksami registreerimine", to: "/exams/register" },
+  ...(loggedIn.value && user.value.admin
+    ? [{ label: "Haldus: Ronija lisamine", to: "/admin-register-climber" }]
+    : []),
 ]);
 
 const userItems = [
@@ -14,7 +17,7 @@ const userItems = [
     {
       icon: "i-lucide-asterisk",
       label: "Muuda parooli",
-      to: "change-password",
+      to: "/change-password",
     },
   ],
   [
@@ -23,6 +26,7 @@ const userItems = [
       label: "Logi välja",
       onSelect: () => {
         clear();
+        navigateTo("/");
       },
     },
   ],
@@ -42,26 +46,47 @@ const userItems = [
       </template>
       <UNavigationMenu :items="items" />
 
-      <template v-if="loggedIn" #right>
+      <template #right>
         <div class="hidden lg:block">
-          <UDropdownMenu :items="userItems">
+          <UDropdownMenu v-if="loggedIn" :items="userItems">
             <UButton color="neutral" variant="outline">{{ user.name }}</UButton>
           </UDropdownMenu>
+          <UButton
+            v-else
+            color="neutral"
+            variant="outline"
+            style="margin-block: 0.5em"
+            to="/login"
+          >
+            Logi sisse
+          </UButton>
         </div>
       </template>
 
       <template #body>
         <UNavigationMenu :items="items" orientation="vertical" />
-        <template v-if="loggedIn">
-          <UDropdownMenu :items="userItems" :content="{ align: 'start' }">
-            <UButton
-              color="neutral"
-              variant="outline"
-              style="margin-block: 0.5em"
-              >{{ user.name }}</UButton
-            >
-          </UDropdownMenu>
-        </template>
+
+        <UDropdownMenu
+          v-if="loggedIn"
+          :items="userItems"
+          :content="{ align: 'start' }"
+        >
+          <UButton
+            color="neutral"
+            variant="outline"
+            style="margin-block: 0.5em"
+            >{{ user.name }}</UButton
+          >
+        </UDropdownMenu>
+        <UButton
+          v-else
+          color="neutral"
+          variant="outline"
+          style="margin-block: 0.5em"
+          to="/login"
+        >
+          Logi sisse
+        </UButton>
       </template>
     </UHeader>
     <NuxtPage />

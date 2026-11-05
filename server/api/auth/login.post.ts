@@ -10,7 +10,13 @@ export default defineEventHandler(async (event) => {
   if (login != null) {
     await setUserSession(
       event,
-      { user: { name: login.user.name, email: login.user.email } },
+      {
+        user: {
+          name: login.user.name,
+          email: login.user.email,
+          admin: login.user.role == "haldaja",
+        },
+      },
       { maxAge: 12 * 60 * 60 },
     );
     return { resetPassword: login.resetPassword };

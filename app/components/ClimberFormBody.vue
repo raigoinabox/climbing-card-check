@@ -46,6 +46,11 @@ function handleIdCodeInput(idCode: string) {
       placeholder="12345678901"
       inputmode="numeric"
       root-class="fieldValue"
+      :custom-validity="
+        !climber.foreigner && !isIdCodeValid(climber.idCode)
+          ? 'Kontrolli isikukoodi'
+          : undefined
+      "
       @update:model-value="
         (rawIdCode) => {
           const idCode = rawIdCode?.trim() ?? '';

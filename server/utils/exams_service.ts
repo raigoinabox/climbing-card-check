@@ -1,6 +1,6 @@
 import { strict as assert } from "node:assert";
 import { inspect } from "node:util";
-import { type Exam, findExamsByClimberId } from "./exams_db";
+import { type Exam, findExamsByClimberId, formatDate } from "./exams_db";
 
 const CODE = {
   GREEN: "roheline",
@@ -31,10 +31,6 @@ const assertValidDate = (parsed: Date) => {
     parsed instanceof Date && !isNaN(parsed.valueOf()),
     `Invalid Date: "${inspect(parsed)}"`,
   );
-};
-
-const formatDate = (parsed: Date) => {
-  return parsed.toISOString().substring(0, 10);
 };
 
 const parseDate = (rawValue: string | undefined) => {
@@ -77,7 +73,7 @@ export function getExamStatus(exam: Exam) {
       return "punane";
     } else {
       // The card doesn't have a valid certificate (neither green nor red)
-      return "inactive";
+      return "error";
     }
   }
 }

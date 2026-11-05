@@ -17,7 +17,13 @@ export default defineEventHandler(async (event) => {
     if (user) {
       await setUserSession(
         event,
-        { user: { name: user.name, email: user.email } },
+        {
+          user: {
+            name: user.name,
+            email: user.email,
+            admin: user.role == "haldaja",
+          },
+        },
         { maxAge: 12 * 60 * 60 },
       );
     }

@@ -18,11 +18,9 @@ button {
   border: none;
   padding: 16px 10px;
   background: linear-gradient(86.59deg, #26408b 22.05%, #279af1 172.51%);
-  border-radius: 24px;
+  border-radius: 1.5em;
   font-weight: 600;
-  line-height: 24px;
   text-align: center;
-  letter-spacing: 0.09em;
   color: #ffffff;
   width: 100%;
   transition: box-shadow 100ms ease-in-out;

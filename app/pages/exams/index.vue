@@ -2,6 +2,8 @@
 import type { TableColumn } from "@nuxt/ui";
 import { ExamRowButton, UBadge } from "#components";
 
+definePageMeta({ middleware: "login" });
+
 const { data } = await useFetch("/api/exams/exams");
 
 type DataItem = typeof data extends Ref<(infer R)[] | undefined> ? R : never;
@@ -36,42 +38,39 @@ const columns: TableColumn<DataItem>[] = [
 </script>
 
 <template>
-  <LoggedInLayout form-width="60em">
-    <template #form>
-      <div style="text-align: right">
-        <UButton
-          to="exams/register"
-          size="sm"
-          color="neutral"
-          trailing-icon="i-lucide-arrow-right"
-          variant="outline"
-          >Registreeri uus</UButton
-        >
+  <RonLayout form-width="55em">
+    <UButton
+      to="exams/register"
+      size="sm"
+      color="neutral"
+      trailing-icon="i-lucide-arrow-right"
+      variant="outline"
+      style="margin-left: auto"
+      >Registreeri uus</UButton
+    >
+    <FormInstruction>Varasemad eksamid</FormInstruction>
+    <p>
+      Vajadusel saab ronijale uuesti saata info Ronimisliidu tasu maksmise
+      kohta.
+    </p>
+    <div v-for="row in data" :key="row.uuid" class="mobileTable lg:hidden">
+      <p class="mobileTableLabel">Eksami kuupäev</p>
+      <p>{{ row.examDate }}</p>
+      <p class="mobileTableLabel">Nimi</p>
+      <p>{{ row.name }}</p>
+      <p class="mobileTableLabel">Email</p>
+      <p>{{ row.email }}</p>
+      <p class="mobileTableLabel">Seis</p>
+      <p><component :is="getStatusNode(row.status)" /></p>
+      <div
+        v-if="row.status == 'inactive' && row.uuid != null"
+        style="padding-top: 0.5em"
+      >
+        <ExamRowButton :uuid="row.uuid" />
       </div>
-      <FormInstruction>Varasemad eksamid</FormInstruction>
-      <p>
-        Vajadusel saab ronijale uuesti saata info Ronimisliidu tasu maksmise
-        kohta.
-      </p>
-      <div v-for="row in data" :key="row.uuid" class="mobileTable lg:hidden">
-        <p class="mobileTableLabel">Eksami kuupäev</p>
-        <p>{{ row.examDate }}</p>
-        <p class="mobileTableLabel">Nimi</p>
-        <p>{{ row.name }}</p>
-        <p class="mobileTableLabel">Email</p>
-        <p>{{ row.email }}</p>
-        <p class="mobileTableLabel">Seis</p>
-        <p><component :is="getStatusNode(row.status)" /></p>
-        <p
-          v-if="row.status == 'inactive' && row.uuid != null"
-          style="padding-top: 0.5em"
-        >
-          <ExamRowButton :uuid="row.uuid" />
-        </p>
-      </div>
-      <UTable class="hidden lg:block" :data="data" :columns="columns" />
-    </template>
-  </LoggedInLayout>
+    </div>
+    <UTable class="hidden lg:block" :data="data" :columns="columns" />
+  </RonLayout>
 </template>
 
 <style scoped>

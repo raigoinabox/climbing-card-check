@@ -19,50 +19,48 @@ const confirmLegal = useMutation(async () => {
 
 <template>
   <RonLayout
-    :show-results="false"
     :instructions="[
       'Kinnita nõusolek',
       'Maksa ronimisliidu tasu',
       'Su kaart registreeritakse',
     ]"
   >
+    <form @submit.prevent="confirmLegal.mutate()">
+      <FormInstruction>Viimased sammud</FormInstruction>
+      <FormBody>
+        <label
+          ><input
+            v-model="examState.confirmResponsibilityDeclaration"
+            type="checkbox"
+            required
+          />
+          Kinnitan, et nõustun
+          <RonLink
+            href="https://www.ronimisliit.ee/omavastutusdeklaratsioon/"
+            target="_blank"
+            >Omavastutusdeklaratsiooniga</RonLink
+          ></label
+        >
+        <label
+          ><input
+            v-model="examState.confirmPrivacyPolicy"
+            type="checkbox"
+            required
+          />
+          Kinnitan, et nõustun
+          <RonLink
+            href="https://www.ronimisliit.ee/andmekaitsetingimused/"
+            target="_blank"
+            >Andmekaitsetingimustega</RonLink
+          ></label
+        >
+        <FormButton :loading="confirmLegal.pending.value"
+          >Maksa tasu</FormButton
+        >
+        <FormError :error="confirmLegal.error.value" />
+      </FormBody>
+    </form>
+
     <template #instructions-header>Ronijaks registreerimine</template>
-    <template #form>
-      <form @submit.prevent="confirmLegal.mutate()">
-        <FormInstruction>Viimased sammud</FormInstruction>
-        <FormBody>
-          <label
-            ><input
-              v-model="examState.confirmResponsibilityDeclaration"
-              type="checkbox"
-              required
-            />
-            Kinnitan, et nõustun
-            <RonLink
-              href="https://www.ronimisliit.ee/omavastutusdeklaratsioon/"
-              target="_blank"
-              >Omavastutusdeklaratsiooniga</RonLink
-            ></label
-          >
-          <label
-            ><input
-              v-model="examState.confirmPrivacyPolicy"
-              type="checkbox"
-              required
-            />
-            Kinnitan, et nõustun
-            <RonLink
-              href="https://www.ronimisliit.ee/andmekaitsetingimused/"
-              target="_blank"
-              >Andmekaitsetingimustega</RonLink
-            ></label
-          >
-          <FormButton :loading="confirmLegal.pending.value"
-            >Maksa tasu</FormButton
-          >
-          <FormError :error="confirmLegal.error.value" />
-        </FormBody>
-      </form>
-    </template>
   </RonLayout>
 </template>

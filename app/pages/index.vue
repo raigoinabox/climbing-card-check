@@ -30,9 +30,7 @@ const instructions = [
     :show-results="climber != null"
     @go-back="climber = null"
   >
-    <template #form>
-      <ClimberSearchForm :submit="submit" />
-    </template>
+    <ClimberSearchForm :submit="submit" />
 
     <template #results>
       <ClimberStatus v-if="climber" :climber="climber" />

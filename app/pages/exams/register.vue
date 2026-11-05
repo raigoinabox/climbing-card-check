@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import LoggedInLayout from "~/components/LoggedInLayout.vue";
 import FormBody from "~/components/FormBody.vue";
-import { isIdCodeValid } from "#shared/utils/climber_utils";
 import FormField from "~/components/FormField.vue";
 import type { AccordionItem } from "@nuxt/ui";
 import ClimberFormBody from "~/components/ClimberFormBody.vue";
 import type { ExamDto, ExamClimberDto } from "#shared/types/api_types";
 import { useMutation } from "~/composables/useMutation";
+
+definePageMeta({ middleware: "login" });
 
 function createClimber() {
   return { name: "", idCode: "", email: "", foreigner: false, comment: "" };
@@ -51,15 +51,6 @@ async function submitExam() {
     return;
   }
 
-  for (const climber of examForm.value.climbers) {
-    if (!climber.foreigner && !isIdCodeValid(climber.idCode)) {
-      saveExam.setError({
-        description: `${climber.name} isikukood ei valideeru`,
-      });
-      return;
-    }
-  }
-
   await saveExam.mutate();
 
   const firstClimber = examForm.value.climbers[0];
@@ -70,101 +61,96 @@ async function submitExam() {
 </script>
 
 <template>
-  <LoggedInLayout :show-results="false">
-    <template #form>
-      <UButton
-        color="neutral"
-        variant="outline"
-        icon="i-lucide-history"
-        to="/exams"
-        size="sm"
-        >Varasemad</UButton
-      >
-      <form @submit.prevent="submitExam">
-        <FormInstruction>Sisesta eksami andmed</FormInstruction>
-        <FormBody>
-          <FormField
-            v-model.trim="examForm.examDate"
-            label="Eksami toimumise kuupäev"
-            type="date"
+  <RonLayout form-width="700px">
+    <UButton
+      color="neutral"
+      variant="outline"
+      icon="i-lucide-history"
+      to="/exams"
+      size="sm"
+      style="margin-right: auto"
+      >Varasemad</UButton
+    >
+    <form @submit.prevent="submitExam">
+      <FormInstruction>Sisesta eksami andmed</FormInstruction>
+      <FormBody>
+        <FormField
+          v-model.trim="examForm.examDate"
+          label="Eksami toimumise kuupäev"
+          type="date"
+          required
+        />
+        <label>
+          Eksami tüüp
+          <USelect
+            v-model="examForm.examType"
+            :items="['roheline', 'punane']"
             required
+            class="w-full"
           />
-          <label>
-            Eksami tüüp
-            <USelect
-              v-model="examForm.examType"
-              :items="['roheline', 'punane']"
-              required
-              class="w-full"
-              :content="{ bodyLock: false }"
-            />
-          </label>
+        </label>
 
-          <UAccordion
-            v-model="openClimber"
-            :items="climberTabs"
-            style="border-top: thin solid var(--ui-border)"
-          >
-            <template #leading="{ index, open }">
-              <UBadge v-if="index < sentClimbers.length" color="success"
-                >Salvestatud</UBadge
-              >
-              <UButton
-                v-else
-                :class="{ invisible: !open }"
-                icon="i-lucide-trash"
-                color="warning"
-                variant="ghost"
-                size="xs"
-                @click="
-                  (event) => {
-                    event.stopPropagation();
-                    examForm.climbers.splice(index - sentClimbers.length, 1);
-                  }
-                "
-              />
-            </template>
-            <template #body="{ index }">
-              <ClimberFormBody
-                v-if="examForm.climbers[index - sentClimbers.length] != null"
-                v-model:climber="
-                  examForm.climbers[index - sentClimbers.length]!
-                "
-              />
-            </template>
-          </UAccordion>
-          <div>
+        <UAccordion
+          v-model="openClimber"
+          :items="climberTabs"
+          style="border-top: thin solid var(--ui-border)"
+        >
+          <template #leading="{ index, open }">
+            <UBadge v-if="index < sentClimbers.length" color="success"
+              >Salvestatud</UBadge
+            >
             <UButton
-              icon="i-lucide-plus"
-              class="mb-3"
+              v-else
+              as="span"
+              :class="{ invisible: !open }"
+              icon="i-lucide-trash"
+              color="warning"
+              variant="ghost"
+              size="xs"
               @click="
-                () => {
-                  const climbers = examForm.climbers;
-                  const newClimber = createClimber();
-                  const lastClimber = climbers[climbers.length - 1];
-                  if (lastClimber != null) {
-                    newClimber.comment = lastClimber.comment;
-                  }
-                  climbers.push(newClimber);
-                  openClimber = String(
-                    sentClimbers.length + climbers.length - 1,
-                  );
+                (event) => {
+                  event.stopPropagation();
+                  examForm.climbers.splice(index - sentClimbers.length, 1);
                 }
               "
-              >Lisa eksamineeritav</UButton
-            >
-          </div>
-          <FormButton :loading="saveExam.pending.value">Salvesta</FormButton>
-          <UAlert
-            v-if="saveExam.success.value"
-            color="success"
-            variant="subtle"
-            title="Salvestatud"
-            description="Registreerisime eksami ja saatsime ronijatele emailid"
-          />
-          <FormError :error="saveExam.error.value" />
-        </FormBody>
-      </form>
-    </template>
-  </LoggedInLayout>
+            />
+          </template>
+          <template #body="{ index }">
+            <ClimberFormBody
+              v-if="examForm.climbers[index - sentClimbers.length] != null"
+              v-model:climber="examForm.climbers[index - sentClimbers.length]!"
+            />
+          </template>
+        </UAccordion>
+        <div>
+          <UButton
+            icon="i-lucide-plus"
+            class="mb-3"
+            @click="
+              () => {
+                const climbers = examForm.climbers;
+                const newClimber = createClimber();
+                const lastClimber = climbers[climbers.length - 1];
+                if (lastClimber != null) {
+                  newClimber.comment = lastClimber.comment;
+                }
+                climbers.push(newClimber);
+                openClimber = String(sentClimbers.length + climbers.length - 1);
+              }
+            "
+            >Lisa eksamineeritav</UButton
+          >
+        </div>
+        <FormButton :loading="saveExam.pending.value">Salvesta</FormButton>
+        <UAlert
+          v-if="saveExam.success.value"
+          color="success"
+          variant="subtle"
+          title="Salvestatud"
+          description="Registreerisime eksami ja saatsime ronijatele emailid"
+        />
+        <FormError :error="saveExam.error.value" />
+      </FormBody>
+    </form>
+  </RonLayout>
 </template>
