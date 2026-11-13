@@ -7,11 +7,7 @@ export default defineEventHandler(async (event) => {
   const { user } = await requireUserSession(event);
 
   if (!user.admin) {
-    throw createError({
-      data: {
-        description: "Kasutaja ei ole haldaja"
-      }
-    })
+    throw createError({ data: { description: "Kasutaja ei ole haldaja" } });
   }
 
   await adminAddExam(body, user);

@@ -5,21 +5,39 @@ import { getIsoNow } from "./date_utils";
 import { z } from "zod";
 import type { User } from "#auth-utils";
 
-const examsModel = new SheetModel("Andmebaas", [
-  "formFillTime",
-  "id",
-  "name",
-  "certificate",
-  "examDate",
-  "expiryDate",
-  "examiner",
-  "email",
-  "comment",
-  "formFillerEmail",
-  "montonioUuid",
-  "dataConsent",
-  "responsiblityConsent",
-]);
+const examsModel = new SheetModel(
+  "Andmebaas",
+  [
+    "formFillTime",
+    "id",
+    "name",
+    "certificate",
+    "examDate",
+    "expiryDate",
+    "examiner",
+    "email",
+    "comment",
+    "formFillerEmail",
+    "montonioUuid",
+    "dataConsent",
+    "responsiblityConsent",
+  ],
+  z.object({
+    formFillTime: z.string().optional(),
+    id: z.string().optional(),
+    name: z.string().optional(),
+    certificate: z.literal(["roheline", "punane"]),
+    examDate: z.string().optional(),
+    expiryDate: z.string().optional(),
+    examiner: z.string().optional(),
+    email: z.string().optional(),
+    comment: z.string().optional(),
+    formFillerEmail: z.string().optional(),
+    montonioUuid: z.string().optional(),
+    dataConsent: z.string().optional(),
+    responsiblityConsent: z.string().optional(),
+  }),
+);
 
 export type Exam = sheetInfer<typeof examsModel>;
 
@@ -46,7 +64,7 @@ export async function addExam(
     examiner: user.name,
     formFillerEmail: user.email,
     examDate: exam.examDate ?? undefined,
-    certificate: exam.examType.toLowerCase(),
+    certificate: exam.examType,
     comment: climber.comment,
     montonioUuid,
   });

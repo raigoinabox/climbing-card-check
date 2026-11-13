@@ -72,8 +72,8 @@ export function getExamStatus(exam: Exam) {
     } else if (exam.certificate === "punane") {
       return "punane";
     } else {
-      // The card doesn't have a valid certificate (neither green nor red)
-      return "error";
+      const exhaustivenessCheck: never = exam.certificate;
+      throw new Error(exhaustivenessCheck);
     }
   }
 }
@@ -122,6 +122,9 @@ function findBestCertificate(certificates: Exam[]) {
       ) {
         bestRedCard = { ...card, valid: true };
       }
+    } else {
+      const exhaustivenessCheck: never = status;
+      throw new Error(exhaustivenessCheck);
     }
   }
 

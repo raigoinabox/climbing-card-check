@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
   try {
     for (const climber of body.climbers) {
       const uuid = await addExam(body, climber, user);
-      await sendRegistrationEmail(climber.email, uuid);
+      await sendRegistrationEmail(climber.email, uuid, body.examType);
       savedCount += 1;
     }
   } catch (e) {

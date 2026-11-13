@@ -1,19 +1,33 @@
 import { sheetAccess } from "./sheet_access";
+import { z } from "zod";
 
 type Entity<T extends string> = { [P in T]?: string };
 
 export type sheetInfer<T extends SheetModel<string>> =
-  T extends SheetModel<infer Inner> ? Entity<Inner> : never;
+  T extends SheetModel<string, infer Inner> ? z.infer<Inner> : never;
 
-export class SheetModel<T extends string> {
+export class SheetModel<
+  T extends string,
+  RSchema extends z.ZodType<object, Entity<T>> = z.ZodType<object, Entity<T>>,
+> {
   private sheetName: string;
   private headers: T[];
   private headerIndexes: Map<T, number> | null = null;
-  private positions = new WeakMap<Entity<T>, number>();
+  private positions = new WeakMap<z.infer<RSchema>, number>();
   private dataRowIndex = 2;
+  private schema: RSchema;
 
   static fixed<T extends string>(sheetName: string, headers: T[]) {
-    const model = new SheetModel<T>(sheetName, headers);
+    const model = new SheetModel<T, z.ZodType<Entity<T>, Entity<T>>>(
+      sheetName,
+      headers,
+      // @ts-expect-error it temporarily loses the literal T type
+      z.object(
+        Object.fromEntries(
+          headers.map((header) => [header, z.string().optional()]),
+        ),
+      ),
+    );
     model.headerIndexes = new Map<T, number>();
     for (const [index, header] of headers.entries()) {
       model.headerIndexes.set(header, index);
@@ -22,9 +36,10 @@ export class SheetModel<T extends string> {
     return model;
   }
 
-  constructor(sheetName: string, headers: T[]) {
+  constructor(sheetName: string, headers: T[], schema: RSchema) {
     this.sheetName = sheetName;
     this.headers = headers;
+    this.schema = schema;
   }
 
   async fetchData(filter?: (dto: Entity<T>) => boolean) {
@@ -41,7 +56,7 @@ export class SheetModel<T extends string> {
     }
     const headerIndexes = this.mapHeaderIndexes(headers);
 
-    const dtos: Entity<T>[] = [];
+    const dtos: z.infer<RSchema>[] = [];
 
     for (const [index, row] of data.entries()) {
       if (this.dataRowIndex <= index) {
@@ -51,8 +66,9 @@ export class SheetModel<T extends string> {
           dto[header] = value == "" ? undefined : value;
         }
         if (filter == null || filter(dto)) {
-          dtos.push(dto);
-          this.positions.set(dto, index + 1);
+          const parsed = this.schema.parse(dto);
+          dtos.push(parsed);
+          this.positions.set(parsed, index + 1);
         }
       }
     }
@@ -89,13 +105,13 @@ export class SheetModel<T extends string> {
     return await sheetAccess.getValues(range);
   }
 
-  async save(entity: Entity<T>) {
+  async save(entity: z.infer<RSchema>) {
     console.log("SheetModel.save", entity);
     const position = this.positions.get(entity);
     if (position == null) {
       throw new Error("Trying to save an entity that has no saved position");
     }
-    const row = await this.entityToRow(entity);
+    const row = await this.entityToRow(this.schema.encode(entity));
     await sheetAccess.update(`${this.sheetName}!${position}:${position}`, row);
   }
 

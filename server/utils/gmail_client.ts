@@ -1,5 +1,6 @@
 import type { gmail_v1 } from "googleapis";
 import { google } from "googleapis";
+import { micromark } from "micromark";
 import { createTransport, type SentMessageInfo } from "nodemailer";
 
 let _gmail: gmail_v1.Gmail | null = null;
@@ -50,13 +51,13 @@ function formatMail(options: {
   });
 }
 
-export async function sendEmail(
-  to: string,
-  subject: string,
-  text: string,
-  html: string,
-) {
-  const mail = await formatMail({ to, subject, text, html });
+export async function sendEmail(to: string, subject: string, text: string) {
+  const mail = await formatMail({
+    to,
+    subject,
+    text,
+    html: `<div style="max-width: 80ex">${micromark(text)}</div>`,
+  });
 
   await getGmail().users.messages.send({
     userId: "me",

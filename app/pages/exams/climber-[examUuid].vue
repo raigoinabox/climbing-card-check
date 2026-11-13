@@ -8,7 +8,7 @@ const examState = ref({
 });
 
 const route = useRoute();
-const confirmLegal = useMutation(async () => {
+const { error, pending, mutate } = useMutation(async () => {
   const val = await $fetch("/api/exams/confirm_legal", {
     method: "POST",
     body: { examUuid: route.params.examUuid, ...examState.value },
@@ -25,7 +25,7 @@ const confirmLegal = useMutation(async () => {
       'Su kaart registreeritakse',
     ]"
   >
-    <form @submit.prevent="confirmLegal.mutate()">
+    <form @submit.prevent="mutate()">
       <FormInstruction>Viimased sammud</FormInstruction>
       <FormBody>
         <label
@@ -54,10 +54,8 @@ const confirmLegal = useMutation(async () => {
             >Andmekaitsetingimustega</RonLink
           ></label
         >
-        <FormButton :loading="confirmLegal.pending.value"
-          >Maksa tasu</FormButton
-        >
-        <FormError :error="confirmLegal.error.value" />
+        <FormButton :loading="pending">Maksa tasu</FormButton>
+        <FormError :error="error" />
       </FormBody>
     </form>
 
