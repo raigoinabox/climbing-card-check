@@ -1,5 +1,5 @@
 import { sendRegistrationEmail } from "#server/utils/email_service";
-import { addExam } from "#server/utils/exams_db";
+import { addExam, getNewExam } from "#server/utils/exams_db";
 import type { ExamDto } from "#shared/types/api_types";
 import { z } from "zod";
 
@@ -26,8 +26,13 @@ export default defineEventHandler(async (event) => {
   let savedCount = 0;
   try {
     for (const climber of body.climbers) {
-      const uuid = await addExam(body, climber, user);
-      await sendRegistrationEmail(climber.email, uuid, body.examType);
+      const exam = getNewExam(body, climber, user);
+      await addExam(exam);
+      await sendRegistrationEmail(
+        climber.email,
+        exam.montonioUuid,
+        body.examType,
+      );
       savedCount += 1;
     }
   } catch (e) {

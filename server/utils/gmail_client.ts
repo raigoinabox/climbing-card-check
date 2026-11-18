@@ -59,6 +59,7 @@ export async function sendEmail(to: string, subject: string, text: string) {
     html: `<div style="max-width: 80ex">${micromark(text)}</div>`,
   });
 
+  console.log("Sent email", text);
   await getGmail().users.messages.send({
     userId: "me",
     requestBody: { raw: mail.message.toString("base64url") },

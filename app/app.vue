@@ -5,11 +5,20 @@ const { loggedIn, user, clear } = useUserSession();
 
 const items = computed<NavigationMenuItem[]>(() => [
   { label: "Ronija otsing", to: "/" },
-  { label: "Kaardi väljastamine", to: "/physical-cards" },
-  { label: "Eksami registreerimine", to: "/exams/register" },
-  ...(loggedIn.value && user.value.admin
-    ? [{ label: "Haldus: Ronija lisamine", to: "/admin-register-climber" }]
-    : []),
+
+  ...(!loggedIn.value
+    ? [{ label: "Logi sisse", to: "/login" }]
+    : user.value.role == "süsteemihaldaja"
+      ? [
+          { label: "Kaardi väljastamine", to: "/physical-cards" },
+          { label: "Eksami registreerimine", to: "/exams/admin-register" },
+        ]
+      : user.value.role == "haldaja"
+        ? [
+            { label: "Kaardi väljastamine", to: "/physical-cards" },
+            { label: "Eksami registreerimine", to: "/exams/admin-register" },
+          ]
+        : [{ label: "Eksami registreerimine", to: "/exams/register" }]),
 ]);
 
 const userItems = [
@@ -51,15 +60,6 @@ const userItems = [
           <UDropdownMenu v-if="loggedIn" :items="userItems">
             <UButton color="neutral" variant="outline">{{ user.name }}</UButton>
           </UDropdownMenu>
-          <UButton
-            v-else
-            color="neutral"
-            variant="outline"
-            style="margin-block: 0.5em"
-            to="/login"
-          >
-            Logi sisse
-          </UButton>
         </div>
       </template>
 
@@ -78,15 +78,6 @@ const userItems = [
             >{{ user.name }}</UButton
           >
         </UDropdownMenu>
-        <UButton
-          v-else
-          color="neutral"
-          variant="outline"
-          style="margin-block: 0.5em"
-          to="/login"
-        >
-          Logi sisse
-        </UButton>
       </template>
     </UHeader>
     <NuxtPage />

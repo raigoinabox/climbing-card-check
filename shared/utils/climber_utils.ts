@@ -1,3 +1,7 @@
+export function formatDate(parsed: Date) {
+  return parsed.toISOString().substring(0, 10);
+}
+
 export function isIdCodeValid(code: string) {
   if (code.length !== 11) {
     return false;

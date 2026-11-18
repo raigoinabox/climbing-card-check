@@ -3,16 +3,20 @@ import FormBody from "~/components/FormBody.vue";
 import FormField from "~/components/FormField.vue";
 import ClimberFormBody from "~/components/ClimberFormBody.vue";
 import { useMutation } from "~/composables/useMutation";
+import { formatDate } from "#shared/utils/climber_utils";
 
 definePageMeta({ middleware: "login" });
+
+const { user } = useUserSession();
 
 function createClimber() {
   return { name: "", idCode: "", email: "", foreigner: false, comment: "" };
 }
 
 const examForm = ref({
+  paid: false,
   examinerName: "",
-  examDate: null,
+  examDate: formatDate(new Date()),
   examType: "roheline",
   climber: createClimber(),
 });
@@ -28,14 +32,15 @@ const addClimber = useMutation(async () => {
 <template>
   <RonLayout form-width="50em">
     <form @submit.prevent="addClimber.mutate()">
-      <FormInstruction>Lisa ronija makstud tasuga</FormInstruction>
-      <p>
-        Kui on vaja vana Talinna Kaljuronimisklubi kaart üle kanda või mingil
-        erandjuhul tavapärasest protsessit mööda minna, saab registreerida
-        ronija kellel on tasu makstud
-      </p>
-
+      <FormInstruction>Lisa läbitud eksam</FormInstruction>
       <FormBody>
+        <UCheckbox
+          v-if="user.role == 'süsteemihaldaja'"
+          v-model="examForm.paid"
+          label="Kas eksam on tasutud?"
+          description="Kui näiteks on vaja vana Talinna Kaljuronimisklubi kaart üle kanda"
+          class="w-full"
+        />
         <FormField
           v-model.trim="examForm.examinerName"
           label="Eksamineerija nimi"

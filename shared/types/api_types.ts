@@ -9,7 +9,7 @@ export interface ExamClimberDto {
 }
 
 export interface ExamDto {
-  examDate: string | null;
+  examDate: string;
   examType: "roheline" | "punane";
   climbers: ExamClimberDto[];
 }

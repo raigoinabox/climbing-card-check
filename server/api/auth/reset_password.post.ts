@@ -15,15 +15,10 @@ export default defineEventHandler(async (event) => {
 
     const user = await hashUserPassword(email, body.newPassword);
     if (user) {
+      const { name, email, role } = user;
       await setUserSession(
         event,
-        {
-          user: {
-            name: user.name,
-            email: user.email,
-            admin: user.role == "haldaja",
-          },
-        },
+        { user: { name, email, role } },
         { maxAge: 12 * 60 * 60 },
       );
     }

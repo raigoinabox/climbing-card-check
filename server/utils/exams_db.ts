@@ -1,6 +1,6 @@
 import { type sheetInfer, SheetModel } from "./sheet_model";
-import type { ExamDto } from "#shared/types/api_types";
-import type { ExamClimberDto } from "../../shared/types/api_types";
+import type { ExamClimberDto } from "#shared/types/api_types";
+import { formatDate } from "#shared/utils/climber_utils";
 import { getIsoNow } from "./date_utils";
 import { z } from "zod";
 import type { User } from "#auth-utils";
@@ -29,7 +29,7 @@ const examsModel = new SheetModel(
     certificate: z.literal(["roheline", "punane"]),
     examDate: z.string().optional(),
     expiryDate: z.string().optional(),
-    examiner: z.string().optional(),
+    examiner: z.string(),
     email: z.string().optional(),
     comment: z.string().optional(),
     formFillerEmail: z.string().optional(),
@@ -40,6 +40,7 @@ const examsModel = new SheetModel(
 );
 
 export type Exam = sheetInfer<typeof examsModel>;
+type Certificate = Exam["certificate"];
 
 export function findExamsByClimberId(id: string) {
   return examsModel.fetchData((dto) => dto.id == id);
@@ -50,26 +51,28 @@ export function findExamsByUuid(uuid: string) {
 }
 
 const timestamp = new Date();
-export async function addExam(
-  exam: ExamDto,
+export function getNewExam(
+  exam: { examDate: string; examType: Certificate },
   climber: ExamClimberDto,
   user: User,
-) {
+): Exam & { montonioUuid: string } {
   const montonioUuid = crypto.randomUUID();
-  await examsModel.appendRow({
+  return {
     formFillTime: timestamp.toISOString(),
     id: climber.idCode,
     name: climber.name,
     email: climber.email,
     examiner: user.name,
     formFillerEmail: user.email,
-    examDate: exam.examDate ?? undefined,
+    examDate: exam.examDate,
     certificate: exam.examType,
     comment: climber.comment,
     montonioUuid,
-  });
+  };
+}
 
-  return montonioUuid;
+export async function addExam(exam: Exam) {
+  await examsModel.appendRow(exam);
 }
 
 export async function registerLegalConfirmations(uuid: string) {
@@ -86,22 +89,16 @@ export async function registerLegalConfirmations(uuid: string) {
   return exam;
 }
 
-export function formatDate(parsed: Date) {
-  return parsed.toISOString().substring(0, 10);
-}
-
-function calculateExpiryDate(date: string) {
+export function calculateExpiryDate(date: string) {
   const newExpiryDate = new Date(date);
   newExpiryDate.setUTCFullYear(newExpiryDate.getUTCFullYear() + 4);
   return formatDate(newExpiryDate);
 }
 
 export async function registerPayment(uuid: string) {
-  console.log("registerPayment", uuid);
   const exams = await examsModel.fetchData((dto) => dto.montonioUuid == uuid);
   const exam = exams[0];
   if (exam == null || exam.examDate == null) {
-    console.log("No such exam", exam);
     throw new ValidationError("Sellist eksamit ei ole meil registreeritud");
   }
 
@@ -128,6 +125,7 @@ export function getExams(userEmail: string) {
 }
 
 export const adminExamFormSchema = z.object({
+  paid: z.boolean(),
   examinerName: z.string(),
   examDate: z.iso.date(),
   examType: z.literal(["roheline", "punane"]),
@@ -139,27 +137,3 @@ export const adminExamFormSchema = z.object({
     comment: z.string().trim().max(100),
   }),
 });
-
-export async function adminAddExam(
-  exam: z.infer<typeof adminExamFormSchema>,
-  user: User,
-) {
-  const montonioUuid = crypto.randomUUID();
-  const now = getIsoNow();
-  await examsModel.appendRow({
-    formFillTime: timestamp.toISOString(),
-    id: exam.climber.idCode,
-    name: exam.climber.name,
-    email: exam.climber.email,
-    examiner: exam.examinerName,
-    formFillerEmail: user.email,
-    examDate: exam.examDate,
-    expiryDate: calculateExpiryDate(exam.examDate),
-    certificate: exam.examType.toLowerCase(),
-    comment: exam.climber.comment,
-
-    dataConsent: now,
-    responsiblityConsent: now,
-    montonioUuid,
-  });
-}

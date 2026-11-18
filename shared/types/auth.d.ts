@@ -1,8 +1,8 @@
 declare module "#auth-utils" {
   interface User {
-    name: string | undefined;
-    email: string | undefined;
-    admin: boolean;
+    name: string;
+    email: string;
+    role: "süsteemihaldaja" | "haldaja" | undefined;
   }
 
   interface SecureSessionData {

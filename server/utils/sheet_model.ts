@@ -17,17 +17,11 @@ export class SheetModel<
   private dataRowIndex = 2;
   private schema: RSchema;
 
-  static fixed<T extends string>(sheetName: string, headers: T[]) {
-    const model = new SheetModel<T, z.ZodType<Entity<T>, Entity<T>>>(
-      sheetName,
-      headers,
-      // @ts-expect-error it temporarily loses the literal T type
-      z.object(
-        Object.fromEntries(
-          headers.map((header) => [header, z.string().optional()]),
-        ),
-      ),
-    );
+  static fixed<
+    T extends string,
+    RSchema extends z.ZodType<object, Entity<T>>,
+  >(sheetName: string, headers: T[], schema: RSchema) {
+    const model = new SheetModel(sheetName, headers, schema);
     model.headerIndexes = new Map<T, number>();
     for (const [index, header] of headers.entries()) {
       model.headerIndexes.set(header, index);

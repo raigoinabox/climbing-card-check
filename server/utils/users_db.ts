@@ -1,15 +1,22 @@
 import { timingSafeEqual } from "crypto";
-import { SheetModel } from "./sheet_model";
+import { type sheetInfer, SheetModel } from "./sheet_model";
 import { getIsoNow } from "./date_utils";
+import { z } from "zod";
 
-const usersModel = SheetModel.fixed("Instruktorite paroolid", [
-  "name",
-  "email",
-  "password",
-  "role",
-  "hashedPassword",
-  "forgotPasswordAt",
-]);
+const usersModel = SheetModel.fixed(
+  "Instruktorite paroolid",
+  ["name", "email", "password", "role", "hashedPassword", "forgotPasswordAt"],
+  z.object({
+    name: z.string(),
+    email: z.string(),
+    password: z.string().optional(),
+    role: z.literal(["süsteemihaldaja", "haldaja"]).optional(),
+    hashedPassword: z.string().optional(),
+    forgotPasswordAt: z.string().optional(),
+  }),
+);
+
+type User = sheetInfer<typeof usersModel>;
 
 function isStringsConstantTimeEqual(a: string, b: string) {
   try {
@@ -21,12 +28,12 @@ function isStringsConstantTimeEqual(a: string, b: string) {
 }
 
 async function isValidUser(
-  user: { email?: string; password?: string; hashedPassword?: string },
+  user: User,
   email: string,
   password: string,
 ) {
   const emailMatch =
-    user.email != null && isStringsConstantTimeEqual(user.email, email);
+    isStringsConstantTimeEqual(user.email, email);
   const passwordMatch =
     user.password != null &&
     isStringsConstantTimeEqual(user.password, password);
@@ -69,10 +76,7 @@ export async function getAllUsers() {
   return usersModel.fetchData();
 }
 
-export async function markUserForgotPassword(user: {
-  email?: string;
-  forgotPasswordAt?: string;
-}) {
+export async function markUserForgotPassword(user: User) {
   user.forgotPasswordAt = getIsoNow();
   usersModel.save(user);
 }

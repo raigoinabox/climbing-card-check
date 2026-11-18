@@ -1,6 +1,14 @@
 import { strict as assert } from "node:assert";
 import { inspect } from "node:util";
-import { type Exam, findExamsByClimberId, formatDate } from "./exams_db";
+import {
+  calculateExpiryDate,
+  type Exam,
+  findExamsByClimberId,
+  getNewExam,
+} from "./exams_db";
+import { formatDate } from "#shared/utils/climber_utils";
+import type { User } from "#auth-utils";
+import type { z } from "zod";
 
 const CODE = {
   GREEN: "roheline",
@@ -56,6 +64,10 @@ function getExpiryTimeFromFormFillTime(normDate: Date | null) {
   return new Date(exp);
 }
 
+function ensureExhaustive(value: never): never {
+  throw new Error(value);
+}
+
 export function getExamStatus(exam: Exam) {
   if (!exam.expiryDate) {
     return "inactive";
@@ -72,8 +84,7 @@ export function getExamStatus(exam: Exam) {
     } else if (exam.certificate === "punane") {
       return "punane";
     } else {
-      const exhaustivenessCheck: never = exam.certificate;
-      throw new Error(exhaustivenessCheck);
+      ensureExhaustive(exam.certificate);
     }
   }
 }
@@ -123,8 +134,7 @@ function findBestCertificate(certificates: Exam[]) {
         bestRedCard = { ...card, valid: true };
       }
     } else {
-      const exhaustivenessCheck: never = status;
-      throw new Error(exhaustivenessCheck);
+      ensureExhaustive(status);
     }
   }
 
@@ -155,4 +165,28 @@ export async function findExamById(id: string) {
     examTime: formatDate(bestCertificate.examTime),
     expiryTime: formatDate(bestCertificate.expiryTime),
   };
+}
+
+export async function adminAddExam(
+  examDto: z.infer<typeof adminExamFormSchema>,
+  user: User,
+) {
+  const exam = getNewExam(examDto, examDto.climber, user);
+
+  if (examDto.paid) {
+    const now = getIsoNow();
+    exam.dataConsent = now;
+    exam.responsiblityConsent = now;
+    exam.expiryDate = calculateExpiryDate(examDto.examDate);
+  } else {
+    await sendRegistrationEmail(
+      examDto.climber.email,
+      exam.montonioUuid,
+      examDto.examType,
+    );
+  }
+
+  await addExam(exam);
+
+  return exam.montonioUuid;
 }

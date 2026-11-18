@@ -1,3 +1,4 @@
+import { z} from "zod";
 import { SheetModel } from "./sheet_model";
 
 interface Card {
@@ -11,7 +12,13 @@ const cardsModel = SheetModel.fixed("Füüsilised kaardid", [
   "climberId",
   "updatedAt",
   "updatedBy",
-]);
+], z.object({
+  issuedCardId: z.string().optional(),
+  cardType: z.string().optional(),
+  climberId: z.string().optional(),
+  updatedAt: z.string().optional(),
+  updatedBy: z.string().optional(),
+}));
 
 export async function findCardByClimber(climberId: string) {
   const cards = await cardsModel.fetchData((dto) => dto.climberId == climberId);

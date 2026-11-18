@@ -4,6 +4,7 @@ import FormField from "~/components/FormField.vue";
 import type { AccordionItem } from "@nuxt/ui";
 import ClimberFormBody from "~/components/ClimberFormBody.vue";
 import type { ExamDto, ExamClimberDto } from "#shared/types/api_types";
+import { formatDate } from "#shared/utils/climber_utils";
 import { useMutation } from "~/composables/useMutation";
 
 definePageMeta({ middleware: "login" });
@@ -13,7 +14,7 @@ function createClimber() {
 }
 
 const examForm = ref({
-  examDate: null,
+  examDate: formatDate(new Date()),
   examType: "roheline",
   climbers: [createClimber()],
 } satisfies ExamDto);

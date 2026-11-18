@@ -13,7 +13,7 @@
     "preview": "nuxt preview",
     "typecheck": "nuxt typecheck",
     "format": "prettier --write --log-level=warn .",
-    "prep": "npm run format && npm run typecheck && npm run lint:fix"
+    "prep": "npm run format && npm run typecheck && npm run lint:fix && npm run dev"
   },
   "keywords": [],
   "author": "Estonian Climbing Association",

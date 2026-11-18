@@ -8,15 +8,10 @@ export default defineEventHandler(async (event) => {
 
   const login = await getValidLoginUser(body.email, body.password);
   if (login != null) {
+    const { name, email, role } = login.user;
     await setUserSession(
       event,
-      {
-        user: {
-          name: login.user.name,
-          email: login.user.email,
-          admin: login.user.role == "haldaja",
-        },
-      },
+      { user: { name, email, role } },
       { maxAge: 12 * 60 * 60 },
     );
     return { resetPassword: login.resetPassword };
