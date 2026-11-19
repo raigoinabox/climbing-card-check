@@ -6,6 +6,7 @@ import ClimberFormBody from "~/components/ClimberFormBody.vue";
 import type { ExamDto, ExamClimberDto } from "#shared/types/api_types";
 import { formatDate } from "#shared/utils/climber_utils";
 import { useMutation } from "~/composables/useMutation";
+import ExamTypeSelect from "~/components/ExamTypeSelect.vue";
 
 definePageMeta({ middleware: "login" });
 
@@ -81,15 +82,7 @@ async function submitExam() {
           type="date"
           required
         />
-        <label>
-          Eksami tüüp
-          <USelect
-            v-model="examForm.examType"
-            :items="['roheline', 'punane']"
-            required
-            class="w-full"
-          />
-        </label>
+        <ExamTypeSelect v-model="examForm.examType" />
 
         <UAccordion
           v-model="openClimber"

@@ -4,6 +4,7 @@ import FormField from "~/components/FormField.vue";
 import ClimberFormBody from "~/components/ClimberFormBody.vue";
 import { useMutation } from "~/composables/useMutation";
 import { formatDate } from "#shared/utils/climber_utils";
+import type { ExamClimberDto } from "~~/shared/types/api_types";
 
 definePageMeta({ middleware: "login" });
 
@@ -13,7 +14,13 @@ function createClimber() {
   return { name: "", idCode: "", email: "", foreigner: false, comment: "" };
 }
 
-const examForm = ref({
+const examForm = ref<{
+  paid: boolean;
+  examinerName: string;
+  examDate: string;
+  examType: "roheline" | "punane";
+  climber: ExamClimberDto;
+}>({
   paid: false,
   examinerName: "",
   examDate: formatDate(new Date()),
@@ -52,15 +59,7 @@ const addClimber = useMutation(async () => {
           type="date"
           required
         />
-        <label>
-          Kaardi tüüp
-          <USelect
-            v-model="examForm.examType"
-            :items="['roheline', 'punane']"
-            required
-            class="w-full"
-          />
-        </label>
+        <ExamTypeSelect v-model="examForm.examType" />
         <ClimberFormBody v-model:climber="examForm.climber" />
         <FormButton :loading="addClimber.pending.value">Salvesta</FormButton>
         <UAlert

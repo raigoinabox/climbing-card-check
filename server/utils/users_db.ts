@@ -27,13 +27,8 @@ function isStringsConstantTimeEqual(a: string, b: string) {
   }
 }
 
-async function isValidUser(
-  user: User,
-  email: string,
-  password: string,
-) {
-  const emailMatch =
-    isStringsConstantTimeEqual(user.email, email);
+async function isValidUser(user: User, email: string, password: string) {
+  const emailMatch = isStringsConstantTimeEqual(user.email, email);
   const passwordMatch =
     user.password != null &&
     isStringsConstantTimeEqual(user.password, password);

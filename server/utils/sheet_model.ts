@@ -1,5 +1,5 @@
 import { sheetAccess } from "./sheet_access";
-import { z } from "zod";
+import type { z } from "zod";
 
 type Entity<T extends string> = { [P in T]?: string };
 
@@ -17,10 +17,11 @@ export class SheetModel<
   private dataRowIndex = 2;
   private schema: RSchema;
 
-  static fixed<
-    T extends string,
-    RSchema extends z.ZodType<object, Entity<T>>,
-  >(sheetName: string, headers: T[], schema: RSchema) {
+  static fixed<T extends string, RSchema extends z.ZodType<object, Entity<T>>>(
+    sheetName: string,
+    headers: T[],
+    schema: RSchema,
+  ) {
     const model = new SheetModel(sheetName, headers, schema);
     model.headerIndexes = new Map<T, number>();
     for (const [index, header] of headers.entries()) {
