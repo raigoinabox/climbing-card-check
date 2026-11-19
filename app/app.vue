@@ -18,7 +18,10 @@ const items = computed<NavigationMenuItem[]>(() => [
             { label: "Kaardi väljastamine", to: "/physical-cards" },
             { label: "Eksami registreerimine", to: "/exams/admin-register" },
           ]
-        : [{ label: "Eksami registreerimine", to: "/exams/register" }]),
+        : [
+            { label: "Kaardi väljastamine", to: "/physical-cards" },
+            { label: "Eksami registreerimine", to: "/exams/register" },
+          ]),
 ]);
 
 const userItems = [
