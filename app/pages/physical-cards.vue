@@ -53,7 +53,10 @@ const instructions = [
     :show-results="climber != null"
     @go-back="climber = undefined"
   >
-    <ClimberSearchForm :submit="searchClimber" />
+    <ClimberSearchForm
+      heading="Füüsilise kaardi väljastamine: Leia ronija isikukoodi abil"
+      :submit="searchClimber"
+    />
 
     <template #results>
       <ClimberStatus v-if="climber" :climber="climber">

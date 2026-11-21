@@ -2,6 +2,7 @@
 import { useMutation } from "~/composables/useMutation";
 
 const { submit } = defineProps<{
+  heading?: string;
   submit: (climberId: string) => Promise<void>;
 }>();
 
@@ -21,7 +22,9 @@ async function submitForm() {
 
 <template>
   <form @submit.prevent="submitForm">
-    <FormInstruction>Kontrolli ronimisõigust isikukoodi alusel</FormInstruction>
+    <FormInstruction>{{
+      heading ?? "Kontrolli ronimisõigust isikukoodi alusel"
+    }}</FormInstruction>
     <FormBody>
       <FormField
         v-model.trim="idCode"

@@ -10,16 +10,16 @@ const items = computed<NavigationMenuItem[]>(() => [
     ? [{ label: "Logi sisse", to: "/login" }]
     : user.value.role == "süsteemihaldaja"
       ? [
-          { label: "Kaardi väljastamine", to: "/physical-cards" },
+          { label: "Füüsilised kaardid", to: "/physical-cards" },
           { label: "Eksami registreerimine", to: "/exams/admin-register" },
         ]
       : user.value.role == "haldaja"
         ? [
-            { label: "Kaardi väljastamine", to: "/physical-cards" },
+            { label: "Füüsilised kaardid", to: "/physical-cards" },
             { label: "Eksami registreerimine", to: "/exams/admin-register" },
           ]
         : [
-            { label: "Kaardi väljastamine", to: "/physical-cards" },
+            { label: "Füüsilised kaardid", to: "/physical-cards" },
             { label: "Eksami registreerimine", to: "/exams/register" },
           ]),
 ]);
