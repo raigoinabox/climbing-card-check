@@ -10,7 +10,7 @@ const usersModel = SheetModel.fixed(
     name: z.string(),
     email: z.string(),
     password: z.string().optional(),
-    role: z.literal(["süsteemihaldaja", "haldaja"]).optional(),
+    role: z.literal(["süsteemihaldaja", "haldaja", "instruktor"]),
     hashedPassword: z.string().optional(),
     forgotPasswordAt: z.string().optional(),
   }),

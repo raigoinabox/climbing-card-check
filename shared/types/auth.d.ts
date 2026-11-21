@@ -2,7 +2,7 @@ declare module "#auth-utils" {
   interface User {
     name: string;
     email: string;
-    role: "süsteemihaldaja" | "haldaja" | undefined;
+    role: "süsteemihaldaja" | "haldaja" | "instruktor";
   }
 
   interface SecureSessionData {
