@@ -1,4 +1,4 @@
-export type CertificateState = "punane" | "roheline" | "none" | "unknown";
+export type CertificateState = "punane" | "roheline";
 
 export interface ExamClimberDto {
   name: string;
@@ -15,11 +15,11 @@ export interface ExamDto {
 }
 
 export interface ClimberDto {
-  id: string;
+  id?: string;
   name?: string;
-  certificate: CertificateState;
+  certificate: CertificateState | "expired";
   examTime: string;
-  expiryTime: string;
+  expiryTime?: string;
   examiner: string | null;
 }
 

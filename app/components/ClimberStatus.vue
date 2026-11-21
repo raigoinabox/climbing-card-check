@@ -1,19 +1,13 @@
 <script setup lang="ts">
-import type { ClimberDto } from "~~/shared/types/api_types";
+import type { ClimberDto } from "#shared/types/api_types";
+import { ensureExhaustive } from "#shared/utils/climber_utils";
 
 const { climber } = defineProps<{
   climber: { id: string; certificate: "none" } | ClimberDto;
 }>();
 
-const certificate = computed(() => {
-  if (climber.certificate == "none") {
-    return climber.certificate;
-  } else {
-    return invalidateCertificateIfExpired(climber);
-  }
-});
 const resultCardHeaderContent = computed(() => {
-  switch (certificate.value) {
+  switch (climber.certificate) {
     case "roheline":
       return "ROHELINE KAART";
     case "punane":
@@ -23,22 +17,19 @@ const resultCardHeaderContent = computed(() => {
   }
 });
 const certificateDescription = computed(() => {
-  switch (certificate.value) {
+  const certificate = climber.certificate;
+  switch (certificate) {
     case "roheline":
       return "Sellel isikul on õigus iseseisvalt ülaltjulgestuses ronida ja julgestada.";
     case "punane":
       return "Sellel isikul on õigus iseseisvalt altjulgestuses ronida ja julgestada.";
     case "expired":
-      return "Selle isiku julgestajakaart on aegunud. Tal ei ole õigust iseseisvalt ronida enne kaardi uuendamist.";
+      return "Selle isiku julgestajakaart on aegunud.";
+    case "none":
+      return "Seda isikukoodi ei ole registrisse lisatud.";
     default:
-      return "Seda isikukoodi ei ole registrisse lisatud. Tal ei ole õigust iseseisvalt ronida.";
+      return ensureExhaustive(certificate);
   }
-});
-
-const noAccessReason = computed(() => {
-  if (certificate.value === "expired")
-    return "Selle isiku julgestajakaart on aegunud.";
-  return "Seda isikukoodi ei ole registrisse lisatud.";
 });
 
 function isClimberCertified(
@@ -46,26 +37,6 @@ function isClimberCertified(
 ): climber is ClimberDto {
   return ["roheline", "punane"].includes(climber.certificate);
 }
-
-const formattedExamTime = computed(() => {
-  if ("examTime" in climber) {
-    return climber.examTime.replaceAll("-", "/") || "N/A";
-  } else {
-    return "";
-  }
-});
-const invalidateCertificateIfExpired = (climberData: ClimberDto) => {
-  if (Date.parse(climberData.expiryTime) < Date.now()) {
-    // If expiry time is in the past and there's no exam time it means that
-    // the record was never updated from application to the real certificate
-    // it that case we will rather show "no certificate" than "expired"
-    if (!climberData.examTime) {
-      return "none";
-    }
-    return "expired";
-  }
-  return climberData.certificate;
-};
 </script>
 
 <template>
@@ -74,8 +45,8 @@ const invalidateCertificateIfExpired = (climberData: ClimberDto) => {
       <div
         class="header"
         :class="{
-          green: certificate == 'roheline',
-          red: certificate == 'punane',
+          green: climber.certificate == 'roheline',
+          red: climber.certificate == 'punane',
         }"
       >
         {{ resultCardHeaderContent }}
@@ -98,7 +69,7 @@ const invalidateCertificateIfExpired = (climberData: ClimberDto) => {
         <slot name="information" />
         <p class="description">{{ certificateDescription }}</p>
         <div class="additional-info">
-          <p>EKSAMI AEG: {{ formattedExamTime }}</p>
+          <p>EKSAMI AEG: {{ climber.examTime.replaceAll("-", "/") }}</p>
           <p>EKSAMINEERIJA: {{ climber.examiner }}</p>
         </div>
       </div>
@@ -110,7 +81,7 @@ const invalidateCertificateIfExpired = (climberData: ClimberDto) => {
     <p>
       ISIKUKOOD: <b>{{ climber.id }}</b>
     </p>
-    <p class="no-access-reason">Põhjus: {{ noAccessReason }}</p>
+    <p class="no-access-reason">Põhjus: {{ certificateDescription }}</p>
     <img src="/assets/NoAccesToWall.svg" />
     <div class="no-access-explanation">
       <img src="/assets/exclamation.svg" />

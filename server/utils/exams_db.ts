@@ -27,7 +27,7 @@ const examsModel = new SheetModel(
     id: z.string().optional(),
     name: z.string().optional(),
     certificate: z.literal(["roheline", "punane"]),
-    examDate: z.string().optional(),
+    examDate: z.string(),
     expiryDate: z.string().optional(),
     examiner: z.string(),
     email: z.string().optional(),

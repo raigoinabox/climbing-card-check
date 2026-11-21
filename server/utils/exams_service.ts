@@ -6,78 +6,22 @@ import {
   findExamsByClimberId,
   getNewExam,
 } from "./exams_db";
-import { formatDate } from "#shared/utils/climber_utils";
+import { formatDate, ensureExhaustive } from "#shared/utils/climber_utils";
 import type { User } from "#auth-utils";
 import type { z } from "zod";
 
-const CODE = {
-  GREEN: "roheline",
-  RED: "punane",
-  NONE: "none",
-  UNKNOWN: "unknown",
-} as const;
-
-// Raw input from the sheet => valueof CODE
-function normalizeCertificate(rawCertificate: string | undefined) {
-  if (rawCertificate == null) {
-    return CODE.NONE;
-  }
-
-  const lowered = rawCertificate.toLowerCase();
-  if (lowered == "punane") {
-    return CODE.RED;
-  } else if (lowered == "roheline") {
-    return CODE.GREEN;
-  } else {
-    console.error(`Invalid certificate input: ${rawCertificate}`);
-    return CODE.UNKNOWN;
-  }
-}
-
-const assertValidDate = (parsed: Date) => {
-  assert(
-    parsed instanceof Date && !isNaN(parsed.valueOf()),
-    `Invalid Date: "${inspect(parsed)}"`,
-  );
-};
-
-const parseDate = (rawValue: string | undefined) => {
-  if (!rawValue) {
-    return null;
-  }
+const parseDate = (rawValue: string) => {
   const parsed = new Date(rawValue);
   assert(!isNaN(parsed.getTime()), `Invalid date: "${inspect(rawValue)}"`);
   return parsed;
 };
 
-const SECOND_IN_MILLISECONDS = 1000;
-const MINUTE_IN_MILLISECONDS = 60 * SECOND_IN_MILLISECONDS;
-const HOUR_IN_MILLISECONDS = 60 * MINUTE_IN_MILLISECONDS;
-const DAY_IN_MILLISECONDS = 24 * HOUR_IN_MILLISECONDS;
-function getExpiryTimeFromFormFillTime(normDate: Date | null) {
-  if (!normDate) {
-    return null;
-  }
-  assertValidDate(normDate);
-  // Add 6 weeks
-  const exp = normDate.valueOf() + 6 * 7 * DAY_IN_MILLISECONDS;
-  return new Date(exp);
-}
-
-function ensureExhaustive(value: never): never {
-  throw new Error(value);
-}
-
 export function getExamStatus(exam: Exam) {
   if (!exam.expiryDate) {
     return "inactive";
   } else {
-    const expiryTime =
-      parseDate(exam.expiryDate) ??
-      getExpiryTimeFromFormFillTime(parseDate(exam.formFillTime));
-    if (expiryTime == null) {
-      return "inactive";
-    } else if (expiryTime.getTime() < Date.now()) {
+    const expiryTime = parseDate(exam.expiryDate);
+    if (expiryTime.getTime() < Date.now()) {
       return "expired";
     } else if (exam.certificate === "roheline") {
       return "roheline";
@@ -98,39 +42,33 @@ function findBestCertificate(certificates: Exam[]) {
   let bestRedCard = null;
   let bestGreenCard = null;
   let anyExpiredCard = null;
-  let anyInvalidCard = null;
 
   for (const row of certificates) {
     const card = {
-      id: row.id!,
-      certificate: normalizeCertificate(row.certificate),
+      id: row.id,
+      certificate: row.certificate,
       name: row.name,
-      examiner: row.examiner ?? null,
+      examiner: row.examiner,
       examTime: parseDate(row.examDate),
       expiryTime:
-        parseDate(row.expiryDate) ??
-        getExpiryTimeFromFormFillTime(parseDate(row.formFillTime)),
+        row.expiryDate != null ? parseDate(row.expiryDate) : undefined,
     };
 
     const status = getExamStatus(row);
     if (status == "inactive") {
-      anyInvalidCard = { ...card, valid: false };
+      // nothing to do
     } else if (status == "expired") {
-      anyExpiredCard = { ...card, valid: false };
+      anyExpiredCard = {
+        ...card,
+        certificate: "expired",
+        valid: false,
+      } as const;
     } else if (status == "roheline") {
-      if (
-        !bestGreenCard ||
-        bestGreenCard.examTime == null ||
-        (card.examTime != null && card.examTime > bestGreenCard.examTime)
-      ) {
+      if (!bestGreenCard || card.examTime > bestGreenCard.examTime) {
         bestGreenCard = { ...card, valid: true };
       }
     } else if (status == "punane") {
-      if (
-        !bestRedCard ||
-        bestRedCard.examTime == null ||
-        (card.examTime != null && card.examTime > bestRedCard.examTime)
-      ) {
+      if (!bestRedCard || card.examTime > bestRedCard.examTime) {
         bestRedCard = { ...card, valid: true };
       }
     } else {
@@ -138,8 +76,7 @@ function findBestCertificate(certificates: Exam[]) {
     }
   }
 
-  const bestCard =
-    bestRedCard ?? bestGreenCard ?? anyExpiredCard ?? anyInvalidCard;
+  const bestCard = bestRedCard ?? bestGreenCard ?? anyExpiredCard;
   if (bestCard == null) {
     throw new Error("couldn't find any card");
   }
@@ -157,13 +94,14 @@ export async function findExamById(id: string) {
   const inspectString = `Invalid certificate: ${inspect(bestCertificate)}`;
   assert(bestCertificate.name, inspectString);
   assert(bestCertificate.examiner, inspectString);
-  assert(bestCertificate.examTime, inspectString);
-  assert(bestCertificate.expiryTime, inspectString);
 
   return {
     ...bestCertificate,
     examTime: formatDate(bestCertificate.examTime),
-    expiryTime: formatDate(bestCertificate.expiryTime),
+    expiryTime:
+      bestCertificate.expiryTime != null
+        ? formatDate(bestCertificate.expiryTime)
+        : undefined,
   };
 }
 

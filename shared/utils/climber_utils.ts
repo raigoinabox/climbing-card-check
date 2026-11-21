@@ -1,3 +1,7 @@
+export function ensureExhaustive(value: never): never {
+  throw new Error(value);
+}
+
 export function formatDate(parsed: Date) {
   return parsed.toISOString().substring(0, 10);
 }
