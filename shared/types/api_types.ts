@@ -9,6 +9,8 @@ export interface ExamClimberDto {
 }
 
 export interface ExamDto {
+  paid: boolean;
+  examinerName: string;
   examDate: string;
   examType: "roheline" | "punane";
   climbers: ExamClimberDto[];

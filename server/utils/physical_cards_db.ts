@@ -19,14 +19,17 @@ const cardsModel = SheetModel.fixed(
 );
 
 export async function findCardByClimber(climberId: string) {
-  const cards = await cardsModel.fetchData((dto) => dto.climberId == climberId);
-  return cards.length == 0 ? null : cards[0];
+  const cards = await cardsModel.fetchData();
+
+  for (const card of cards) {
+    if (card.climberId == climberId) {
+      return card;
+    }
+  }
 }
 
-export function findCardByCardOrClimber(cardId: string, climberId: string) {
-  return cardsModel.fetchData(
-    (dto) => dto.issuedCardId == cardId || dto.climberId == climberId,
-  );
+export function findAllCards() {
+  return cardsModel.fetchData();
 }
 
 export function saveCard(card: Card, userName: string) {

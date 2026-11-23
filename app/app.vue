@@ -8,20 +8,10 @@ const items = computed<NavigationMenuItem[]>(() => [
 
   ...(!loggedIn.value
     ? [{ label: "Logi sisse", to: "/login" }]
-    : user.value.role == "süsteemihaldaja"
-      ? [
-          { label: "Füüsilised kaardid", to: "/physical-cards" },
-          { label: "Eksami registreerimine", to: "/exams/admin-register" },
-        ]
-      : user.value.role == "haldaja"
-        ? [
-            { label: "Füüsilised kaardid", to: "/physical-cards" },
-            { label: "Eksami registreerimine", to: "/exams/admin-register" },
-          ]
-        : [
-            { label: "Füüsilised kaardid", to: "/physical-cards" },
-            { label: "Eksami registreerimine", to: "/exams/register" },
-          ]),
+    : [
+        { label: "Füüsilised kaardid", to: "/physical-cards" },
+        { label: "Eksami registreerimine", to: "/exams/register" },
+      ]),
 ]);
 
 const userItems = [

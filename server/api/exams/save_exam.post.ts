@@ -1,9 +1,12 @@
+import { z } from "zod";
 import { sendRegistrationEmail } from "#server/utils/email_service";
 import { addExam, getNewExam } from "#server/utils/exams_db";
 import type { ExamDto } from "#shared/types/api_types";
-import { z } from "zod";
+import { isExaminerNameAllowed, isPaidExamAllowed } from "#shared/utils/rights";
 
 const examFormSchema = z.object({
+  paid: z.boolean(),
+  examinerName: z.string(),
   examDate: z.iso.date(),
   examType: z.literal(["roheline", "punane"]),
   climbers: z.array(
@@ -26,13 +29,26 @@ export default defineEventHandler(async (event) => {
   let savedCount = 0;
   try {
     for (const climber of body.climbers) {
-      const exam = getNewExam(body, climber, user);
-      await addExam(exam);
-      await sendRegistrationEmail(
-        climber.email,
-        exam.montonioUuid,
-        body.examType,
+      const exam = getNewExam(
+        body,
+        climber,
+        isExaminerNameAllowed(user.role) ? body.examinerName : user.email,
+        user,
       );
+      if (isPaidExamAllowed(user.role) && body.paid) {
+        const now = getIsoNow();
+        exam.dataConsent = now;
+        exam.responsiblityConsent = now;
+        exam.expiryDate = calculateExpiryDate(body.examDate);
+      } else {
+        await sendRegistrationEmail(
+          climber.email,
+          exam.montonioUuid,
+          body.examType,
+        );
+      }
+      await addExam(exam);
+
       savedCount += 1;
     }
   } catch (e) {

@@ -5,16 +5,21 @@ import type { AccordionItem } from "@nuxt/ui";
 import ClimberFormBody from "~/components/ClimberFormBody.vue";
 import type { ExamDto, ExamClimberDto } from "#shared/types/api_types";
 import { formatDate } from "#shared/utils/climber_utils";
+import { isExaminerNameAllowed, isPaidExamAllowed } from "#shared/utils/rights";
 import { useMutation } from "~/composables/useMutation";
 import ExamTypeSelect from "~/components/ExamTypeSelect.vue";
 
 definePageMeta({ middleware: "login" });
+
+const { user } = useUserSession();
 
 function createClimber() {
   return { name: "", idCode: "", email: "", foreigner: false, comment: "" };
 }
 
 const examForm = ref({
+  paid: false,
+  examinerName: "",
   examDate: formatDate(new Date()),
   examType: "roheline",
   climbers: [createClimber()],
@@ -76,6 +81,19 @@ async function submitExam() {
     <form @submit.prevent="submitExam">
       <FormInstruction>Sisesta eksami andmed</FormInstruction>
       <FormBody>
+        <UCheckbox
+          v-if="isPaidExamAllowed(user.role)"
+          v-model="examForm.paid"
+          label="Kas eksam on tasutud?"
+          description="Kui näiteks on vaja vana Talinna Kaljuronimisklubi kaart üle kanda"
+          class="w-full"
+        />
+        <FormField
+          v-if="isExaminerNameAllowed(user.role)"
+          v-model.trim="examForm.examinerName"
+          label="Eksamineerija nimi"
+          required
+        />
         <FormField
           v-model.trim="examForm.examDate"
           label="Eksami toimumise kuupäev"

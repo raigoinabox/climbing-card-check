@@ -77,12 +77,14 @@ export async function markUserForgotPassword(user: User) {
 }
 
 export async function hashUserPassword(email: string, password: string) {
-  const users = await usersModel.fetchData((user) => user.email == email);
+  const users = await usersModel.fetchData();
 
   for (const user of users) {
-    user.hashedPassword = await hashPassword(password);
-    usersModel.save(user);
-    return user;
+    if (user.email == email) {
+      user.hashedPassword = await hashPassword(password);
+      usersModel.save(user);
+      return user;
+    }
   }
 }
 
@@ -91,19 +93,21 @@ export async function changePassword(
   oldPassword: string,
   newPassword: string,
 ) {
-  const users = await usersModel.fetchData((user) => user.email == email);
+  const users = await usersModel.fetchData();
 
   for (const user of users) {
-    const { passwordMatch, hashedPasswordMatch } = await isValidUser(
-      user,
-      email,
-      oldPassword,
-    );
-    if (passwordMatch || hashedPasswordMatch) {
-      user.password = "";
-      user.hashedPassword = await hashPassword(newPassword);
-      usersModel.save(user);
-      return;
+    if (user.email == email) {
+      const { passwordMatch, hashedPasswordMatch } = await isValidUser(
+        user,
+        email,
+        oldPassword,
+      );
+      if (passwordMatch || hashedPasswordMatch) {
+        user.password = "";
+        user.hashedPassword = await hashPassword(newPassword);
+        usersModel.save(user);
+        return;
+      }
     }
   }
 

@@ -3,7 +3,7 @@ import { getExamStatus } from "#server/utils/exams_service";
 
 export default defineEventHandler(async (event) => {
   const { user } = await requireUserSession(event);
-  const exams = await getExams(user.email);
+  const exams = (await getExams(user.name, user.role)).toArray();
   const mapped = [];
   for (let i = exams.length - 1; 0 <= i && exams.length <= i + 100; i--) {
     const exam = exams[i]!;

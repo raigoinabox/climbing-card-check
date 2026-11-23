@@ -1,14 +1,7 @@
 import { strict as assert } from "node:assert";
 import { inspect } from "node:util";
-import {
-  calculateExpiryDate,
-  type Exam,
-  findExamsByClimberId,
-  getNewExam,
-} from "./exams_db";
+import { type Exam, findExamsByClimberId } from "./exams_db";
 import { formatDate, ensureExhaustive } from "#shared/utils/climber_utils";
-import type { User } from "#auth-utils";
-import type { z } from "zod";
 
 const parseDate = (rawValue: string) => {
   const parsed = new Date(rawValue);
@@ -33,7 +26,7 @@ export function getExamStatus(exam: Exam) {
   }
 }
 
-function findBestCertificate(certificates: Exam[]) {
+function findBestCertificate(certificates: Iterable<Exam>) {
   // The best certificate is found as follows:
   // 1. Last issued RED card (that is still valid)
   // 2. Last issued GREEN card (that is still valid)
@@ -86,8 +79,6 @@ function findBestCertificate(certificates: Exam[]) {
 export async function findExamById(id: string) {
   const filteredRows = await findExamsByClimberId(id);
 
-  assert(filteredRows.length, "Not found");
-
   const bestCertificate = findBestCertificate(filteredRows);
 
   // Check for all cases why the certificate might be invalid
@@ -103,28 +94,4 @@ export async function findExamById(id: string) {
         ? formatDate(bestCertificate.expiryTime)
         : undefined,
   };
-}
-
-export async function adminAddExam(
-  examDto: z.infer<typeof adminExamFormSchema>,
-  user: User,
-) {
-  const exam = getNewExam(examDto, examDto.climber, user);
-
-  if (examDto.paid) {
-    const now = getIsoNow();
-    exam.dataConsent = now;
-    exam.responsiblityConsent = now;
-    exam.expiryDate = calculateExpiryDate(examDto.examDate);
-  } else {
-    await sendRegistrationEmail(
-      examDto.climber.email,
-      exam.montonioUuid,
-      examDto.examType,
-    );
-  }
-
-  await addExam(exam);
-
-  return exam.montonioUuid;
 }

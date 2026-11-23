@@ -1,4 +1,4 @@
-import { findCardByCardOrClimber, saveCard } from "./physical_cards_db";
+import { findAllCards, saveCard } from "./physical_cards_db";
 
 export class ValidationError extends Error {
   static validate(check: boolean, message: string) {
@@ -13,7 +13,7 @@ export async function insertPhysicalCard(
   cardId: string,
   userName: string,
 ) {
-  const cards = await findCardByCardOrClimber(cardId, climberId);
+  const cards = await findAllCards();
   const exam = await findExamById(climberId);
   ValidationError.validate(exam.valid, "Ronijal ei ole ronimisõigust");
 

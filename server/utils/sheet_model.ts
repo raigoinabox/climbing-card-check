@@ -37,12 +37,12 @@ export class SheetModel<
     this.schema = schema;
   }
 
-  async fetchData(filter?: (dto: Entity<T>) => boolean) {
+  async fetchData() {
     const data = await this.fetchTable(this.sheetName);
-    return this.mapAndFilter(data, filter);
+    return this.map(data);
   }
 
-  private mapAndFilter(data: string[][], filter?: (dto: Entity<T>) => boolean) {
+  private map(data: string[][]) {
     // Ignore human-readable headers(the first row), because those can change any time
     // form is changed. Will use the second row to key the columns
     const headers = data[this.dataRowIndex - 1];
@@ -51,24 +51,24 @@ export class SheetModel<
     }
     const headerIndexes = this.mapHeaderIndexes(headers);
 
-    const dtos: z.infer<RSchema>[] = [];
-
-    for (const [index, row] of data.entries()) {
-      if (this.dataRowIndex <= index) {
+    return data
+      .entries()
+      .filter(([index]) => this.dataRowIndex <= index)
+      .map(([index, row]) => {
         const dto: Entity<T> = {};
         for (const [header, index] of headerIndexes) {
           const value = row[index];
           dto[header] = value == "" ? undefined : value;
         }
-        if (filter == null || filter(dto)) {
-          const parsed = this.schema.parse(dto);
-          dtos.push(parsed);
-          this.positions.set(parsed, index + 1);
+        const parsed = this.schema.safeParse(dto);
+        if (!parsed.success) {
+          console.error("Error on row:", index + 1, "for table:", this.sheetName);
+          throw parsed.error;
+        } else {
+          this.positions.set(parsed.data, index + 1);
+          return parsed.data;
         }
-      }
-    }
-
-    return dtos;
+      });
   }
 
   private mapHeaderIndexes(headers: string[]) {
@@ -110,8 +110,8 @@ export class SheetModel<
     await sheetAccess.update(`${this.sheetName}!${position}:${position}`, row);
   }
 
-  async appendRow(entity: Entity<T>) {
-    const row = await this.entityToRow(entity);
+  async appendRow(entity: z.infer<RSchema>) {
+    const row = await this.entityToRow(this.schema.encode(entity));
     sheetAccess.append(this.sheetName, row);
   }
 

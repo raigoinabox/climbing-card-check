@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { useMutation } from "~/composables/useMutation";
 
-const { submit } = defineProps<{
-  heading?: string;
-  submit: (climberId: string) => Promise<void>;
-}>();
+const { heading = "Kontrolli ronimisõigust isikukoodi alusel", submit } =
+  defineProps<{
+    heading?: string;
+    submit: (climberId: string) => Promise<void>;
+  }>();
 
 const idCode = ref("");
 
@@ -22,9 +23,7 @@ async function submitForm() {
 
 <template>
   <form @submit.prevent="submitForm">
-    <FormInstruction>{{
-      heading ?? "Kontrolli ronimisõigust isikukoodi alusel"
-    }}</FormInstruction>
+    <FormInstruction>{{ heading }}</FormInstruction>
     <FormBody>
       <FormField
         v-model.trim="idCode"
