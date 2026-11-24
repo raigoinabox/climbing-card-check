@@ -62,7 +62,12 @@ export class SheetModel<
         }
         const parsed = this.schema.safeParse(dto);
         if (!parsed.success) {
-          console.error("Error on row:", index + 1, "for table:", this.sheetName);
+          console.error(
+            "Error on row:",
+            index + 1,
+            "for table:",
+            this.sheetName,
+          );
           throw parsed.error;
         } else {
           this.positions.set(parsed.data, index + 1);

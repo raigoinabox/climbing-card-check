@@ -7,7 +7,7 @@ import { parseIsoDateTime } from "#server/utils/date_utils";
 const bodySchema = z.object({ email: z.string() });
 
 async function handleInAsync(email: string) {
-  const users = await getAllUsers();
+  const users = (await getAllUsers()).toArray();
   const now = new Date();
   for (const user of users) {
     if (user.forgotPasswordAt != null) {

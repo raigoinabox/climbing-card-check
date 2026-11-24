@@ -2,7 +2,7 @@ export function createUrl(
   path: `/${string}`,
   queryParams?: Record<string, string>,
 ) {
-  if (process.env.VERCEL_URL == null) {
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL == null) {
     throw createError("Base vercel url is not configured");
   }
 
@@ -15,5 +15,5 @@ export function createUrl(
   const queryPart =
     1 <= queryParamStrings.length ? `?${queryParamStrings.join("&")}` : "";
 
-  return `https://${process.env.VERCEL_URL}${path}${queryPart}`;
+  return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}${path}${queryPart}`;
 }
