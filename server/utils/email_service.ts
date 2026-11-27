@@ -69,3 +69,17 @@ Parimat,
 Ronimisliidu meeskond`,
   );
 }
+
+export function sendErrorEmail(context: string, error: Error) {
+  if (process.env.MAINTAINER_EMAIL) {
+    sendEmail(
+      process.env.MAINTAINER_EMAIL,
+      "Ronimisliidu registris: vigased andmed andmebaasis",
+      `${context}
+
+\`\`\`
+${String(error)}
+\`\`\``,
+    );
+  }
+}
