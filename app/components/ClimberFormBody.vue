@@ -41,7 +41,6 @@ function handleIdCodeInput(idCode: string) {
       label="Ronija isikukood"
       required
       :maxlength="100"
-      pattern="\d+"
       title="Ainult numbrimärgid"
       placeholder="12345678901"
       inputmode="numeric"

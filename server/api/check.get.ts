@@ -1,7 +1,7 @@
 import type { ClimberDto } from "~~/shared/types/api_types";
 import { z } from "zod";
 
-const querySchema = z.object({ id: z.string().min(1) });
+const querySchema = z.object({ id: z.string().trim().min(1) });
 
 export default defineEventHandler(async (event): Promise<ClimberDto> => {
   const { id } = await getValidatedQuery(event, (params) =>

@@ -6,13 +6,13 @@ import { isExaminerNameAllowed, isPaidExamAllowed } from "#shared/utils/rights";
 
 const examFormSchema = z.object({
   paid: z.boolean(),
-  examinerName: z.string(),
+  examinerName: z.string().trim().max(100),
   examDate: z.iso.date(),
   examType: z.literal(["roheline", "punane"]),
   climbers: z.array(
     z.object({
       name: z.string().trim().max(100),
-      idCode: z.string().trim().regex(/^\d+$/).max(100),
+      idCode: z.string().trim().max(100),
       foreigner: z.boolean(),
       email: z.email(),
       comment: z.string().trim().max(100),
