@@ -62,7 +62,7 @@ const instructions = [
       <ClimberStatus v-if="climber" :climber="climber">
         <template v-if="climber.certificate != 'none'" #information>
           <div class="row">
-            <p class="heading">VÄLJASTATUD KAART</p>
+            <p class="heading">FÜÜSILINE KAART</p>
             <p class="content">
               {{ climber.cardSerialId ?? "PUUDUB" }}<br />
               <UModal
@@ -85,11 +85,9 @@ const instructions = [
                       <FormField
                         v-model.trim="cardSerialCode"
                         label="Kaardi seerianumber"
+                        required
                       />
-                      <FormButton
-                        :loading="saveSerial.pending.value"
-                        :disabled="!cardSerialCode"
-                      >
+                      <FormButton :loading="saveSerial.pending.value">
                         Salvesta
                       </FormButton>
                       <FormError :error="saveSerial.error.value" />

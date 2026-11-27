@@ -1,9 +1,9 @@
 <script setup lang="ts">
-defineProps<{ loading: boolean; disabled?: boolean }>();
+defineProps<{ loading: boolean }>();
 </script>
 
 <template>
-  <button :disabled="loading || disabled">
+  <button :disabled="loading">
     <img
       v-if="loading"
       class="loading-spinner"
