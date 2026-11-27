@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useMutation } from "~/composables/useMutation";
+import FormError from "./FormError.vue";
 
 const { heading = "Kontrolli ronimisõigust isikukoodi alusel", submit } =
   defineProps<{
@@ -9,20 +10,11 @@ const { heading = "Kontrolli ronimisõigust isikukoodi alusel", submit } =
 
 const idCode = ref("");
 
-const isSubmitDisabled = computed(() => {
-  return !idCode.value || idCode.value.length < 11;
-});
-
-const submitMutation = useMutation(() => submit(idCode.value));
-
-async function submitForm() {
-  if (!idCode.value) return;
-  await submitMutation.mutate();
-}
+const { mutate, pending, error } = useMutation(() => submit(idCode.value));
 </script>
 
 <template>
-  <form @submit.prevent="submitForm">
+  <form @submit.prevent="mutate">
     <FormInstruction>{{ heading }}</FormInstruction>
     <FormBody>
       <FormField
@@ -31,13 +23,10 @@ async function submitForm() {
         type="text"
         :maxlength="100"
         placeholder="12345678901"
+        required
       />
-      <FormButton
-        :loading="submitMutation.pending.value"
-        :disabled="isSubmitDisabled"
-      >
-        Kontrolli
-      </FormButton>
+      <FormButton :loading="pending"> Kontrolli </FormButton>
+      <FormError :error="error" />
     </FormBody>
   </form>
 </template>
